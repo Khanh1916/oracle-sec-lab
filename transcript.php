@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * transcript.php  –  VULNERABILITY 2: IDOR + Broken Access Control
  *
  * Severity (DBS401 report): Medium  |  Flag difficulty: Very Hard

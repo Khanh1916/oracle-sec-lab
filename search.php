@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * search.php  –  VULNERABILITY 1: Oracle UNION-based SQL Injection
  *
  * Severity (DBS401 report): Easy

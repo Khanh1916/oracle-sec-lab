@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * secure_versions/secret_check_secure.php
  *
  * SECURE VERSION of secret_check.php (Vulnerability 3 Fix)

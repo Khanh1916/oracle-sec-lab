@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * secret_check.php  –  VULNERABILITY 3: Oracle Boolean-Based Blind SQL Injection
  *
  * Severity (DBS401 report): Hard

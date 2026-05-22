@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * secure_versions/search_secure.php
  *
  * SECURE VERSION of search.php (Vulnerability 1 Fix)

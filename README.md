@@ -1,4 +1,4 @@
-# DBS401 – Group 07 – FPT Student Portal
+# DBS401 – Group 02 – FPT Student Portal
 ## Oracle Database Security Lab
 
 > ⚠️ **Chỉ dùng trong môi trường lab DBS401 nội bộ. Không deploy lên internet.**
@@ -372,5 +372,5 @@ php database/init_passwords.php
 
 ---
 
-*DBS401 – Group 07 – FPT University*  
+*DBS401 – Group 02 – FPT University*  
 *⚠️ Lab use only. Do not deploy on internet or real systems.*

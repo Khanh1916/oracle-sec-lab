@@ -1,4 +1,4 @@
-# ✅ CHECKLIST TRƯỚC KHI NỘP – DBS401 Group 07
+# ✅ CHECKLIST TRƯỚC KHI NỘP – DBS401 Group 02
 
 ## A. Checklist Chất Lượng Flag
 
@@ -84,8 +84,8 @@
 4. **Chạy init_passwords.php** để đảm bảo bcrypt hash được tạo đúng.
 5. **Kiểm tra transcript TXN-099-2024-S1** sau khi seed để xác nhận admin_ref_id hiển thị đúng.
 6. **Không commit ANSWER_KEY.md** lên GitHub public nếu có.
-7. **Đóng gói ZIP** theo cấu trúc: `DBS401_Group07_[TenDeTai].zip`.
+7. **Đóng gói ZIP** theo cấu trúc: `DBS401_Group02_[TenDeTai].zip`.
 
 ---
 
-*DBS401 – Group 07*
+*DBS401 – Group 02*

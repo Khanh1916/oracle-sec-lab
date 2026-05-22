@@ -1,4 +1,4 @@
-# 🔐 ANSWER KEY – DBS401 Group 07 (NỘI BỘ – KHÔNG NỘP CÔNG KHAI)
+# 🔐 ANSWER KEY – DBS401 Group 02 (NỘI BỘ – KHÔNG NỘP CÔNG KHAI)
 
 > Chỉ dùng trong lab CTF DBS401 nội bộ. Không chia sẻ trước khi thi/demo.
 
@@ -505,4 +505,4 @@ oci_execute($stmt);
 
 ---
 
-*Tài liệu này chỉ dùng nội bộ nhóm DBS401 – Group 07.*
+*Tài liệu này chỉ dùng nội bộ nhóm DBS401 – Group 02.*

@@ -1,5 +1,5 @@
 -- ============================================================
--- DBS401 - Group 07 - Seed Data
+-- DBS401 - Group 02 - Seed Data
 -- ============================================================
 -- FLAG DESIGN (INTERNAL - DO NOT INCLUDE IN PUBLIC REPORT):
 --

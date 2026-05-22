@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * tools/verify_setup.php
  *
  * Script kiểm tra toàn bộ cài đặt của project.
@@ -36,7 +36,7 @@ if (!$isCli) {
     echo "<style>body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px;background:#f8f9fa}";
     echo "h1{color:#023e8a} h2{color:#e85d04;border-bottom:2px solid #e85d04;padding-bottom:4px}";
     echo ".section{background:#fff;border-radius:8px;padding:20px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.1)}</style></head><body>";
-    echo "<h1>🔍 DBS401 Group 07 – Setup Verification</h1>";
+    echo "<h1>🔍 DBS401 Group 02 – Setup Verification</h1>";
 }
 
 $passCount = 0;

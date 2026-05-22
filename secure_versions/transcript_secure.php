@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * secure_versions/transcript_secure.php
  *
  * SECURE VERSION of transcript.php (Vulnerability 2 Fix)

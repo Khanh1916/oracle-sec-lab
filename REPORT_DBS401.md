@@ -5,7 +5,7 @@
 
 **Môn học:** DBS401 – Database Security  
 **Đề tài:** Strengthening Database Security with Oracle Database  
-**Nhóm:** Group 07  
+**Nhóm:** Group 02  
 **Học kỳ:** 2024  
 **Ngày nộp:** *(điền ngày nộp)*  
 
@@ -51,7 +51,7 @@ Oracle Database là một trong những hệ quản trị cơ sở dữ liệu q
 
 ### 1.2 Mục tiêu đồ án
 
-Đồ án DBS401 của nhóm 07 hướng đến các mục tiêu sau:
+Đồ án DBS401 của nhóm 02 hướng đến các mục tiêu sau:
 
 - Xây dựng một web application thực tế kết nối Oracle Database.
 - Cố tình tích hợp 3 lỗ hổng bảo mật liên quan trực tiếp đến database.
@@ -622,5 +622,5 @@ Qua quá trình thực hiện đồ án, nhóm đã học được:
 
 ---
 
-*Báo cáo được soạn thảo bởi Group 07 – DBS401*  
+*Báo cáo được soạn thảo bởi Group 02 – DBS401*  
 *Cam kết: Tất cả nội dung khai thác trong báo cáo này chỉ được thực hiện trong môi trường lab học tập nội bộ.*

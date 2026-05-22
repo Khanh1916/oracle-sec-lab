@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================
-# DBS401 - Group 07 - setup.sh
+# DBS401 - Group 02 - setup.sh
 # FPT Student Portal – Oracle Security Lab
 # =============================================================
 # Hỗ trợ Ubuntu 20.04 / 22.04 / 24.04
@@ -42,7 +42,7 @@ require_root() { [ "$(id -u)" -eq 0 ] || { log_err "Chạy với sudo. Ví dụ:
 echo -e "${BOLD}"
 cat << 'EOF'
   ╔═══════════════════════════════════════════════════════╗
-  ║   DBS401 - Group 07 - FPT Student Portal Setup       ║
+  ║   DBS401 - Group 02 - FPT Student Portal Setup       ║
   ║   Oracle Database Security Lab                       ║
   ╚═══════════════════════════════════════════════════════╝
 EOF

@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * init_passwords.php
  * Run ONCE after importing schema.sql and seed.sql.
  * Updates password_hash for all demo users using PHP password_hash().

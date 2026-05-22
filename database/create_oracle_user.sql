@@ -1,5 +1,5 @@
 -- ============================================================
--- DBS401 - Group 07
+-- DBS401 - Group 02
 -- database/create_oracle_user.sql
 -- Chạy với SYS/SYSTEM để tạo Oracle user cho lab
 -- ============================================================

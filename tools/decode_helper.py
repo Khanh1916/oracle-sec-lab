@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-DBS401 - Group 07
+DBS401 - Group 02
 tools/decode_helper.py  –  Decode Helper for CTF Players
 
 ⚠️  Chỉ sử dụng trong môi trường lab DBS401 nội bộ.
@@ -27,7 +27,7 @@ import sys
 
 BANNER = """
 ╔══════════════════════════════════════════════════════╗
-║  DBS401 - Group 07  |  CTF Decode Helper             ║
+║  DBS401 - Group 02  |  CTF Decode Helper             ║
 ║  Lab use only – Not for real systems                 ║
 ╚══════════════════════════════════════════════════════╝
 """

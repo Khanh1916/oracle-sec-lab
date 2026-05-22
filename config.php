@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * config.php - Database connection configuration
  *
  * IMPORTANT: This file intentionally stores credentials in plaintext

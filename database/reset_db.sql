@@ -1,5 +1,5 @@
 -- ============================================================
--- DBS401 - Group 07
+-- DBS401 - Group 02
 -- database/reset_db.sql
 -- Reset toàn bộ database về trạng thái ban đầu cho demo
 -- ============================================================
@@ -8,7 +8,7 @@
 -- ============================================================
 
 PROMPT ================================================
-PROMPT  DBS401 - Group 07 - Database Reset
+PROMPT  DBS401 - Group 02 - Database Reset
 PROMPT  WARNING: This will DELETE all data!
 PROMPT ================================================
 

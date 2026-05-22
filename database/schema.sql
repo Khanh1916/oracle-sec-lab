@@ -1,6 +1,6 @@
 -- ============================================================
 -- DBS401 - Strengthening Database Security with Oracle Database
--- Group 07 - Schema Definition
+-- Group 02 - Schema Definition
 -- Oracle Database XE 21c / Oracle Database 23c Free
 -- ============================================================
 -- Run as: sqlplus dbs401_user/dbs401_pass@XE @schema.sql

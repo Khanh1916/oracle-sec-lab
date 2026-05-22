@@ -1,5 +1,5 @@
 -- ============================================================
--- DBS401 - Group 07
+-- DBS401 - Group 02
 -- database/fix_refs.sql
 -- ============================================================
 -- Chạy SAU seed.sql để cập nhật admin_ref_id trong ENROLLMENTS

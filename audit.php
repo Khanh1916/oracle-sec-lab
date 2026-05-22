@@ -1,6 +1,6 @@
 <?php
 /**
- * DBS401 - Group 07
+ * DBS401 - Group 02
  * audit.php  –  IDOR on audit log (supports Vulnerability 2)
  *
  * This page is also vulnerable to IDOR:
