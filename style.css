@@ -1,0 +1,117 @@
+/* DBS401 – FPT Student Portal – style.css */
+:root {
+    --primary:   #e85d04;
+    --primary-d: #c94d00;
+    --secondary: #023e8a;
+    --success:   #2d6a4f;
+    --warning:   #f4a261;
+    --danger:    #d62828;
+    --bg:        #f8f9fa;
+    --card-bg:   #ffffff;
+    --text:      #1a1a2e;
+    --muted:     #6c757d;
+    --border:    #dee2e6;
+    --nav-bg:    #1a1a2e;
+    --nav-text:  #e8e8e8;
+    --radius:    8px;
+    --shadow:    0 2px 12px rgba(0,0,0,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── Navbar ── */
+.navbar {
+    background: var(--nav-bg); color: var(--nav-text);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 56px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.navbar-brand a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1.1rem; }
+.nav-subtitle { color: var(--warning); font-size: 0.75rem; margin-left: 8px; }
+.navbar-links { display: flex; align-items: center; gap: 16px; }
+.navbar-links a { color: var(--nav-text); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+.navbar-links a:hover { color: var(--warning); }
+.nav-user { font-size: 0.85rem; color: #adb5bd; }
+.btn-logout { background: var(--danger); color: #fff !important; padding: 4px 12px; border-radius: var(--radius); font-size: 0.82rem; }
+
+/* ── Container ── */
+.container { max-width: 960px; margin: 32px auto; padding: 0 20px; }
+h2 { font-size: 1.6rem; margin-bottom: 20px; color: var(--secondary); }
+h3 { font-size: 1.1rem; margin-bottom: 12px; color: var(--text); }
+
+/* ── Auth pages ── */
+.auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #023e8a 100%); }
+.auth-card { background: #fff; border-radius: 12px; padding: 40px 36px; width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+.auth-logo { text-align: center; margin-bottom: 28px; }
+.auth-logo h1 { color: var(--secondary); font-size: 1.4rem; }
+.auth-logo p { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+.auth-hint { margin-top: 20px; text-align: center; background: #f8f9fa; border-radius: var(--radius); padding: 12px; font-size: 0.8rem; color: var(--muted); }
+.auth-hint code { background: #e9ecef; padding: 1px 4px; border-radius: 3px; }
+
+/* ── Forms ── */
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; }
+.form-group input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; transition: border-color .2s; }
+.form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(232,93,4,0.15); }
+
+/* ── Buttons ── */
+.btn { display: inline-block; padding: 9px 20px; border-radius: var(--radius); border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: background .2s, transform .1s; }
+.btn:active { transform: scale(0.98); }
+.btn-primary  { background: var(--primary);   color: #fff; }
+.btn-primary:hover  { background: var(--primary-d); }
+.btn-secondary{ background: var(--secondary); color: #fff; }
+.btn-warning  { background: var(--warning);   color: #fff; }
+.btn-full { width: 100%; text-align: center; }
+
+/* ── Alerts ── */
+.alert { padding: 12px 16px; border-radius: var(--radius); margin-bottom: 16px; font-size: 0.9rem; }
+.alert-danger  { background: #fff0f0; border-left: 4px solid var(--danger);  color: var(--danger); }
+.alert-warning { background: #fff8f0; border-left: 4px solid var(--warning); color: #7a4a00; }
+.alert-info    { background: #f0f4ff; border-left: 4px solid var(--secondary); color: var(--secondary); }
+
+/* ── Cards ── */
+.info-card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+
+/* ── Tables ── */
+.info-table { width: 100%; border-collapse: collapse; }
+.info-table th { text-align: left; width: 160px; color: var(--muted); font-weight: 600; padding: 8px 12px; font-size: 0.85rem; }
+.info-table td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.data-table th { background: #f1f3f5; padding: 10px 12px; text-align: left; font-weight: 600; color: var(--secondary); border-bottom: 2px solid var(--border); }
+.data-table td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; }
+.data-table tr:hover td { background: #fafafa; }
+
+/* ── Badges ── */
+.badge, .badge-inline { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; }
+.badge-admin   { background: #e63946; color: #fff; }
+.badge-teacher { background: #457b9d; color: #fff; }
+.badge-student { background: #2d6a4f; color: #fff; }
+
+/* ── Search ── */
+.search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+.search-input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; }
+.search-input:focus { outline: none; border-color: var(--primary); }
+
+/* ── Results ── */
+.results-section { margin-top: 20px; }
+.no-results { color: var(--muted); font-style: italic; padding: 16px; text-align: center; background: #fafafa; border-radius: var(--radius); }
+
+/* ── Transcript ── */
+.transcript-card { border-left: 4px solid var(--secondary); }
+.transcript-footer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.system-note code { word-break: break-all; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; display: block; font-size: 0.82rem; color: #495057; }
+
+/* ── Hint box ── */
+.hint-box { margin-top: 20px; }
+.hint-box details { background: #f8f9fa; border-radius: var(--radius); padding: 12px 16px; border: 1px dashed var(--border); }
+.hint-box summary { cursor: pointer; font-weight: 600; color: var(--secondary); }
+.hint-box ul { margin-top: 10px; padding-left: 20px; }
+.hint-box li { margin-bottom: 4px; font-size: 0.9rem; }
+
+/* ── Misc ── */
+.text-muted { color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; }
+code { font-family: 'Courier New', monospace; background: #f1f3f5; padding: 1px 5px; border-radius: 3px; font-size: 0.88em; }
+a { color: var(--primary); }
+a:hover { text-decoration: underline; }

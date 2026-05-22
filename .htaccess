@@ -1,0 +1,35 @@
+# DBS401 - Group 07 - Apache Security Config
+# /var/www/html/dbs401-oracle-app/.htaccess
+
+# ── Disable directory browsing ────────────────────────────
+Options -Indexes
+
+# ── Protect sensitive files ───────────────────────────────
+<FilesMatch "^(config\.php|ANSWER_KEY\.md|CHECKLIST\.md|\.env)$">
+    Require all denied
+</FilesMatch>
+
+# ── Protect database folder ───────────────────────────────
+<FilesMatch "\.(sql)$">
+    Require all denied
+</FilesMatch>
+
+# ── Block direct access to inc_ files ────────────────────
+<FilesMatch "^inc_">
+    Require all denied
+</FilesMatch>
+
+# ── PHP settings ──────────────────────────────────────────
+# Hide PHP version in headers
+<IfModule mod_headers.c>
+    Header unset X-Powered-By
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# ── Default charset ───────────────────────────────────────
+AddDefaultCharset UTF-8
+
+# ── DirectoryIndex ────────────────────────────────────────
+DirectoryIndex index.php
