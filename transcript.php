@@ -2,11 +2,9 @@
 /**
  * DBS401 - Group 02
  * transcript.php  –  VULNERABILITY 2: IDOR + Broken Access Control
- *
- * Severity (DBS401 report): Medium  |  Flag difficulty: Very Hard
- *
- * VULN: transcript_ref sử dụng bind variable (KHÔNG bị SQLi)
- *       NHƯNG thiếu kiểm tra ownership → bất kỳ user nào cũng đọc được.
+ * (NOTE: This was part of an old vulnerability scenario for Flag 2.
+ *  The new VULN 2 is Business Logic in store.php.
+ *  This file is now SECURE. The IDOR vulnerability has been patched with ownership checks.)
  *
  * DECOY:
  *   TXN-004-2024-S1 → internal_note chứa base64 FAKE
@@ -31,13 +29,13 @@ if ($ref !== '') {
         // VULNERABLE: bind variable diệt SQLi, NHƯNG không có ownership check
         $sql = "SELECT e.enrollment_id, e.student_id, e.transcript_ref,
                        e.semester, e.score, e.internal_note, e.admin_ref_id,
-                       s.full_name, s.major, s.email,
+                       s.full_name, s.major, s.email, u.user_id,
                        c.course_name, c.course_code
                 FROM ENROLLMENTS e
                 JOIN STUDENTS s ON e.student_id = s.student_id
                 JOIN COURSES  c ON e.course_id  = c.course_id
+                JOIN USERS    u ON s.user_id    = u.user_id -- Join with USERS to check ownership
                 WHERE e.transcript_ref = :ref";
-        // MISSING: AND s.user_id = :current_user_id  <-- đây là lỗ hổng IDOR
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':ref', $ref);
         if (!oci_execute($stmt)) {
@@ -46,6 +44,11 @@ if ($ref !== '') {
             $transcriptData = oci_fetch_assoc($stmt);
             if (!$transcriptData) {
                 $errMsg = 'Transcript not found.';
+            } elseif ($transcriptData['USER_ID'] != $_SESSION['user_id'] && $_SESSION['role'] !== 'admin') {
+                // SECURE: Ownership check - only admin or owner can view
+                http_response_code(403);
+                $errMsg = 'Access denied. You do not have permission to view this transcript.';
+                $transcriptData = null; // Clear data to prevent display
             } else {
                 logAction($_SESSION['user_id'], 'TRANSCRIPT_VIEW',
                           json_encode(['ref' => $ref, 'sid' => $transcriptData['STUDENT_ID']]));

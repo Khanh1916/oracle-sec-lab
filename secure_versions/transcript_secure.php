@@ -5,12 +5,6 @@
  *
  * SECURE VERSION of transcript.php (Vulnerability 2 Fix)
  *
- * FIXES APPLIED:
- *   1. Ownership check: query verifies transcript belongs to current session user.
- *   2. Bind variable for transcript_ref parameter.
- *   3. internal_note and admin_ref_id NOT exposed in response.
- *   4. Rate limiting hint (implement with Redis/APCu in production).
- *
  * ROOT CAUSE OF IDOR:
  *   - No check that s.user_id = logged-in user's user_id.
  *   - transcript_ref was predictable (TXN-{id:03d}-{year}-S{sem}).

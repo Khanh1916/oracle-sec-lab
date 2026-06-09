@@ -24,7 +24,8 @@ define('DB_TNS', sprintf(
 // App settings
 define('APP_NAME',    'FPT Student Portal');
 define('APP_BASE',    '/dbs401-oracle-app');
-define('APP_VERSION', '2.4.1');
+define('APP_VERSION', '3.1.0'); // Consistent with seed.sql and setup.sh for version_compare
+define('DEFAULT_UPDATE_URL', 'http://127.0.0.1:8081/manifest.json');
 define('APP_DEBUG',   false);  // Set true only for local dev
 
 // Session settings

@@ -1,7 +1,7 @@
 # Oracle SQL Injection Payload Cheatsheet
-## DBS401 – Group 07 – Lab Reference Only
+## DBS401 – Group 02 – Lab Reference Only
 
-> ⚠️ Chỉ dùng trong môi trường lab DBS401. Không dùng trên hệ thống thật.
+> ⚠️ Chỉ dùng trong môi trường lab DBS401. Không dùng trên hệ thống thật. (Lưu ý: Các payload Blind SQLi, IDOR và các phần flag cũ dưới đây là từ kịch bản trước, không phải lỗ hổng chính cho Flag 2 và Flag 3 trong kịch bản hiện tại.)
 
 ---
 
@@ -249,4 +249,4 @@ python3 tools/exploit_flag3_local.py --host 127.0.0.1 --port 80
 
 ---
 
-*DBS401 – Group 07 – Cheatsheet nội bộ – Không phát hành công khai*
+*DBS401 – Group 02 – Cheatsheet nội bộ – Không phát hành công khai*

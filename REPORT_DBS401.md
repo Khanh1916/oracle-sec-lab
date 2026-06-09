@@ -1,15 +1,17 @@
 # BÁO CÁO ĐỒ ÁN MÔN DBS401
 # STRENGTHENING DATABASE SECURITY WITH ORACLE DATABASE
 
----
 
 **Môn học:** DBS401 – Database Security  
 **Đề tài:** Strengthening Database Security with Oracle Database  
 **Nhóm:** Group 02  
 **Học kỳ:** 2024  
 **Ngày nộp:** *(điền ngày nộp)*  
+> **Ghi chú về Flag 1:** Việc chia flag thành 3 phần (Hex, Reverse, Base64) ở 3 bảng khác nhau ép người làm lab phải:
+> 1. Sử dụng kỹ thuật Enumerate Metadata để tìm bảng.
+> 2. Biết cách xử lý các hàm chuỗi trong Oracle.
+> 3. Có kỹ năng Decode thủ công/scripting.
 
----
 
 ## THÀNH VIÊN NHÓM
 
@@ -130,6 +132,16 @@ Toàn bộ dự án hoạt động trong môi trường **lab học tập nội 
 └─────────────────────────────────────────────────────────┘
 ```
 
+### 3.2 Threat Modeling & Asset Mapping
+
+Hệ thống được thiết kế dựa trên việc xác định các tài sản quan trọng (Assets) và các mối đe dọa tương ứng:
+
+| Tài sản (Asset) | Mục tiêu bảo vệ | Lỗ hổng tương ứng |
+|:---|:---|:---|
+| **User & Secret Data** | Tính bảo mật (Confidentiality) | **Vuln 1 (SQLi)**: Rò rỉ thông tin từ các bảng FLAGS, USERS và CONFIG_STORE. |
+| **Financial Integrity** | Tính toàn vẹn (Integrity) | **Vuln 2 (Business Logic)**: Thao túng số dư Credits thông qua giá trị âm. |
+| **Software Integrity** | Tính tin cậy (Trust) | **Vuln 3 (Supply Chain)**: Đầu độc luồng cập nhật hệ thống thông qua đối tác giả mạo. |
+
 ### 3.1 Luồng hoạt động chính
 
 **Luồng Login:**
@@ -148,7 +160,8 @@ Toàn bộ dự án hoạt động trong môi trường **lab học tập nội 
 **Điểm đặt lỗ hổng cố ý:**
 - `search.php`: Tham số `?q=` không được parameterize → SQLi
 - `transcript.php`: Tham số `?ref=` không kiểm tra ownership → IDOR
-- `secret_check.php`: Tham số `?key=` không được parameterize → Blind SQLi
+- `store.php`: Lỗi logic mua hàng với số lượng âm → Business Logic Attack
+- `admin.php`: Tin tưởng URL cập nhật từ DB → Supply Chain Attack
 
 ---
 
@@ -188,10 +201,8 @@ USERS ──────── STUDENTS ──── ENROLLMENTS ──── CO
 | Flag 1 | A | FLAGS.flag_part (part_order=1) | Hex encoding |
 | Flag 1 | B | AUDIT_LOGS.metadata_note | Reversed string trong JSON |
 | Flag 1 | C | CONFIG_STORE.config_value (key='sys_alpha_marker') | Base64 encoding |
-| Flag 2 | A | ENROLLMENTS.internal_note (transcript_ref='TXN-099-2024-S1') | Base64 encoding |
-| Flag 2 | B | AUDIT_LOGS.metadata_note (action='TRANSCRIPT_EXPORT_HIDDEN') | Reversed string trong JSON |
-| Flag 3 | A | ADMIN_SECRETS.encrypted_value (key='oracle_flag_3_primary') | Blind SQLi extraction |
-| Flag 3 | B | CONFIG_STORE.config_value (key='oracle_flag_3_suffix') | Hex encoding |
+| Flag 2 | - | Trang store.php (Vật phẩm "Exam Leak 2024") | Logic Manipulation |
+| Flag 3 | - | Trang admin.php (manifest.json từ Partner Server) | Hex-encoded in JSON |
 
 ---
 
@@ -207,10 +218,10 @@ Nhóm xây dựng mô phỏng **cổng thông tin sinh viên FPT** với các ch
 | `/dashboard.php` | Tổng quan tài khoản | Xem điểm, enrollment |
 | `/search.php` | Tìm kiếm sinh viên | **[VULN 1]** SQLi |
 | `/profile.php` | Xem thông tin cá nhân | Secure |
-| `/transcript.php` | Xem bảng điểm/transcript | **[VULN 2]** IDOR |
-| `/audit.php` | Xem audit log | **[VULN 2 - phụ]** IDOR |
-| `/admin.php` | Quản trị hệ thống | Admin only |
-| `/secret_check.php` | API kiểm tra secret key | **[VULN 3]** Blind SQLi |
+| `/store.php` | Cửa hàng học liệu | **[VULN 2]** Business Logic (Negative Quantity) |
+| `/transcript.php` | Xem bảng điểm/transcript | Secure (đã vá IDOR) |
+| `/audit.php` | Xem audit log | Secure (đã vá IDOR) |
+| `/admin.php` | Quản trị hệ thống | Quản lý người dùng (CRUD), **[VULN 3]** Supply Chain Poisoning |
 
 ### 5.2 Tài khoản demo
 
@@ -310,148 +321,98 @@ oci_execute($stmt);
 
 ---
 
-### 6.2 VULNERABILITY 2 – IDOR + Broken Access Control + Database Logic Flaw
+### 6.2 VULNERABILITY 2 – Insecure Business Logic (Negative Quantity)
 
-**Mức độ lỗ hổng (phân loại DBS401):** Medium  
+**Mức độ lỗ hổng (phân loại DBS401):** Hard  
 **Mức độ tìm flag:** Very Hard  
-**Vị trí:** `transcript.php` (?ref=), `audit.php` (?log_id=)  
-**Loại tấn công:** Insecure Direct Object Reference (IDOR)  
+**Vị trí:** `store.php`, tham số `quantity` (POST)
+**Loại tấn công:** Business Logic Manipulation / Integer Overflow
 
 #### Mô tả lỗ hổng
 
-Endpoint xem transcript không kiểm tra quyền sở hữu (ownership). Bất kỳ người dùng nào đã đăng nhập đều có thể xem transcript của sinh viên khác bằng cách thay đổi tham số `ref`. Token `transcript_ref` được tạo theo mẫu dự đoán được (`TXN-{id:03d}-{year}-S{sem}`), cho phép kẻ tấn công enumerate các bản ghi ẩn.
+Chức năng mua tài liệu tại `store.php` cho phép người dùng nhập số lượng tùy ý. Hệ thống chỉ thực hiện kiểm tra `số dư >= (số lượng * đơn giá)`. Do không kiểm tra số lượng phải là số dương (>0), kẻ tấn công có thể nhập một số lượng âm cực lớn. Khi đó, phép tính `số dư - (số âm * đơn giá)` sẽ trở thành phép cộng, giúp tăng số dư tài khoản lên vô hạn.
 
 #### Đoạn code bị lỗi
 
 ```php
-// VULNERABLE – không có ownership check, không có bind variable
-$sql = "SELECT e.*, s.*, c.*
-        FROM ENROLLMENTS e
-        JOIN STUDENTS s ON e.student_id = s.student_id
-        JOIN COURSES c  ON e.course_id  = c.course_id
-        WHERE e.transcript_ref = '$ref'";  // ← bất kỳ ref nào đều được
+// VULNERABLE – Thiếu kiểm tra giá trị âm cho $qty
+$cost = $qty * $price;
+if ($credits >= $cost) {
+    $newCredits = $credits - $cost;
 ```
 
 #### Nguyên nhân
 
-- Không join với USERS và không kiểm tra `s.user_id = session_user_id`.
-- `transcript_ref` có pattern đơn giản, dễ đoán.
-- `internal_note` và `admin_ref_id` bị lộ trong response cho mọi user.
+Lập trình viên chỉ tập trung vào việc kiểm tra đủ số dư (Abuse of Functionality) mà quên mất việc xác thực tính hợp lý của dữ liệu đầu vào (Input Validation) về mặt logic nghiệp vụ.
 
 #### Tác động
 
-- Người dùng có thể xem điểm, thông tin cá nhân, và ghi chú nội bộ của sinh viên khác.
-- Rò rỉ thông tin sinh viên ẩn không có trong danh sách công khai.
-- Có thể dẫn đến việc khai thác dữ liệu nhạy cảm kết hợp với audit log.
+Kẻ tấn công có thể mua được các vật phẩm "CLASSIFIED" có giá trị cực cao (chứa Flag) mà không cần nạp tiền, gây thiệt hại về kinh tế và lộ lọt thông tin bí mật.
 
 #### Kịch bản khai thác (lab)
 
-```
-Bước 1: Login student1, quan sát transcript_ref của bản thân
-  TXN-001-2024-S1 → nhận ra pattern TXN-{id:3}-{year}-S{sem}
-
-Bước 2: Enumerate bằng cách thay đổi student ID
-  TXN-004-2024-S1 → có dữ liệu nhưng internal_note là FAKE (decoy)
-  TXN-050-2024-S1 → 403 (simulated restriction)
-  TXN-099-2024-S1 → 🎯 HIT! Hidden student, có CLASSIFIED_DATA
-
-Bước 3: Đọc internal_note của TXN-099-2024-S1
-  CLASSIFIED_DATA: REJTNDAxezFET1JfVHI0bnNf
-  → base64_decode → DBS401{1DOR_Tr4ns_  (Part A)
-
-Bước 4: Theo dõi Admin Log Ref → truy cập audit.php?log_id=N
-  metadata_note chứa: "fragment_b":"}!w4lF_ss3cc4","decode_hint":"reverse_this_part"
-  → reverse("}!w4lF_ss3cc4") → 4cc3ss_Fl4w!}  (Part B)
-
-Bước 5: Ghép flag
-  DBS401{1DOR_Tr4ns_ + 4cc3ss_Fl4w!} = DBS401{1DOR_Tr4ns_4cc3ss_Fl4w!}
-```
+1. Đăng nhập bằng tài khoản sinh viên (ví dụ: `student1 / Student@123`).
+2. Truy cập trang "Course Material Store" (`store.php`).
+3. Chọn một tài liệu bất kỳ, nhập số lượng âm cực lớn (ví dụ: `-20000`) vào ô số lượng.
+4. Nhấn "Order". Do hệ thống lấy `credits - (quantity * price)`, số dư sẽ được cộng thêm 2,000,000 Credits.
+5. Dùng số tiền này mua vật phẩm "Exam Leak 2024 (CLASSIFIED)" để lấy Flag 2.
 
 #### Vì sao flag Very Hard
 
-- Hidden student (ID 99) không xuất hiện trong danh sách tìm kiếm bình thường.
-- Student ID 4 (decoy) có fake internal_note để đánh lừa.
-- Range 40–60 trả về 403, buộc người chơi phải thử range khác.
-- Cần 2 IDOR khác nhau: transcript.php + audit.php.
-- Flag split với encoding khác nhau (base64 + reverse).
+Kẻ tấn công phải quan sát sự thay đổi của Credits sau mỗi lần mua hàng để nhận ra lỗ hổng logic. Flag 2 chỉ xuất hiện khi số dư đạt mức triệu Credits, đòi hỏi sự kết hợp giữa kỹ thuật thao túng tham số và hiểu biết về nghiệp vụ thanh toán.
 
 #### Cách khắc phục
 
 ```php
-// Secure version – ownership enforced
-$sql = "SELECT e.enrollment_id, e.transcript_ref, e.semester, e.score,
-               s.full_name, s.major, c.course_name
-        FROM ENROLLMENTS e
-        JOIN STUDENTS s ON e.student_id = s.student_id
-        JOIN COURSES  c ON e.course_id  = c.course_id
-        JOIN USERS    u ON s.user_id    = u.user_id
-        WHERE e.transcript_ref = :ref
-          AND u.user_id = :uid";   -- ownership check!
-$stmt = oci_parse($conn, $sql);
-oci_bind_by_name($stmt, ':ref', $ref);
-oci_bind_by_name($stmt, ':uid', $currentUserId);
-oci_execute($stmt);
+// Secure – Kiểm tra số lượng phải lớn hơn 0
+if ($qty <= 0) {
+    $msg = "Quantity must be a positive number.";
+} else {
+    // Thực hiện trừ tiền bình thường
+}
 ```
 
 ---
 
-### 6.3 VULNERABILITY 3 – Oracle Boolean-Based Blind SQL Injection
+### 6.3 VULNERABILITY 3 – Supply Chain Poisoning (Partner Update)
 
-**Mức độ lỗ hổng (phân loại DBS401):** Hard  
+**Mức độ lỗ hổng (phân loại DBS401):** Hard (Chained Attack)  
 **Mức độ tìm flag:** Very Hard  
-**Vị trí:** `secret_check.php`, tham số `?key=`  
-**Loại tấn công:** Boolean-Based Blind SQL Injection  
+**Vị trí:** `admin.php`, chức năng Cập nhật hệ thống  
+**Loại tấn công:** Supply Chain Poisoning via Database Manipulation
 
 #### Mô tả lỗ hổng
 
-Endpoint `secret_check.php` kiểm tra sự tồn tại của một secret key trong bảng ADMIN_SECRETS. Tham số `key` được nhúng trực tiếp vào SQL mà không parameterize. Blacklist chỉ chặn comment syntax (`--`, `/*`) nhưng không chặn các từ khóa logic như AND, SUBSTR, ASCII, LENGTH. Endpoint chỉ trả về hai trạng thái (found/not_found) nên kẻ tấn công phải dùng boolean condition để suy luận dữ liệu từng ký tự một.
+Hệ thống Admin Panel thực hiện kiểm tra cập nhật từ một URL đối tác được lưu trong bảng `CONFIG_STORE`. URL này có `is_public = 0` nên không lộ ra giao diện. Tuy nhiên, hacker có thể dùng SQL Injection từ lỗ hổng 1 để tìm thấy URL này và dùng quyền truy cập database để sửa đổi nó, chuyển hướng hệ thống tải dữ liệu từ máy chủ độc hại.
 
 #### Đoạn code bị lỗi
 
 ```php
-// VULNERABLE – concatenation với blacklist yếu
-$sql = "SELECT COUNT(*) AS cnt FROM ADMIN_SECRETS
-        WHERE secret_key = '$key' AND is_active = 1";
+// VULNERABLE – Tin tưởng hoàn toàn vào giá trị lưu trong database
+$q = oci_parse($conn, "SELECT config_value FROM CONFIG_STORE WHERE config_key = 'update_url'");
+oci_execute($q);
+$url = $conf['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
+$jsonData = @file_get_contents($url);
 ```
 
 #### Nguyên nhân
 
-- Tham số `key` không được parameterize.
-- Blacklist chỉ block comment syntax, không block injection logic.
-- Không giới hạn quyền: mọi user đã đăng nhập đều dùng được.
+1. Không kiểm tra tính hợp lệ (Whitelisting) của URL đối tác.
+2. Thiếu cơ chế xác thực chữ ký số (Digital Signature) cho file manifest.json.
+3. Dữ liệu cấu hình nhạy cảm (`update_url`) có thể bị thay đổi trái phép qua lỗi SQL Injection (VULN 1).
 
 #### Tác động
 
-- Kẻ tấn công có thể extract toàn bộ giá trị bất kỳ trường nào trong ADMIN_SECRETS.
-- Kết hợp với SYSTEM_HINTS (qua Vuln 1), có thể truy cập CONFIG_STORE để lấy thêm dữ liệu.
-- Bằng các payload oracle-specific, có thể mở rộng sang toàn bộ database.
+Kẻ tấn công có thể chiếm quyền điều khiển luồng cập nhật của quản trị viên, lừa hệ thống tải về và hiển thị các mảnh Flag bí mật hoặc thông tin độc hại từ máy chủ của hacker.
 
 #### Kịch bản khai thác (lab)
 
-```
-Bước 1: Xác nhận injection
-  key=sys_master_key' AND '1'='1  → found
-  key=sys_master_key' AND '1'='2  → not_found
-
-Bước 2: Tìm đúng secret key
-  key=oracle_flag_3_primary  → found
-
-Bước 3: Xác định LENGTH = 18
-  key=oracle_flag_3_primary' AND LENGTH(encrypted_value)=18 AND '1'='1  → found
-
-Bước 4: Extract từng ký tự (Oracle SUBSTR + ASCII)
-  key=oracle_flag_3_primary' AND ASCII(SUBSTR(encrypted_value,1,1))=68 AND '1'='1
-  key=oracle_flag_3_primary' AND ASCII(SUBSTR(encrypted_value,2,1))=66 AND '1'='1
-  ... (18 vòng lặp)
-  → DBS401{Bl1nd_B00l_  (Part A)
-
-Bước 5: Lấy Part B từ CONFIG_STORE (qua Vuln 1 SQLi)
-  → hex: 307234636C335F58337274217D
-  → decode → 0r4cl3_X3rt!}  (Part B)
-
-Bước 6: Ghép flag
-  DBS401{Bl1nd_B00l_ + 0r4cl3_X3rt!} = DBS401{Bl1nd_B00l_0r4cl3_X3rt!}
-```
+1. Sử dụng lỗ hổng SQL Injection tại `search.php` để tìm giá trị `update_url` trong bảng `CONFIG_STORE` (is_public=0).
+2. Sử dụng quyền quản trị hoặc lỗ hổng tương đương để thực hiện `UPDATE` giá trị `update_url` trỏ về máy chủ của kẻ tấn công.
+3. Trên máy chủ kẻ tấn công, chuẩn bị file `manifest.json` với phiên bản cao hơn hiện tại (ví dụ: 4.0.0) và chứa mã Hex của Flag 3.
+4. Truy cập `admin.php`, nhấn "Check for Partner Updates".
+5. Hệ thống tải manifest độc hại, thông báo cập nhật thành công và hiển thị Flag 3.
+6. Giải mã chuỗi Hex thu được để có Flag hoàn chỉnh.
 
 #### Vì sao flag Very Hard
 
@@ -461,20 +422,20 @@ Bước 6: Ghép flag
 - Part B cần lấy từ CONFIG_STORE bằng kỹ thuật khác (Vuln 1 SQLi).
 - Part B được hex encoded → cần decode.
 - Cần phân biệt Part A thật vs Part A của fake key.
+Đây là một cuộc tấn công chuỗi (chained attack) đòi hỏi sự phối hợp giữa khả năng khai thác SQL Injection để thay đổi cấu hình hệ thống, kỹ thuật giả mạo dịch vụ đối tác (Supply Chain), và khả năng vượt qua cơ chế kiểm tra phiên bản phần mềm.
 
 #### Cách khắc phục
 
 ```php
-// Secure version – bind variable + input whitelist
-if (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $key)) {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid key format']);
-    exit;
+// Secure version – Whitelist URL cập nhật và xác thực nguồn
+$allowedUpdateUrls = [
+    'http://cdn.fpt-partner.net/v3/manifest.json',
+    'https://api.fpt-partner-cloud.net/v3/updates'
+];
+
+if (!in_array($url, $allowedUpdateUrls)) {
+    die("Security Error: Unauthorized update source.");
 }
-$sql  = "SELECT COUNT(*) AS cnt FROM ADMIN_SECRETS
-         WHERE secret_key = :sk AND is_active = 1";
-$stmt = oci_parse($conn, $sql);
-oci_bind_by_name($stmt, ':sk', $key);
-oci_execute($stmt);
 ```
 
 ---
@@ -484,8 +445,8 @@ oci_execute($stmt);
 | Lỗ hổng | Loại | Mức độ lỗ hổng (DBS401) | Mức độ tìm flag |
 |---------|------|--------------------------|-----------------|
 | Vulnerability 1 | Oracle SQL Injection | **Easy** | **Very Hard** |
-| Vulnerability 2 | IDOR + Broken Access Control | **Medium** | **Very Hard** |
-| Vulnerability 3 | Oracle Boolean-Based Blind SQLi | **Hard** | **Very Hard** |
+| Vulnerability 2 | Insecure Business Logic | **Hard** | **Very Hard** |
+| Vulnerability 3 | Supply Chain Poisoning | **Hard** | **Very Hard** |
 
 > **Ghi chú quan trọng:**  
 > Nhóm tuân thủ khuyến nghị Easy – Medium – Hard cho mức độ nhận diện và phân loại lỗ hổng theo yêu cầu môn DBS401. Tuy nhiên, để tăng tính thử thách CTF và khả năng phân tích database security thực tế, cả 3 flag đều được thiết kế ở mức **Very Hard**. Người kiểm thử không thể lấy flag bằng một request đơn giản mà phải kết hợp: recon, phân tích request/response, truy vấn Oracle metadata, loại bỏ dữ liệu giả (fake flags, decoy tables), decode (hex/base64/reverse), và ghép nhiều mảnh flag từ nhiều bảng khác nhau.

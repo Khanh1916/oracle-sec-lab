@@ -1,4 +1,4 @@
-# Hướng Dẫn Triển Khai Chi Tiết – DBS401 Group 07
+# Hướng Dẫn Triển Khai Chi Tiết – DBS401 Group 02
 ## FPT Student Portal – Oracle Security Lab
 
 > Dành cho người mới, viết từng bước cụ thể.
@@ -355,10 +355,14 @@ http://192.168.x.x/dbs401-oracle-app   ← từ máy khác trong LAN
 curl "http://127.0.0.1/dbs401-oracle-app/search.php?q=Nguyen" \
      -b "DBS401_SESSION=..." | grep student_id
 
-# Test secret_check (Vuln 3)
-curl "http://127.0.0.1/dbs401-oracle-app/secret_check.php?key=sys_master_key" \
+# Test store credits (Vuln 2)
+curl -X POST "http://127.0.0.1/dbs401-oracle-app/store.php" \
+     -d "buy=1&quantity=-1000" \
      -b "DBS401_SESSION=..."
-# Expected: {"status":"found","message":"Secret key verified. Record exists."}
+
+# Test update check (Vuln 3)
+curl "http://127.0.0.1/dbs401-oracle-app/admin.php?check_updates=1" \
+     -b "DBS401_SESSION=..."
 ```
 
 ### 8.4 Verify Database Data
@@ -424,4 +428,4 @@ http://192.168.1.25/dbs401-oracle-app
 
 ---
 
-*DBS401 – Group 07 – Hướng dẫn triển khai nội bộ*
+*DBS401 – Group 02 – Hướng dẫn triển khai nội bộ*

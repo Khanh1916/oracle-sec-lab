@@ -211,7 +211,7 @@ $requiredFiles = [
     'dashboard.php', 'search.php', 'profile.php', 'transcript.php',
     'audit.php', 'admin.php', 'secret_check.php', 'inc_navbar.php',
     'style.css', '.htaccess',
-    'database/schema.sql', 'database/seed.sql',
+    'database/schema.sql', 'database/seed.sql', // Các file này có thể bị xóa sau hardening
     'database/fix_refs.sql', 'database/init_passwords.php',
     'secure_versions/search_secure.php',
     'secure_versions/transcript_secure.php',
@@ -224,7 +224,9 @@ $requiredFiles = [
 
 foreach ($requiredFiles as $file) {
     $path = $baseDir . '/' . $file;
-    check(file_exists($path), "File exists: $file", "File MISSING: $file");
+    $isSql = str_ends_with($file, '.sql');
+    // Nếu là file SQL và bị thiếu, chỉ báo WARN vì có thể đã bị setup.sh xóa để bảo mật
+    check(file_exists($path), "File exists: $file", "File MISSING: $file", !$isSql);
 }
 
 if (!$isCli) echo "</div>";

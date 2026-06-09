@@ -10,10 +10,10 @@
 | 4 | Có ít nhất 3 bước khai thác/suy luận | ✅ 7 bước | ✅ 5 bước | ✅ 6 bước |
 | 5 | Có fake data / decoy gây nhiễu | ✅ FL_DECOY_B + FLAG_ARCHIVE | ✅ TXN-004 fake | ✅ oracle_flag_3_backup |
 | 6 | Có bước decode/transform | ✅ hex + reverse + base64 | ✅ base64 + reverse | ✅ hex decode suffix |
-| 7 | Cần ghép nhiều mảnh từ nhiều bảng | ✅ 3 bảng | ✅ 2 endpoints | ✅ 2 nguồn |
+| 7 | Cần ghép nhiều mảnh từ nhiều bảng | ✅ 3 bảng | ✅ 1 nguồn | ✅ 2 nguồn (DB + manifest) |
 | 8 | Có Answer Key đủ chi tiết | ✅ | ✅ | ✅ |
 | 9 | Có secure fix rõ ràng | ✅ | ✅ | ✅ |
-| 10 | 3 flag khó tương đương nhau | ✅ Very Hard | ✅ Very Hard | ✅ Very Hard |
+| 10 | 3 flag khó tương đương nhau | ✅ Very Hard | ✅ Very Hard | ✅ Very Hard | (Chained Attack) |
 | 11 | Không flag nào dễ hơn đáng kể | ✅ | ✅ | ✅ |
 | 12 | Không flag nào lộ ở client-side | ✅ | ✅ | ✅ |
 | 13 | Fake flag hợp lý | ✅ 5 fake flags | ✅ | ✅ |
@@ -35,9 +35,9 @@
 | 5 | SQL đầy đủ (schema + seed) | ✅ schema.sql + seed.sql |
 | 6 | setup.sh hỗ trợ copy local source | ✅ |
 | 7 | setup.sh hỗ trợ git clone nếu có REPO_URL | ✅ |
-| 8 | 3 lỗ hổng liên quan trực tiếp đến database | ✅ SQLi, IDOR, Blind SQLi |
+| 8 | 3 lỗ hổng liên quan trực tiếp đến database | ✅ SQLi, Business Logic, Supply Chain |
 | 9 | Có secure versions | ✅ secure_versions/ |
-| 10 | Có script exploit Python (chỉ target local) | ✅ tools/exploit_flag3_local.py |
+| 10 | Có script exploit Python (chỉ target local) | ✅ (Nếu có, cho Vuln 1 hoặc 3) |
 | 11 | Script có cảnh báo lab only | ✅ |
 | 12 | Không có backdoor/malware/reverse shell | ✅ |
 | 13 | Không hướng dẫn tấn công hệ thống thật | ✅ |
@@ -69,9 +69,9 @@
 |---|----------|-------------|
 | 1 | Giới thiệu web app (login, dashboard) | Tài khoản student1 sẵn sàng |
 | 2 | Demo Vuln 1: SQLi tìm bảng → payload → lấy 3 parts → ghép Flag 1 | Payload list trong ANSWER_KEY |
-| 3 | Demo Vuln 2: IDOR enumerate → TXN-099 → decode → audit log → ghép Flag 2 | Biết log_id thực tế sau seed |
-| 4 | Demo Vuln 3: Blind SQLi → boolean confirm → script Python → hex decode → Flag 3 | Python script test trước |
-| 5 | So sánh secure version (before/after) | Mở 2 tabs: vuln vs secure |
+| 3 | Demo Vuln 2: Business Logic (Credits Hack) → nhập số âm → mua item → Flag 2 | Tài khoản student1 sẵn sàng |
+| 4 | Demo Vuln 3: Supply Chain → SQLi đổi URL → Admin click update → Flag 3 | Cần server hacker giả lập |
+| 5 | So sánh secure version (before/after) | Mở 2 tabs: vuln vs secure (search, store, admin) |
 | 6 | Q&A giảng viên | Thuộc nguyên nhân + cách vá |
 
 ---

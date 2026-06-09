@@ -16,10 +16,11 @@ dbs401-oracle-app/
 ├── dashboard.php               # Trang chính sau login
 ├── search.php                  # [VULN 1] SQL Injection
 ├── profile.php                 # Xem profile cá nhân
-├── transcript.php              # [VULN 2] IDOR
-├── audit.php                   # [VULN 2 phụ] IDOR audit log
-├── admin.php                   # Admin panel
-├── secret_check.php            # [VULN 3] Blind SQLi endpoint
+├── store.php                   # [VULN 2] Business Logic (Negative Quantity)
+├── transcript.php              # Xem bảng điểm (Secure)
+├── audit.php                   # Xem nhật ký hệ thống (Secure)
+├── admin.php                   # Admin panel & [VULN 3] Supply Chain Poisoning
+├── secret_check.php            # Secret key API (Legacy)
 ├── inc_navbar.php              # Shared navbar component
 ├── style.css                   # CSS styles
 ├── database/
@@ -28,8 +29,8 @@ dbs401-oracle-app/
 │   └── init_passwords.php      # Tạo password hash (chạy 1 lần)
 ├── secure_versions/
 │   ├── search_secure.php       # Vuln 1 đã vá
-│   ├── transcript_secure.php   # Vuln 2 đã vá
-│   └── secret_check_secure.php # Vuln 3 đã vá
+│   ├── store_secure.php        # Vuln 2 đã vá
+│   └── admin_update_secure.php # Vuln 3 đã vá
 ├── tools/
 │   └── exploit_flag3_local.py  # Script khai thác Vuln 3 (lab only)
 ├── setup.sh                    # Script triển khai tự động
@@ -367,8 +368,8 @@ php database/init_passwords.php
 | File Vulnerable | File Secure | Thay đổi |
 |----------------|-------------|---------|
 | `search.php` | `secure_versions/search_secure.php` | Bind variables + input whitelist |
-| `transcript.php` | `secure_versions/transcript_secure.php` | Ownership check + bind variables |
-| `secret_check.php` | `secure_versions/secret_check_secure.php` | Bind variables + auth gate + rate limit |
+| `store.php` | `secure_versions/store_secure.php` | Kiểm tra giá trị dương cho số lượng |
+| `admin.php` | `secure_versions/admin_update_secure.php` | Whitelist URL cập nhật + Chữ ký số |
 
 ---
 

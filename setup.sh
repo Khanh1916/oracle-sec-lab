@@ -223,6 +223,35 @@ a2enconf dbs401 --quiet 2>/dev/null || true
 systemctl reload apache2
 log_ok "Apache alias /dbs401-oracle-app → $APP_DIR configured"
 
+# ─── 8b. Partner Server Simulation (Nginx) ───────────────────
+log_step "STEP 8b: Partner Server Simulation (Nginx on Port 8081)"
+apt-get install -y nginx --quiet
+PARTNER_DIR="/var/www/partner-api"
+mkdir -p "$PARTNER_DIR"
+
+# Tạo manifest file chứa mảnh Flag 3 (Mã hóa Hex để tăng độ khó)
+# Hex của 'DBS401{5upp1y_Ch41n_P0150n1ng_0912}'
+# Version 3.0.5 là thấp hơn APP_VERSION (3.1.0-ENTERPRISE) để hacker phải tự tạo manifest version cao hơn để trigger update
+echo '{"version":"3.0.5","status":"stable","checksum":"a8b9c1","flag_part":"4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d"}' > "$PARTNER_DIR/manifest.json"
+
+# Cấu hình Nginx chạy trên port 8081
+cat > /etc/nginx/sites-available/partner-simulation << EOF
+server {
+    listen 8081;
+    root $PARTNER_DIR;
+    index manifest.json;
+    location / {
+        add_header Content-Type application/json;
+        try_files \$uri \$uri/ =404;
+    }
+}
+EOF
+
+ln -sf /etc/nginx/sites-available/partner-simulation /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+systemctl restart nginx
+log_ok "Partner Server running at http://127.0.0.1:8081/manifest.json"
+
 # ─── 9. Oracle User + Schema ─────────────────────────────────
 log_step "STEP 9: Oracle Database Setup (thủ công nếu Oracle chưa chạy)"
 
@@ -253,7 +282,14 @@ else
     log_warn "SQLPlus không có trong PATH. Xem hướng dẫn cài Oracle ở trên."
 fi
 
-# ─── 10. Hiển thị URL ────────────────────────────────────────
+# ─── 10.a. Final Cleanup (CTF Hardening) ───────────────────────
+log_step "STEP 11: Final Cleanup & Hardening"
+log_info "Removing database seed files to prevent direct flag discovery..."
+# Xóa các file .sql để hacker không thể đọc schema/flags qua lỗi RCE hoặc File Read
+rm -f "$APP_DIR/database"/*.sql
+log_ok "Sensitive SQL files removed from $APP_DIR/database/"
+
+# ─── 10.b. Hiển thị URL ────────────────────────────────────────
 log_step "SETUP COMPLETE"
 LAN_IP=$(hostname -I | awk '{print $1}')
 echo ""

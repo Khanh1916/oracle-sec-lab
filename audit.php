@@ -2,9 +2,8 @@
 /**
  * DBS401 - Group 02
  * audit.php  –  IDOR on audit log (supports Vulnerability 2)
- *
- * This page is also vulnerable to IDOR:
- * - Any logged-in user can view any audit log entry by changing log_id.
+ * (NOTE: This was part of an old vulnerability scenario for Flag 2.
+ *  This file is now SECURE. The IDOR vulnerability has been patched with ownership checks.)
  * - For admin: intended to see all logs.
  * - For student: should only see own logs (but no ownership check!).
  *
@@ -26,16 +25,21 @@ $errMsg    = '';
 
 if ($logId > 0) {
     // =========================================================
-    // VULNERABLE: No ownership check for log entries
-    // Students should only see their own logs
+    // SECURE: Ownership check for log entries
+    // Students should only see their own logs, unless they are admin
     // =========================================================
-    $sql  = "SELECT * FROM AUDIT_LOGS WHERE log_id = :lid";
+    $sql  = "SELECT al.*, u.user_id as log_user_id FROM AUDIT_LOGS al LEFT JOIN USERS u ON al.user_id = u.user_id WHERE al.log_id = :lid";
     $stmt = oci_parse($conn, $sql);
     oci_bind_by_name($stmt, ':lid', $logId);
     oci_execute($stmt);
     $logEntry = oci_fetch_assoc($stmt);
     if (!$logEntry) {
         $errMsg = 'Log entry not found.';
+    } elseif ($logEntry['LOG_USER_ID'] !== $_SESSION['user_id'] && $_SESSION['role'] !== 'admin') {
+        // SECURE: Ownership check - only admin or owner can view
+        http_response_code(403);
+        $errMsg = 'Access denied. You do not have permission to view this log entry.';
+        $logEntry = null; // Clear data to prevent display
     }
 } elseif ($role === 'admin') {
     // Admin can list recent logs (parameterized, not vulnerable)

@@ -4,14 +4,6 @@
  * secure_versions/secret_check_secure.php
  *
  * SECURE VERSION of secret_check.php (Vulnerability 3 Fix)
- *
- * FIXES APPLIED:
- *   1. Bind variable for 'key' parameter — no concatenation.
- *   2. Strict input whitelist (alphanumeric + underscore only).
- *   3. Key length limit to prevent oversized payloads.
- *   4. Authentication + authorization gate (admin only).
- *   5. Rate limiting stub (implement with APCu/Redis in production).
- *   6. No error detail in response body.
  */
 
 require_once dirname(__DIR__) . '/config.php';

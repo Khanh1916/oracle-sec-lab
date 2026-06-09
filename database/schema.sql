@@ -33,6 +33,7 @@ CREATE TABLE STUDENTS (
     phone         VARCHAR2(20),
     address       VARCHAR2(256),
     hidden_marker VARCHAR2(64) DEFAULT 'NORMAL',
+    credits       NUMBER(10)   DEFAULT 0,
     created_at    TIMESTAMP DEFAULT SYSTIMESTAMP
 );
 

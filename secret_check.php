@@ -2,9 +2,9 @@
 /**
  * DBS401 - Group 02
  * secret_check.php  –  VULNERABILITY 3: Oracle Boolean-Based Blind SQL Injection
- *
- * Severity (DBS401 report): Hard
- * Flag difficulty          : Very Hard
+ * (NOTE: This was part of an old vulnerability scenario for Flag 3.
+ *  The new VULN 3 is Supply Chain Poisoning in admin.php.
+ *  This file is now considered a legacy endpoint and its vulnerability is not the primary focus.)
  *
  * PURPOSE (legitimate lab feature):
  *   Checks whether a given secret key exists and is active.

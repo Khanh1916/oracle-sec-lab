@@ -1,4 +1,4 @@
-# Kiến Trúc Hệ Thống – DBS401 Group 07
+# Kiến Trúc Hệ Thống – DBS401 Group 02
 ## FPT Student Portal – Oracle Security Lab
 
 ---
@@ -9,7 +9,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                         CLIENT LAYER                            │
 │   Browser / Burp Suite / curl / Python exploit script           │
-│                    HTTP GET & POST requests                      │
+│                    HTTP GET & POST requests                     │
 └────────────────────────────┬────────────────────────────────────┘
                              │ Port 80 (HTTP)
                              ▼
@@ -24,21 +24,21 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                    APPLICATION LAYER (PHP 8.1)                  │
 │                                                                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
-│  │config.php│  │login.php │  │search.php│  │transcript.php│   │
-│  │(session, │  │(secure – │  │[VULN 1]  │  │[VULN 2]      │   │
-│  │ db conn) │  │ bind var)│  │SQLi      │  │IDOR          │   │
-│  └────┬─────┘  └──────────┘  └────┬─────┘  └──────┬───────┘   │
-│       │                           │               │            │
-│  ┌────┴────────────────────────────┴───────────────┴────────┐   │
-│  │              OCI8 PHP Extension                          │   │
-│  │     oci_connect() / oci_parse() / oci_execute()          │   │
-│  └────────────────────────┬─────────────────────────────────┘   │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐     │
+│  │config.php│  │login.php │  │search.php│  │store.php     │     │
+│  │(session, │  │(secure – │  │[VULN 1]  │  │[VULN 2]      │     │
+│  │ db conn) │  │ bind var)│  │SQLi      │  │Bus. Logic    │     │
+│  └────┬─────┘  └──────────┘  └────┬─────┘  └──────┬───────┘     │
+│       │                           │               │             │
+│  ┌────┴───────────────────────────┴───────────────┴────────┐    │
+│  │              OCI8 PHP Extension                         │    │
+│  │     oci_connect() / oci_parse() / oci_execute()         │    │
+│  └────────────────────────┬────────────────────────────────┘    │
 │                           │                                     │
 │  ┌──────────────────────────────────────────────────────────┐   │
-│  │             secret_check.php [VULN 3]                    │   │
-│  │             audit.php  [VULN 2 secondary]                │   │
-│  │             admin.php, profile.php, dashboard.php        │   │
+│  │             secret_check.php (Legacy API)                │   │
+│  │             audit.php                                    │   │
+│  │             admin.php [VULN 3], profile.php, dashboard.php   │
 │  └──────────────────────────────────────────────────────────┘   │
 └────────────────────────────┬────────────────────────────────────┘
                              │ TNS: localhost:1521/XE
@@ -46,32 +46,32 @@
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │              Oracle Instant Client (OCI8 Driver)                │
-│              /usr/lib/oracle/21/client64/lib                     │
+│              /usr/lib/oracle/21/client64/lib                    │
 └────────────────────────────┬────────────────────────────────────┘
                              │ Oracle Net Protocol (TNS)
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │          Oracle Database XE 21c (or 23c Free)                   │
-│          Service: XE  |  Port: 1521  |  Host: localhost          │
+│          Service: XE  |  Port: 1521  |  Host: localhost         │
 │                                                                 │
-│  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐   │
-│  │    USERS      │  │   STUDENTS    │  │     COURSES       │   │
-│  │(auth + roles) │  │(profiles +    │  │(course catalog)   │   │
-│  │               │  │ hidden_marker)│  │                   │   │
-│  └───────────────┘  └───────────────┘  └───────────────────┘   │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐    │
+│  │    USERS      │  │   STUDENTS    │  │     COURSES       │    │
+│  │(auth + roles) │  │(profiles +    │  │(course catalog)   │    │
+│  │               │  │ hidden_marker)│  │                   │    │
+│  └───────────────┘  └───────────────┘  └───────────────────┘    │
 │                                                                 │
-│  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐   │
-│  │ ENROLLMENTS   │  │  AUDIT_LOGS   │  │      FLAGS        │   │
-│  │(transcript_ref│  │(metadata_note │  │(hex-encoded       │   │
-│  │ internal_note │  │ = flag part B)│  │ flag part A)      │   │
-│  │ admin_ref_id) │  │               │  │                   │   │
-│  └───────────────┘  └───────────────┘  └───────────────────┘   │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐    │
+│  │ ENROLLMENTS   │  │  AUDIT_LOGS   │  │      FLAGS        │    │
+│  │(transcript_ref│  │(metadata_note │  │(hex-encoded       │    │
+│  │ internal_note │  │ = flag part B)│  │ flag part A)      │    │
+│  │ admin_ref_id) │  │               │  │                   │    │
+│  └───────────────┘  └───────────────┘  └───────────────────┘    │
 │                                                                 │
-│  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐   │
-│  │ ADMIN_SECRETS │  │ CONFIG_STORE  │  │    FAKE_FLAGS     │   │
-│  │(flag3 primary │  │(flag1 part C  │  │(decoys for        │   │
-│  │ + fake keys)  │  │ flag3 suffix) │  │ all vulns)        │   │
-│  └───────────────┘  └───────────────┘  └───────────────────┘   │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐    │
+│  │ ADMIN_SECRETS │  │ CONFIG_STORE  │  │    FAKE_FLAGS     │    │
+│  │(flag3 primary │  │(flag1 part C  │  │(decoys for        │    │
+│  │ + fake keys)  │  │ flag3 suffix) │  │ all vulns)        │    │
+│  └───────────────┘  └───────────────┘  └───────────────────┘    │
 │                                                                 │
 │  ┌───────────────┐  ┌───────────────────────────────────────┐   │
 │  │ SYSTEM_HINTS  │  │         FLAG_ARCHIVE (DECOY)          │   │
@@ -86,24 +86,24 @@
 ## 2. Authentication & Session Flow
 
 ```
-Browser                    PHP                       Oracle DB
-  │                         │                            │
-  │── POST login.php ───────►│                            │
-  │   {username, password}  │                            │
-  │                         │── SELECT username,         │
-  │                         │   password_hash FROM       │
-  │                         │   USERS WHERE username=:u ─►│
-  │                         │◄─ row (hash) ──────────────│
-  │                         │                            │
-  │                         │── password_verify()        │
-  │                         │   (bcrypt check)           │
-  │                         │                            │
-  │                         │── session_start()          │
-  │                         │   $_SESSION['user_id']     │
-  │                         │   $_SESSION['role']        │
-  │                         │                            │
-  │◄─ 302 → dashboard.php ──│                            │
-  │   Set-Cookie: DBS401_SESSION=...                     │
+Browser                     PHP                       Oracle DB
+  │                          │                             │
+  │── POST login.php ───────►│                             │
+  │   {username, password}   │                             │
+  │                          │── SELECT username,          │
+  │                          │   password_hash FROM        │
+  │                          │   USERS WHERE username=:u ─►│
+  │                          │◄─ row (hash) ───────────────│
+  │                          │                             │
+  │                          │── password_verify()         │
+  │                          │   (bcrypt check)            │
+  │                          │                             │
+  │                          │── session_start()           │
+  │                          │   $_SESSION['user_id']      │
+  │                          │   $_SESSION['role']         │
+  │                          │                             │
+  │◄─ 302 → dashboard.php ───│                             │
+  │   Set-Cookie: DBS401_SESSION=...                       │
 ```
 
 ---
@@ -136,70 +136,54 @@ Attacker Browser               search.php              Oracle DB
 
 ---
 
-## 4. Vulnerability 2 – IDOR Data Flow
+## 4. Vulnerability 2 – Business Logic (Negative Quantity) Data Flow
 
 ```
-Attacker Browser            transcript.php           Oracle DB
-     │                            │                      │
-     │── GET ?ref=TXN-001-... ───►│                      │
-     │   (observe own transcript) │                      │
-     │◄─ TXN-001-2024-S1 data ───│                      │
-     │                            │                      │
-     │ Infer pattern:             │                      │
-     │ TXN-{id:3}-{year}-S{sem}  │                      │
-     │                            │                      │
-     │── GET ?ref=TXN-099-... ───►│                      │
-     │                            │── SELECT e.*, s.*    │
-     │                            │   WHERE              │
-     │                            │   transcript_ref=:ref│
-     │                            │   (NO user_id check!)│
-     │                            │◄─ hidden student row ─│
-     │◄─ internal_note (b64) ─────│                      │
-     │◄─ admin_ref_id = N ─────── │                      │
-     │                            │                      │
-     │── GET audit.php?log_id=N ─►│                      │
-     │                            │── SELECT * FROM      │
-     │                            │   AUDIT_LOGS         │
-     │                            │   WHERE log_id=:lid  │
-     │                            │   (NO ownership!)    │
-     │                            │◄─ metadata_note ──── │
-     │◄─ fragment_b reversed ─────│                      │
-     │                            │                      │
-     ▼ Attacker decode:
-       b64_decode(Part A) = "DBS401{1DOR_Tr4ns_"
-       reverse(Part B)    = "4cc3ss_Fl4w!}"
-       FLAG 2 = "DBS401{1DOR_Tr4ns_4cc3ss_Fl4w!}"
++Attacker Browser               store.php               Oracle DB
+      │                            │                      │
+      │── POST quantity=-20000 ───►│                      │
+      │                            │                      │
+      │                            │  // Vulnerable logic:│
+      │                            │  $cost = $qty * 100; │
+      │                            │  // cost is -2M      │
+      │                            │                      │
+      │                            │── UPDATE CREDITS ───►│
+      │                            │   credits - (-2M)    │
+      │                            │◄─ success ───────────│
+      │                            │                      │
+      │◄─ Credits increased! ──────│                      │
+      │                            │                      │
+      │── Buy "Exam Leak" ────────►│                      │
+      │◄─ HTML with Flag 2 ────────│                      │
+      │                            │                      │
+      ▼ Attacker result:
+        FLAG 2 = "DBS401{LOGIC_GURU_2024}"
 ```
 
 ---
 
-## 5. Vulnerability 3 – Blind SQLi Data Flow
+## 5. Vulnerability 3 – Supply Chain Poisoning Data Flow
 
 ```
-Attacker Browser         secret_check.php          Oracle DB
+Attacker Browser            admin.php           Oracle DB / Partner
      │                          │                      │
-     │── GET ?key=X' AND ... ──►│                      │
+     │── SQLi Update URL ─────► │                      │
+     │                          │── UPDATE config ────►│
+     │                          │   'update_url' =     │
+     │                          │   'hacker.com'       │
      │                          │                      │
-     │                          │  // Vulnerable:      │
-     │                          │  $sql = "SELECT CNT  │
-     │                          │  FROM ADMIN_SECRETS  │
-     │                          │  WHERE key='$key'    │
-     │                          │  AND is_active=1";   │
-     │                          │── injected SQL ─────►│
-     │                          │◄─ count (0 or 1) ── │
-     │◄─ {"status":"found"} ────│                      │ ← TRUE condition
+     │── Trigger Update Check ─►│                      │
+     │                          │── GET update_url ───►│
+     │                          │◄─ 'hacker.com' ──────│
      │                          │                      │
-     │ Repeat for each char position:
-     │── GET ?key=oracle_flag_3_primary'               │
-     │         AND ASCII(SUBSTR(encrypted_value,N,1))  │
-     │         =M AND '1'='1 ──────────────────────────►│
-     │◄─ found / not_found ────────────────────────── │
+     │                          │── Fetch Manifest ───►│ (to Hacker Server)
+     │                          │◄─ Malicious JSON ────│ (contains flag hex)
      │                          │                      │
-     ▼ After 18 iterations:
-       Part A = "DBS401{Bl1nd_B00l_"  (from ADMIN_SECRETS)
-       Part B = hex_decode(CONFIG_STORE.oracle_flag_3_suffix)
-             = "0r4cl3_X3rt!}"
-       FLAG 3 = "DBS401{Bl1nd_B00l_0r4cl3_X3rt!}"
+     │◄─ Display Update OK! ────│                      │
+     │   (with Flag Hex)        │                      │
+     │                          │                      │
+     ▼ Attacker decode:
+       hex_decode(flag_part) = "DBS401{5upp1y_Ch41n_P0150n1ng_0912}"
 ```
 
 ---
@@ -225,22 +209,18 @@ Oracle Database (dbs401_user schema)
 ├── CONFIG_STORE
 │   ├── sys_alpha_marker
 │   │   └── config_value = "MHI0Y2wzIX0="  ← base64("0r4cl3!}")
-│   ├── sys_beta_marker                     ← DECOY key
-│   └── oracle_flag_3_suffix
-│       └── config_value = "307234636C335F58337274217D"  ← hex("0r4cl3_X3rt!}")
+│   └── update_url (VULN 3 Target)          ← Target of Supply Chain Poisoning
 │
-├── ADMIN_SECRETS
-│   ├── sys_master_key (FAKE)              ← DECOY
-│   ├── backup_recovery_key (FAKE, inactive) ← DECOY
-│   ├── oracle_flag_3_primary (REAL)
-│   │   └── encrypted_value = "DBS401{Bl1nd_B00l_"  ← extract via blind SQLi
-│   └── oracle_flag_3_backup (FAKE)        ← DECOY (same name pattern)
+├── STORE ITEMS (Logic)
+│   └── "Exam Leak 2024" 
+│       └── Contains: DBS401{LOGIC_GURU_2024}
+│
+├── PARTNER MANIFEST (External)
+│   └── flag_part = "444253343031..." 
+│       └── hex_decode → DBS401{5upp1y_Ch41n_P0150n1ng_0912}
 │
 ├── ENROLLMENTS
-│   └── TXN-099-2024-S1 (hidden student)
-│       ├── internal_note = "CLASSIFIED_DATA: REJTNDAxezFET1JfVHI0bnNf"
-│       │   └── base64_decode → "DBS401{1DOR_Tr4ns_"
-│       └── admin_ref_id → AUDIT_LOGS.log_id (TRANSCRIPT_EXPORT_HIDDEN)
+│   └── (Standard academic records, ownership checks enforced)
 │
 ├── FAKE_FLAGS (table)        ← FF001..FF005 decoys
 ├── FLAG_ARCHIVE (table)      ← DECOY TABLE (looks like FLAGS)
@@ -257,10 +237,11 @@ Oracle Database (dbs401_user schema)
 | dashboard.php | ✅ | ✅ | ✅ | None |
 | search.php | ✅ | ✅ | ✅ | **VULN 1** SQLi |
 | profile.php | ✅ (own) | ✅ | ✅ | None |
-| transcript.php | ✅ | ✅ | ✅ | **VULN 2** IDOR |
-| audit.php | ✅ (own) | ❌ | ✅ (all) | **VULN 2** IDOR |
-| admin.php | ❌ | ❌ | ✅ | None |
-| secret_check.php | ✅ | ✅ | ✅ | **VULN 3** Blind SQLi |
+| store.php | ✅ | ✅ | ✅ | **VULN 2** Business Logic |
+| transcript.php | ✅ | ✅ | ✅ | None (Secure) |
+| audit.php | ✅ (own) | ❌ | ✅ (all) | None (Secure) |
+| admin.php | ❌ | ❌ | ✅ | **VULN 3** Supply Chain |
+| secret_check.php | ✅ | ✅ | ✅ | None (Legacy API) |
 
 ---
 
@@ -270,12 +251,12 @@ Oracle Database (dbs401_user schema)
 ┌─────────────────────────────────────────────┐
 │              Ubuntu Machine                 │
 │                                             │
-│  eth0/ens33: 192.168.x.x (LAN IP)          │
+│  eth0/ens33: 192.168.x.x (LAN IP)           │
 │  lo:         127.0.0.1                      │
 │                                             │
-│  Apache2     : 0.0.0.0:80                  │
-│  Oracle XE   : 127.0.0.1:1521              │
-│  Oracle APEX : (optional) :5500            │
+│  Apache2     : 0.0.0.0:80                   │
+│  Oracle XE   : 127.0.0.1:1521               │
+│  Oracle APEX : (optional) :5500             │
 │                                             │
 └──────────────┬──────────────────────────────┘
                │
