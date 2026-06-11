@@ -111,3 +111,65 @@ INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref,
   (5, 1, 0, '2024-S1', 'TXN-099-2024-S1',
    'CLASSIFIED_DATA: REJTNDAxezFET1JfVHI0bnNf',
    NULL);
+
+-- ============================================================
+-- AUDIT_LOGS (Chứa Flag 1 Part B - Reverse)
+-- ============================================================
+INSERT INTO AUDIT_LOGS (user_id, action, ip_address, metadata_note) VALUES
+  (1, 'SYSTEM_AUDIT_CHECK', '127.0.0.1', '{"sys_version":"v2.1","fragment":"_n01tc3jn1","note":"reverse_for_context","ref":"FLAG_COMPONENT_B"}');
+INSERT INTO AUDIT_LOGS (user_id, action, ip_address, metadata_note) VALUES
+  (1, 'LOGIN_SUCCESS', '192.168.1.50', 'Admin session started');
+
+-- ============================================================
+-- FLAGS (Chứa Flag 1 Part A - Hex)
+-- ============================================================
+INSERT INTO FLAGS (flag_code, flag_part, part_order, hint, difficulty, is_active) VALUES
+  ('FL1_PART_A', '4442533430317B53514C5F', 1, 'Look into hex values', 'Easy', 1);
+INSERT INTO FLAGS (flag_code, flag_part, part_order, hint, difficulty, is_active) VALUES
+  ('FL_DECOY_B', 'U09NRV9GQUtFX0ZMQUdfSEVSRQ==', 1, 'Is it base64?', 'Medium', 1);
+
+-- ============================================================
+-- CONFIG_STORE (Chứa Flag 1 Part C - Base64 và Vuln 3 URL)
+-- ============================================================
+INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
+  ('sys_alpha_marker', 'MHI0Y2wzIX0=', 0);
+INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
+  ('update_url', 'http://127.0.0.1:8081/manifest.json', 0);
+INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
+  ('app_version', '3.1.0-ENTERPRISE', 1);
+INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
+  ('site_maintenance', 'false', 1);
+
+-- ============================================================
+-- ADMIN_SECRETS (Legacy Vuln 3 - Blind SQLi target)
+-- ============================================================
+INSERT INTO ADMIN_SECRETS (secret_key, encrypted_value, note, is_active) VALUES
+  ('oracle_flag_3_primary', 'DBS401{Bl1nd_B00l_REDACTED}', 'Primary production key', 1);
+INSERT INTO ADMIN_SECRETS (secret_key, encrypted_value, note, is_active) VALUES
+  ('oracle_flag_3_backup', 'DBS401{FAKE_blind_wrong_key_xd}', 'Legacy backup key', 1);
+
+-- ============================================================
+-- FAKE_FLAGS (Decoys để gây nhiễu)
+-- ============================================================
+INSERT INTO FAKE_FLAGS (fake_code, fake_value, reason) VALUES
+  ('FF001', 'DBS401{FAKE_union_select_lol}', 'SQLi Trap');
+INSERT INTO FAKE_FLAGS (fake_code, fake_value, reason) VALUES
+  ('FF002', 'DBS401{FAKE_IDOR_notreal}', 'IDOR Trap');
+
+-- ============================================================
+-- SYSTEM_HINTS (Gợi ý gián tiếp)
+-- ============================================================
+INSERT INTO SYSTEM_HINTS (hint_key, hint_value, related_vuln) VALUES
+  ('HINT_SQLI_01', 'Flags are not in one piece. Check Audit Logs and Config Store too.', 'VULN1');
+INSERT INTO SYSTEM_HINTS (hint_key, hint_value, related_vuln) VALUES
+  ('HINT_SUPPLY_03', 'Admin update depends on the update_url in config.', 'VULN3');
+
+-- ============================================================
+-- FLAG_ARCHIVE (Decoy Table)
+-- ============================================================
+INSERT INTO FLAG_ARCHIVE (archive_code, archive_data) VALUES
+  ('OLD_FLAG_2023', 'DBS401{FAKE_archived_flag_123}');
+
+COMMIT;
+-- Lưu ý: Sau khi nạp, hãy chạy file fix_refs.sql để đồng bộ admin_ref_id
+-- và init_passwords.php để băm mật khẩu thực tế.

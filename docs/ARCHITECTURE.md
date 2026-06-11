@@ -179,7 +179,7 @@ Attacker Browser            admin.php           Oracle DB / Partner
      │                          │── Fetch Manifest ───►│ (to Hacker Server)
      │                          │◄─ Malicious JSON ────│ (contains flag hex)
      │                          │                      │
-     │◄─ Display Update OK! ────│                      │
+     │◄─ Display Update OK! ────│                      │ (Show Flag 3 Hex)
      │   (with Flag Hex)        │                      │
      │                          │                      │
      ▼ Attacker decode:
