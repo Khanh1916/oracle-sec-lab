@@ -23,7 +23,7 @@
 | 4   | Nguyen Huu Phuc  | HE181521           | 
 
 
-**Giảng viên hướng dẫn:** *(Tên giảng viên)*
+**Giảng viên hướng dẫn:** *AnhHT68*
 
 ---
 
