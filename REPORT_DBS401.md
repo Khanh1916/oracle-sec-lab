@@ -15,12 +15,12 @@
 
 ## THÀNH VIÊN NHÓM
 
-| STT | Họ và tên        | MSSV     |
-|-----|------------------|----------|
-| 1   | Nguyen Nam Khanh | HE191159 | 
-| 2   | Nguyen Hai Anh   | HE172727 | 
-| 3   | Nguyen Cong Tien | HE180928 | 
-| 4   | Nguyen Huu Phuc  | HE181521 | 
+| STT | Họ và tên        | MSSV               |
+|-----|------------------|--------------------|
+| 1   | Nguyen Nam Khanh | HE191159 (Leader)  | 
+| 2   | Nguyen Hai Anh   | HE172727           | 
+| 3   | Nguyen Cong Tien | HE180928           | 
+| 4   | Nguyen Huu Phuc  | HE181521           | 
 
 
 **Giảng viên hướng dẫn:** *(Tên giảng viên)*
