@@ -4,7 +4,7 @@
 -- Reset toàn bộ database về trạng thái ban đầu cho demo
 -- ============================================================
 -- ⚠️  Xóa toàn bộ dữ liệu! Chỉ chạy khi cần reset.
--- Chạy: sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/reset_db.sql
+-- Chạy: sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/reset_db.sql
 -- ============================================================
 
 PROMPT ================================================
@@ -34,8 +34,8 @@ PROMPT Tables cleared. Reimporting seed data...
 -- @database/seed.sql
 
 PROMPT Done. Now run:
-PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/seed.sql
-PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/fix_refs.sql
+PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/seed.sql
+PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/fix_refs.sql
 PROMPT   php database/init_passwords.php
 
 COMMIT;

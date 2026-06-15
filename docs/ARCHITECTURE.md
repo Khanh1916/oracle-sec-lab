@@ -41,7 +41,7 @@
 │  │             admin.php [VULN 3], profile.php, dashboard.php   │
 │  └──────────────────────────────────────────────────────────┘   │
 └────────────────────────────┬────────────────────────────────────┘
-                             │ TNS: localhost:1521/XE
+                             │ TNS: localhost:1539/XEPDB1
                              │ User: dbs401_user / dbs401_pass
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
@@ -52,7 +52,7 @@
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │          Oracle Database XE 21c (or 23c Free)                   │
-│          Service: XE  |  Port: 1521  |  Host: localhost         │
+│          Service: XE  |  Port: 1539  |  Host: localhost         │
 │                                                                 │
 │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐    │
 │  │    USERS      │  │   STUDENTS    │  │     COURSES       │    │
@@ -255,7 +255,7 @@ Oracle Database (dbs401_user schema)
 │  lo:         127.0.0.1                      │
 │                                             │
 │  Apache2     : 0.0.0.0:80                   │
-│  Oracle XE   : 127.0.0.1:1521               │
+│  Oracle XE   : 127.0.0.1:1539               │
 │  Oracle APEX : (optional) :5500             │
 │                                             │
 └──────────────┬──────────────────────────────┘
@@ -273,4 +273,4 @@ Oracle Database (dbs401_user schema)
 sudo ufw allow 80/tcp comment 'DBS401 lab'
 ```
 
-Oracle chỉ bind localhost (1521) → không expose ra ngoài LAN → an toàn cho lab.
+Oracle chỉ bind localhost (1539) → không expose ra ngoài LAN → an toàn cho lab.

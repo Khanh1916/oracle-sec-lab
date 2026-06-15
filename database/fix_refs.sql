@@ -7,7 +7,7 @@
 -- Lý do: log_id là IDENTITY (auto) nên không thể hardcode trong seed.sql.
 -- ============================================================
 -- Chạy:
---   sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/fix_refs.sql
+--   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/fix_refs.sql
 -- ============================================================
 
 -- Bước 1: Xem log_id thực tế

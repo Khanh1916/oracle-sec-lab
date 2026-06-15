@@ -125,7 +125,7 @@ sudo /etc/init.d/oracle-xe-21c configure
 Nhập khi được hỏi:
 - Oracle Database XE password: **oracle** (hoặc tùy chọn, nhớ lại)
 - Confirm password: **oracle**
-- Port: **1521** (nhấn Enter giữ mặc định)
+- Port: **1539** (nhấn Enter giữ mặc định)
 
 ### 4.4 Cấu hình biến môi trường
 
@@ -235,7 +235,7 @@ php -r "echo oci_client_version() . PHP_EOL;"
 ### 6.1 Tạo Oracle User DBS401
 
 ```bash
-sqlplus sys/oracle@localhost:1521/XE as sysdba
+sqlplus sys/oracle@localhost:1539/XEPDB1 as sysdba
 ```
 
 Trong SQL*Plus:
@@ -260,7 +260,7 @@ EXIT;
 ```bash
 cd /path/to/dbs401-oracle-app/
 
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/schema.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/schema.sql
 ```
 
 ✅ Nếu không có lỗi ORA- → thành công.
@@ -268,13 +268,13 @@ sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/schema.sql
 ### 6.3 Import Seed Data
 
 ```bash
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/seed.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/seed.sql
 ```
 
 ### 6.4 Fix References (quan trọng)
 
 ```bash
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/fix_refs.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/fix_refs.sql
 ```
 
 > Script này cập nhật `admin_ref_id` trong ENROLLMENTS để trỏ đúng đến log_id thực tế.
@@ -368,7 +368,7 @@ curl "http://127.0.0.1/dbs401-oracle-app/admin.php?check_updates=1" \
 ### 8.4 Verify Database Data
 
 ```bash
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE << 'EOF'
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 << 'EOF'
 -- Kiểm tra bảng FLAGS
 SELECT flag_id, flag_code, is_active FROM FLAGS;
 
@@ -398,7 +398,7 @@ EOF
 | `ORA-01017` | Sai user/password Oracle | Kiểm tra `dbs401_user/dbs401_pass`, reset nếu cần |
 | `403 Forbidden` | Permission sai | `sudo chown -R www-data:www-data /var/www/html/dbs401-oracle-app` |
 | Blank page PHP | PHP error ẩn | `tail -f /var/log/apache2/error.log` |
-| `Connection refused 1521` | Oracle chưa chạy | `sudo systemctl start oracle-xe-21c` |
+| `Connection refused 1539` | Oracle chưa chạy | `sudo systemctl start oracle-xe-21c` |
 | OCI8 load OK nhưng connect lỗi | LD_LIBRARY_PATH | Thêm vào `/etc/apache2/envvars`, restart Apache |
 
 ---

@@ -9,7 +9,7 @@
  * Usage: php init_passwords.php
  */
 
-$tns = '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)))';
+$tns = '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1539))(CONNECT_DATA=(SERVICE_NAME=XE)))';
 $dbUser = 'dbs401_user';
 $dbPass = 'dbs401_pass';
 

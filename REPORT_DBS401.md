@@ -117,7 +117,7 @@ Toàn bộ dự án hoạt động trong môi trường **lab học tập nội 
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │           Oracle Instant Client (OCI8 Driver)           │
-│              TNS: localhost:1521/XE                     │
+│              TNS: localhost:1539/XEPDB1                     │
 └────────────────────────┬────────────────────────────────┘
                          │ Oracle Net Protocol
                          ▼
@@ -596,8 +596,8 @@ ALTER USER dbs401_user QUOTA UNLIMITED ON USERS;
 
 **Bước 5 – Import schema và seed data:**
 ```bash
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @/path/to/database/schema.sql
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @/path/to/database/seed.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @/path/to/database/schema.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @/path/to/database/seed.sql
 php /var/www/html/dbs401-oracle-app/database/init_passwords.php
 ```
 

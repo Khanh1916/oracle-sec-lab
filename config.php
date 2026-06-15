@@ -9,8 +9,8 @@
  */
 
 define('DB_HOST',    'localhost');
-define('DB_PORT',    '1521');
-define('DB_SERVICE', 'XE');          // Change to 'FREE' for Oracle 23c Free
+define('DB_PORT',    '1539');
+define('DB_SERVICE', 'XEPDB1');          // Change to 'FREE' for Oracle 23c Free
 define('DB_USER',    'dbs401_user');
 define('DB_PASS',    'dbs401_pass');
 define('DB_CHARSET', 'AL32UTF8');

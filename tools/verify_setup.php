@@ -71,12 +71,12 @@ if (!$isCli) echo "</div>";
 if (!$isCli) echo "<div class='section'><h2>2. Oracle Database Connection</h2>";
 else out("═══ Oracle Database ═══", 'head');
 
-$tns  = '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)))';
+$tns  = '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1539))(CONNECT_DATA=(SERVICE_NAME=XE)))';
 $conn = null;
 if (extension_loaded('oci8')) {
     $conn = @oci_connect('dbs401_user', 'dbs401_pass', $tns, 'AL32UTF8');
     if ($conn) {
-        out('Oracle connection: SUCCESS (dbs401_user@localhost:1521/XE)', 'ok');
+        out('Oracle connection: SUCCESS (dbs401_user@localhost:1539/XEPDB1)', 'ok');
         $passCount++;
     } else {
         $e = oci_error();

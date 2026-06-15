@@ -23,7 +23,7 @@ RST="\033[0m"
 REPO_URL=""                                      # Để trống → copy local source
 APP_DIR="/var/www/html/dbs401-oracle-app"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ORA_SERVICE="XE"                                 # hoặc "FREE" cho Oracle 23c
+ORA_SERVICE="XEPDB1"                                 # hoặc "FREE" cho Oracle 23c
 ORA_USER="dbs401_user"
 ORA_PASS="dbs401_pass"
 ORA_SYS_PASS="oracle"                            # SYS password của Oracle XE
@@ -160,7 +160,7 @@ else
 3. Cấu hình Oracle XE:
    sudo /etc/init.d/oracle-xe-21c configure
    # Nhập SYS/SYSTEM password: oracle (hoặc tùy chọn)
-   # Port mặc định: 1521
+   # Port mặc định: 1539
 
 4. Khởi động:
    sudo systemctl start oracle-xe-21c
@@ -261,7 +261,7 @@ cat << SQLINFO
 ─── Tạo Oracle user DBS401 (chạy thủ công) ────────────────────
 Mở terminal và chạy:
 
-  sqlplus sys/${ORA_SYS_PASS}@localhost:1521/${ORA_SERVICE} as sysdba
+  sqlplus sys/${ORA_SYS_PASS}@localhost:1539/${ORA_SERVICE} as sysdba
 
 Trong SQLPlus:
   CREATE USER ${ORA_USER} IDENTIFIED BY ${ORA_PASS};
@@ -271,8 +271,8 @@ Trong SQLPlus:
   EXIT;
 
 Import schema + seed:
-  sqlplus ${ORA_USER}/${ORA_PASS}@localhost:1521/${ORA_SERVICE} @${APP_DIR}/database/schema.sql
-  sqlplus ${ORA_USER}/${ORA_PASS}@localhost:1521/${ORA_SERVICE} @${APP_DIR}/database/seed.sql
+  sqlplus ${ORA_USER}/${ORA_PASS}@localhost:1539/${ORA_SERVICE} @${APP_DIR}/database/schema.sql
+  sqlplus ${ORA_USER}/${ORA_PASS}@localhost:1539/${ORA_SERVICE} @${APP_DIR}/database/seed.sql
 
 Tạo password hash (PHP bcrypt):
   php ${APP_DIR}/database/init_passwords.php
@@ -286,8 +286,8 @@ fi
 log_step "STEP 11: Final Cleanup & Hardening"
 log_info "Removing database seed files to prevent direct flag discovery..."
 # Xóa các file .sql để hacker không thể đọc schema/flags qua lỗi RCE hoặc File Read
-rm -f "$APP_DIR/database"/*.sql
-log_ok "Sensitive SQL files removed from $APP_DIR/database/"
+# rm -f "$APP_DIR/database"/*.sql
+# log_ok "Sensitive SQL files removed from $APP_DIR/database/"
 
 # ─── 10.b. Hiển thị URL ────────────────────────────────────────
 log_step "SETUP COMPLETE"

@@ -171,7 +171,7 @@ php -r "echo oci_client_version();"
 
 ```bash
 # Kết nối SQLPlus với SYS
-sqlplus sys/YOUR_SYS_PASSWORD@localhost:1521/XE as sysdba
+sqlplus sys/YOUR_SYS_PASSWORD@localhost:1539/XEPDB1 as sysdba
 ```
 
 Trong SQLPlus:
@@ -186,8 +186,8 @@ EXIT;
 
 Import schema và seed:
 ```bash
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/schema.sql
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/seed.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/schema.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/seed.sql
 ```
 
 Khởi tạo password hash (PHP bcrypt):
@@ -267,7 +267,7 @@ sudo systemctl restart oracle-xe-21c
 
 ```bash
 # Reset password Oracle user
-sqlplus sys/SYS_PASS@localhost:1521/XE as sysdba
+sqlplus sys/SYS_PASS@localhost:1539/XEPDB1 as sysdba
 ALTER USER dbs401_user IDENTIFIED BY dbs401_pass;
 EXIT;
 ```
@@ -290,13 +290,13 @@ sudo chmod 640 /var/www/html/dbs401-oracle-app/config.php
 sudo systemctl restart apache2
 ```
 
-### ❌ Connection refused (Port 1521)
+### ❌ Connection refused (Port 1539)
 
 ```bash
 # Check Oracle listener port
-sudo netstat -tlnp | grep 1521
+sudo netstat -tlnp | grep 1539
 # Hoặc:
-sudo ss -tlnp | grep 1521
+sudo ss -tlnp | grep 1539
 # Start listener:
 lsnrctl start
 ```
@@ -309,7 +309,7 @@ cat $ORACLE_HOME/network/admin/tnsnames.ora
 # Test connection:
 tnsping XE
 # Thử với EZConnect:
-sqlplus dbs401_user/dbs401_pass@//localhost:1521/XE
+sqlplus dbs401_user/dbs401_pass@//localhost:1539/XEPDB1
 ```
 
 ### ❌ PHP không load extension OCI8 (Apache2)
@@ -326,7 +326,7 @@ sudo systemctl restart apache2
 
 ```bash
 # Drop và recreate toàn bộ
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE << 'EOF'
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 << 'EOF'
 DROP TABLE ENROLLMENTS CASCADE CONSTRAINTS;
 DROP TABLE STUDENTS CASCADE CONSTRAINTS;
 DROP TABLE COURSES CASCADE CONSTRAINTS;
@@ -341,8 +341,8 @@ DROP TABLE FLAG_ARCHIVE;
 EXIT;
 EOF
 
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/schema.sql
-sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/seed.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/schema.sql
+sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/seed.sql
 php database/init_passwords.php
 ```
 
@@ -351,7 +351,7 @@ php database/init_passwords.php
 ## 📋 Checklist Trước Khi Demo
 
 - [ ] Oracle Database XE đang chạy (`systemctl status oracle-xe-21c`)
-- [ ] Oracle Listener đang nghe port 1521 (`lsnrctl status`)
+- [ ] Oracle Listener đang nghe port 1539 (`lsnrctl status`)
 - [ ] PHP OCI8 extension loaded (`php -m | grep oci8`)
 - [ ] Apache2 đang chạy (`systemctl status apache2`)
 - [ ] Web truy cập được tại `http://127.0.0.1/dbs401-oracle-app`

@@ -3,7 +3,7 @@
 -- database/create_oracle_user.sql
 -- Chạy với SYS/SYSTEM để tạo Oracle user cho lab
 -- ============================================================
--- sqlplus sys/YOUR_PASSWORD@localhost:1521/XE as sysdba @create_oracle_user.sql
+-- sqlplus sys/YOUR_PASSWORD@localhost:1539/XEPDB1 as sysdba @create_oracle_user.sql
 -- ============================================================
 
 PROMPT Creating DBS401 lab user...
@@ -38,9 +38,9 @@ WHERE username = 'DBS401_USER';
 
 PROMPT User dbs401_user created successfully.
 PROMPT Next steps:
-PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/schema.sql
-PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/seed.sql
-PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1521/XE @database/fix_refs.sql
+PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/schema.sql
+PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/seed.sql
+PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/fix_refs.sql
 PROMPT   php database/init_passwords.php
 
 COMMIT;
