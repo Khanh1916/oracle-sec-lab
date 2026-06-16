@@ -16,16 +16,16 @@
  *   Appears when student's credits >= 999999 and they buy "Exam Leak 2024"
  */
 require_once __DIR__ . '/config.php';
-if (empty($_SESSION['user_id'])) { header('Location:'.APP_BASE.'/login.php'); exit; }
+if (empty($_SESSION['user_id'])) { header('Location:'.APP_BASE.'/login.php'); exit; } 
 
 $conn   = getDbConnection();
-$userId = $_SESSION['user_id'];
+$userId = $_SESSION['user_id']; // Lấy user_id từ session (không phải từ input)
 $msg     = '';
 $msgType = 'info'; // FIX: initialise $msgType to avoid undefined variable
 
 // Lấy credits hiện tại của sinh viên
-$stmt = oci_parse($conn, "SELECT credits FROM STUDENTS WHERE user_id = :uid");
-oci_bind_by_name($stmt, ':uid', $userId);
+$stmt = oci_parse($conn, "SELECT credits FROM STUDENTS WHERE user_id = :uid"); 
+oci_bind_by_name($stmt, ':uid', $userId); // Bind user_id để tránh SQL Injection
 oci_execute($stmt);
 $row     = oci_fetch_assoc($stmt);
 $credits = $row ? (int)$row['CREDITS'] : 0;
