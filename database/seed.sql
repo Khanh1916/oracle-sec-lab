@@ -55,6 +55,12 @@ INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hid
   (NULL, 'Dang Minh Tuan', 'tuan.dm2021@fpt.edu.vn', 'Information Security', 2.75, '0988776655', 'Binh Duong', 'NORMAL', 120);
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
   (NULL, 'Phan Khanh Vy', 'vy.pk2023@fpt.edu.vn', 'Business Management', 3.40, '0977112233', 'Vung Tau', 'NORMAL', 80);
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
+  (NULL, 'Nguyen Thi Binh Yen', 'yen.nt2006@tnue.edu.vn', 'Mathematics Education', 3.00, '0911111113', 'Bac Giang', 'NORMAL', 10000000);
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
+  (NULL, 'Pham Thi Ngoc Anh', 'anh.pt2006@fpoly.edu.vn', 'Classical Music', 3.00, '0911111114', 'Ha Noi', 'NORMAL', 10000000);
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
+  (NULL, 'Bui Khanh Huyen', 'huyen.bk2005@ulis.vnu.edu.vn', 'English Literature', 3.00, '0911111115', 'Nam Dinh', 'NORMAL', 10000000);
 
 -- Decoy student (hidden_marker DECOY → không lộ trong search bình thường)
 -- internal_note của enrollment chứa FAKE flag dạng base64 để bẫy IDOR hunter
