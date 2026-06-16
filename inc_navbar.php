@@ -13,6 +13,7 @@ $username = $_SESSION['username'] ?? '';
         <a href="<?= APP_BASE ?>/dashboard.php">Dashboard</a>
         <a href="<?= APP_BASE ?>/search.php">Search</a>
         <a href="<?= APP_BASE ?>/profile.php">Profile</a>
+        <a href="<?= APP_BASE ?>/transcript.php">Transcript</a>
         <?php if ($role === 'admin'): ?>
             <a href="<?= APP_BASE ?>/admin.php">Admin</a>
             <a href="<?= APP_BASE ?>/audit.php">Audit</a>
