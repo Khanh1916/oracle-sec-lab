@@ -1,3 +1,15 @@
+DELETE FROM USERS;
+DELETE FROM STUDENTS;
+DELETE FROM COURSES;
+DELETE FROM ENROLLMENTS;
+DELETE FROM AUDIT_LOGS;
+DELETE FROM FLAGS;
+DELETE FROM CONFIG_STORE;
+DELETE FROM ADMIN_SECRETS;
+DELETE FROM FAKE_FLAGS;
+DELETE FROM SYSTEM_HINTS;
+DELETE FROM FLAG_ARCHIVE;
+
 -- ============================================================
 -- DBS401 - Group 02 - Seed Data
 -- ============================================================
