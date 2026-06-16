@@ -47,17 +47,14 @@ INSERT INTO USERS (username, password_hash, role, status) VALUES
 -- ============================================================
 -- STUDENTS (dùng subquery SELECT để tránh hardcode user_id)
 -- ============================================================
-INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
-  ((SELECT user_id FROM USERS WHERE username='student1'),
-   'Nguyen Van An', 'an.nv2021@fpt.edu.vn', 'Software Engineering', 3.20, '0901234567', 'Ha Noi', 'NORMAL', 150);
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) SELECT u.user_id, 'Nguyen Van An', 'an.nv2021@fpt.edu.vn', 'Software Engineering', 3.20, '0901234567', 'Ha Noi', 'NORMAL', 150
+FROM USERS u WHERE u.username = 'student1';
 
-INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
-  ((SELECT user_id FROM USERS WHERE username='student2'),
-   'Tran Thi Binh', 'binh.tt2021@fpt.edu.vn', 'Information Security', 3.55, '0912345678', 'Ho Chi Minh', 'NORMAL', 50);
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) SELECT u.user_id, 'Tran Thi Binh', 'binh.tt2021@fpt.edu.vn', 'Information Security', 3.55, '0912345678', 'Ho Chi Minh', 'NORMAL', 50
+FROM USERS u WHERE u.username = 'student2';
 
-INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
-  ((SELECT user_id FROM USERS WHERE username='student3'),
-   'Le Quoc Cuong', 'cuong.lq2021@fpt.edu.vn', 'Artificial Intelligence', 2.90, '0923456789', 'Da Nang', 'NORMAL', 200);
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) SELECT u.user_id, 'Le Quoc Cuong', 'cuong.lq2021@fpt.edu.vn', 'Artificial Intelligence', 2.90, '0923456789', 'Da Nang', 'NORMAL', 200
+FROM USERS u WHERE u.username = 'student3';
 
 -- Thêm sinh viên demo không có tài khoản đăng nhập
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
