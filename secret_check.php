@@ -1,34 +1,22 @@
 <?php
 /**
  * DBS401 - Group 02
- * secret_check.php  –  VULNERABILITY 3: Oracle Boolean-Based Blind SQL Injection
- * (NOTE: This was part of an old vulnerability scenario for Flag 3.
- *  The new VULN 3 is Supply Chain Poisoning in admin.php.
- *  This file is now considered a legacy endpoint and its vulnerability is not the primary focus.)
+ * secret_check.php  –  Legacy Secret Key API
  *
- * PURPOSE (legitimate lab feature):
- *   Checks whether a given secret key exists and is active.
- *   Used internally by the system to verify configuration tokens.
+ * TRẠNG THÁI: Endpoint legacy, KHÔNG phải một trong 3 lỗ hổng chính của lab.
  *
- * WHY VULNERABLE:
- *   - Input 'key' is concatenated into SQL without parameterization.
- *   - Blacklist blocks '--' and '/*' but NOT:
- *       AND, OR, SUBSTR, ASCII, LENGTH, SELECT, FROM, WHERE, ROWNUM
- *   - The endpoint only returns two states: "found" or "not_found"
- *   - No data is returned directly → forces boolean-based blind extraction.
+ * Các lỗ hổng chính:
+ *   VULN 1: search.php      (SQL Injection)
+ *   VULN 2: store.php       (Business Logic – Negative Quantity)
+ *   VULN 3: admin.php       (Supply Chain Poisoning)
  *
- * WHY FLAG IS VERY HARD:
- *   - No UNION output possible (COUNT only).
- *   - Must use boolean condition: ASCII(SUBSTR(...))=N
- *   - Must determine correct secret_key ('oracle_flag_3_primary' not obvious).
- *   - Fake keys exist (oracle_flag_3_backup) with decoy values.
- *   - After extraction: value is partial → must combine with hex-encoded suffix from CONFIG_STORE.
- *   - CONFIG_STORE suffix discoverable via Vuln 1 SQLi or SYSTEM_HINTS.
- *   - Must decode hex suffix and concatenate to assemble final flag.
+ * File này vẫn có lỗ hổng SQL Injection (input 'key' không được parameterize),
+ * nhưng chỉ trả về found/not_found → không lộ dữ liệu trực tiếp.
+ * Không có flag nào được lưu trong ADMIN_SECRETS liên quan đến kịch bản hiện tại.
  *
  * ACCESSIBLE AT:
- *   GET /dbs401-oracle-app/secret_check.php?key=SOME_KEY
- *   Returns JSON: {"status":"found","message":"..."} or {"status":"not_found","message":"..."}
+ *   GET /dbs401-oracle-app/secret_check.php?key=sys_master_key
+ *   Returns JSON: {"status":"found",...} or {"status":"not_found",...}
  */
 
 require_once __DIR__ . '/config.php';
@@ -47,10 +35,7 @@ if ($key === '') {
     exit;
 }
 
-// =========================================================
-// INTENTIONALLY WEAK BLACKLIST
-// Blocks comment syntax only — NOT injection logic keywords
-// =========================================================
+// Weak blacklist – blocks comment syntax only
 $weakBlacklist = ['--', '/*', '*/', 'xp_', 'exec(', 'execute('];
 $keyLower      = strtolower($key);
 foreach ($weakBlacklist as $bad) {
@@ -67,18 +52,14 @@ if (strlen($key) > 512) {
 
 $conn = getDbConnection();
 
-// =========================================================
-// VULNERABLE QUERY — input concatenated directly
-// Attacker can inject: oracle_flag_3_primary' AND ASCII(SUBSTR(encrypted_value,1,1))=68 AND '1'='1
-// =========================================================
-$sql = "SELECT COUNT(*) AS cnt FROM ADMIN_SECRETS
-        WHERE secret_key = '$key' AND is_active = 1";
-
-$stmt       = oci_parse($conn, $sql);
+// VULNERABLE: input concatenated directly (boolean-blind injectable)
+// Nhưng không có flag nào có thể extract qua đây trong kịch bản hiện tại
+$sql  = "SELECT COUNT(*) AS cnt FROM ADMIN_SECRETS
+         WHERE secret_key = '$key' AND is_active = 1";
+$stmt = oci_parse($conn, $sql);
 $execResult = @oci_execute($stmt);
 
 if (!$execResult) {
-    // Suppress all SQL error details
     echo json_encode(['status' => 'error', 'message' => 'Query execution failed']);
     exit;
 }

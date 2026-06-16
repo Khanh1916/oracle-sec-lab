@@ -1,15 +1,15 @@
 <?php
 /**
  * DBS401 - Group 02
- * transcript.php  –  VULNERABILITY 2: IDOR + Broken Access Control
- * (NOTE: This was part of an old vulnerability scenario for Flag 2.
- *  The new VULN 2 is Business Logic in store.php.
- *  This file is now SECURE. The IDOR vulnerability has been patched with ownership checks.)
+ * transcript.php  –  Transcript Viewer (SECURE)
  *
- * DECOY:
- *   TXN-004-2024-S1 → internal_note chứa base64 FAKE
- *   TXN-040..060   → giả 403 để gây nản brute force đơn giản
- *   TXN-099-2024-S1 → hidden student, chứa flag part A + admin_ref_id
+ * Trang này đã được vá lỗi IDOR (ownership check đã thêm).
+ * IDOR không còn là một trong 3 lỗ hổng chính của lab.
+ *
+ * Các lỗ hổng chính:
+ *   VULN 1: search.php      (SQL Injection)
+ *   VULN 2: store.php       (Business Logic – Negative Quantity)
+ *   VULN 3: admin.php       (Supply Chain Poisoning)
  */
 require_once __DIR__ . '/config.php';
 if (empty($_SESSION['user_id'])) { header('Location:'.APP_BASE.'/login.php'); exit; }
@@ -21,20 +21,17 @@ $errMsg = '';
 if ($ref !== '') {
     if (!preg_match('/^TXN-\d{3}-\d{4}-S\d+$/', $ref)) {
         $errMsg = 'Invalid transcript reference format.';
-    } elseif (preg_match('/^TXN-0([4-5]\d|60)-/', $ref)) {
-        http_response_code(403);
-        $errMsg = 'Access denied. This record is classified or restricted.';
     } else {
         $conn = getDbConnection();
-        // VULNERABLE: bind variable diệt SQLi, NHƯNG không có ownership check
+        // SECURE: bind variable + ownership check (JOIN trên user_id)
         $sql = "SELECT e.enrollment_id, e.student_id, e.transcript_ref,
-                       e.semester, e.score, e.internal_note, e.admin_ref_id,
+                       e.semester, e.score,
                        s.full_name, s.major, s.email, u.user_id,
                        c.course_name, c.course_code
                 FROM ENROLLMENTS e
                 JOIN STUDENTS s ON e.student_id = s.student_id
                 JOIN COURSES  c ON e.course_id  = c.course_id
-                JOIN USERS    u ON s.user_id    = u.user_id -- Join with USERS to check ownership
+                JOIN USERS    u ON s.user_id    = u.user_id
                 WHERE e.transcript_ref = :ref";
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':ref', $ref);
@@ -45,10 +42,9 @@ if ($ref !== '') {
             if (!$transcriptData) {
                 $errMsg = 'Transcript not found.';
             } elseif ($transcriptData['USER_ID'] != $_SESSION['user_id'] && $_SESSION['role'] !== 'admin') {
-                // SECURE: Ownership check - only admin or owner can view
                 http_response_code(403);
                 $errMsg = 'Access denied. You do not have permission to view this transcript.';
-                $transcriptData = null; // Clear data to prevent display
+                $transcriptData = null;
             } else {
                 logAction($_SESSION['user_id'], 'TRANSCRIPT_VIEW',
                           json_encode(['ref' => $ref, 'sid' => $transcriptData['STUDENT_ID']]));
@@ -77,7 +73,7 @@ if ($ref !== '') {
     </form>
 
     <?php if ($errMsg): ?>
-        <div class="alert alert-<?= http_response_code()===403?'danger':'warning' ?>">
+        <div class="alert alert-<?= http_response_code() === 403 ? 'danger' : 'warning' ?>">
             <?= htmlspecialchars($errMsg) ?>
         </div>
     <?php endif; ?>
@@ -93,21 +89,6 @@ if ($ref !== '') {
             <tr><th>Course</th>      <td><?= htmlspecialchars($transcriptData['COURSE_NAME']) ?> (<?= htmlspecialchars($transcriptData['COURSE_CODE']) ?>)</td></tr>
             <tr><th>Semester</th>    <td><?= htmlspecialchars($transcriptData['SEMESTER']) ?></td></tr>
             <tr><th>Score</th>       <td><?= htmlspecialchars($transcriptData['SCORE'] ?? 'N/A') ?></td></tr>
-            <tr>
-                <th>System Note</th>
-                <td class="system-note"><code><?= htmlspecialchars($transcriptData['INTERNAL_NOTE'] ?? 'None') ?></code></td>
-            </tr>
-            <?php if (!empty($transcriptData['ADMIN_REF_ID'])): ?>
-            <tr>
-                <th>Admin Log Ref</th>
-                <td>
-                    <a href="<?= APP_BASE ?>/audit.php?log_id=<?= (int)$transcriptData['ADMIN_REF_ID'] ?>">
-                        LOG-<?= (int)$transcriptData['ADMIN_REF_ID'] ?>
-                    </a>
-                    <small class="text-muted">– Audit record for this enrollment</small>
-                </td>
-            </tr>
-            <?php endif; ?>
         </table>
         <div class="transcript-footer">
             <small class="text-muted">
