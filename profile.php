@@ -7,9 +7,9 @@ $userId = $_SESSION['user_id'];
 $sql    = "SELECT u.user_id, u.username, u.role, u.status, u.created_at,
                   s.full_name, s.email, s.major, s.gpa, s.phone, s.address
            FROM USERS u LEFT JOIN STUDENTS s ON s.user_id = u.user_id
-           WHERE u.user_id = :uid";
+           WHERE u.user_id = " . $userId;
 $stmt = oci_parse($conn, $sql);
-oci_bind_by_name($stmt, ':uid', $userId);
+// oci_bind_by_name($stmt, ':uid', $userId);
 oci_execute($stmt);
 $profile = oci_fetch_assoc($stmt);
 ?>

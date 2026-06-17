@@ -24,8 +24,8 @@ $msg     = '';
 $msgType = 'info'; // FIX: initialise $msgType to avoid undefined variable
 
 // Lấy credits hiện tại của sinh viên
-$stmt = oci_parse($conn, "SELECT credits FROM STUDENTS WHERE user_id = :uid"); 
-oci_bind_by_name($stmt, ':uid', $userId); // Bind user_id để tránh SQL Injection
+$stmt = oci_parse($conn, "SELECT credits FROM STUDENTS WHERE user_id = " . $userId);
+// oci_bind_by_name($stmt, ':uid', $userId);
 oci_execute($stmt);
 $row     = oci_fetch_assoc($stmt);
 $credits = $row ? (int)$row['CREDITS'] : 0;
@@ -45,9 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy'])) {
 
     if ($credits >= $cost) {
         $newCredits = $credits - $cost;
-        $upd = oci_parse($conn, "UPDATE STUDENTS SET credits = :c WHERE user_id = :uid");
+        $upd = oci_parse($conn, "UPDATE STUDENTS SET credits = :c WHERE user_id = " . $userId);
         oci_bind_by_name($upd, ':c',   $newCredits);
-        oci_bind_by_name($upd, ':uid', $userId);
+        //oci_bind_by_name($upd, ':uid', $userId);
         if (oci_execute($upd)) {
             $credits = $newCredits;
             if ($qty < 0) {

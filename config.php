@@ -61,9 +61,9 @@ function logAction(int|null $userId, string $action, string $metaNote = ''): voi
         $ip   = $_SERVER['REMOTE_ADDR']    ?? 'unknown';
         $ua   = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
         $sql  = "INSERT INTO AUDIT_LOGS (user_id, action, ip_address, user_agent, metadata_note)
-                 VALUES (:uid, :act, :ip, :ua, :meta)";
+                 VALUES (" . ($userId ?? 'NULL') . ", :act, :ip, :ua, :meta)";
         $stmt = oci_parse($conn, $sql);
-        oci_bind_by_name($stmt, ':uid',  $userId);
+        //oci_bind_by_name($stmt, ':uid',  $userId);
         oci_bind_by_name($stmt, ':act',  $action);
         oci_bind_by_name($stmt, ':ip',   $ip);
         oci_bind_by_name($stmt, ':ua',   $ua);

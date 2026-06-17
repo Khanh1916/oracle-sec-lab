@@ -64,10 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
     } elseif ($action === 'update_status') {
         $uid    = (int)($_POST['user_id'] ?? 0);
         $status = $_POST['status'] === 'active' ? 'inactive' : 'active';
-        $sql    = "UPDATE USERS SET status = :st WHERE user_id = :uid";
+        $sql    = "UPDATE USERS SET status = :st WHERE user_id = " . $uid;
         $stmt   = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':st', $status);
-        oci_bind_by_name($stmt, ':uid', $uid);
+        //oci_bind_by_name($stmt, ':uid', $uid);
         if (oci_execute($stmt)) {
             $msg = "User ID $uid status updated to $status.";
             logAction($_SESSION['user_id'], 'ADMIN_UPDATE_USER', "Status change for UID $uid to $status");
@@ -76,9 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
         $uid  = (int)($_POST['user_id'] ?? 0);
         if ($uid !== (int)$_SESSION['user_id']) { // Prevent self-deletion
             // Note: In a real Oracle DB, you might need to handle child records in STUDENTS/ENROLLMENTS first
-            $sql  = "DELETE FROM USERS WHERE user_id = :uid";
+            $sql  = "DELETE FROM USERS WHERE user_id = " . $uid;
             $stmt = oci_parse($conn, $sql);
-            oci_bind_by_name($stmt, ':uid', $uid);
+            //oci_bind_by_name($stmt, ':uid', $uid);
             if (@oci_execute($stmt)) {
                 $msg = "User ID $uid deleted."; $msgType = 'warning';
                 logAction($_SESSION['user_id'], 'ADMIN_DELETE_USER', "Deleted UID $uid");

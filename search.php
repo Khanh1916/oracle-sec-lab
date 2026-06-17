@@ -62,11 +62,7 @@ if (isset($_GET['q'])) {
         // VULNERABLE QUERY — DO NOT USE IN PRODUCTION
         // Column types: NUMBER, VARCHAR2, VARCHAR2
         // =========================================================
-        $sql = "SELECT student_id, full_name, major
-                FROM STUDENTS
-                WHERE (full_name LIKE '%$keyword%' OR major LIKE '%$keyword%')
-                AND hidden_marker = 'NORMAL'
-                AND ROWNUM <= 5";
+        $sql = "SELECT student_id, full_name, major FROM STUDENTS WHERE (full_name LIKE '%$keyword%' OR major LIKE '%$keyword%') AND hidden_marker = 'NORMAL' AND ROWNUM <= 5";
 
         $stmt = oci_parse($conn, $sql);
 

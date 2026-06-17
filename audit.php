@@ -50,9 +50,9 @@ if ($logId > 0) {
 } else {
     // Non-admin, no log_id → show own logs only
     $uid  = $_SESSION['user_id'];
-    $sql  = "SELECT * FROM AUDIT_LOGS WHERE user_id = :uid ORDER BY created_at DESC FETCH FIRST 10 ROWS ONLY";
+    $sql  = "SELECT * FROM AUDIT_LOGS WHERE user_id = " . $uid . " ORDER BY created_at DESC FETCH FIRST 10 ROWS ONLY";
     $stmt = oci_parse($conn, $sql);
-    oci_bind_by_name($stmt, ':uid', $uid);
+    //oci_bind_by_name($stmt, ':uid', $uid);
     oci_execute($stmt);
     while ($r = oci_fetch_assoc($stmt)) $allLogs[] = $r;
 }

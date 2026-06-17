@@ -12,9 +12,9 @@ $conn = getDbConnection();
 // Fetch student record if role = student
 $studentRow = null;
 if ($role === 'student') {
-    $sql  = "SELECT s.* FROM STUDENTS s JOIN USERS u ON s.user_id = u.user_id WHERE u.user_id = :uid";
+    $sql  = "SELECT s.* FROM STUDENTS s JOIN USERS u ON s.user_id = u.user_id WHERE u.user_id = " . $userId;
     $stmt = oci_parse($conn, $sql);
-    oci_bind_by_name($stmt, ':uid', $userId);
+    //oci_bind_by_name($stmt, ':uid', $userId);
     oci_execute($stmt);
     $studentRow = oci_fetch_assoc($stmt);
 }
