@@ -232,7 +232,7 @@ mkdir -p "$PARTNER_DIR"
 # Tạo manifest file chứa mảnh Flag 3 (Mã hóa Hex để tăng độ khó)
 # Hex của 'DBS401{5upp1y_Ch41n_P0150n1ng_0912}'
 # Version 3.0.5 là thấp hơn APP_VERSION (3.1.0-ENTERPRISE) để hacker phải tự tạo manifest version cao hơn để trigger update
-echo '{"version":"3.0.5","status":"stable","checksum":"a8b9c1","flag_part":"4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d"}' > "$PARTNER_DIR/manifest.json"
+echo '{"version":"3.0.5","status":"stable","checksum":"a8b9c1","flag_part":"4442533430317b3575707031795f436834"}' > "$PARTNER_DIR/manifest.json"
 
 # Cấu hình Nginx chạy trên port 8081
 cat > /etc/nginx/sites-available/partner-simulation << EOF

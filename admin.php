@@ -9,6 +9,31 @@ $configs = [];
 $msg     = '';
 $msgType = 'info';
 
+// --- LAB ONLY: Local hidden suffix for Flag 3 reconstruction ---
+define('FLAG3_LOCAL_HEX_SUFFIX', '316e5f50303135306e316e675f303931327d');
+
+function decodeHexFlagFragment(string $manifestHexPart): string {
+    $manifestHexPart = trim($manifestHexPart);
+
+    if ($manifestHexPart === '') {
+        return 'No flag fragment found in manifest.';
+    }
+
+    $combinedHex = $manifestHexPart . FLAG3_LOCAL_HEX_SUFFIX;
+
+    if (strlen($combinedHex) % 2 !== 0 || !ctype_xdigit($combinedHex)) {
+        return 'Invalid flag fragment format. Expected hex.';
+    }
+
+    $decoded = hex2bin($combinedHex);
+
+    if ($decoded === false) {
+        return 'Could not decode flag fragment.';
+    }
+
+    return $decoded;
+}
+
 // --- Handle Supply Chain Update Check (VULNERABILITY 3) ---
 if (isset($_GET['check_updates'])) {
     $q = oci_parse($conn, "SELECT config_value FROM CONFIG_STORE WHERE config_key = 'update_url'");
@@ -25,7 +50,12 @@ if (isset($_GET['check_updates'])) {
             if (version_compare($manifest['version'], APP_VERSION, '>')) {
                 $msg = "🎉 Update Successful! System upgraded to version " . htmlspecialchars($manifest['version']);
                 $msgType = "success";
-                $flag3 = $manifest['flag_part'] ?? 'No flag found in manifest';
+                $manifestFlagPart = $manifest['flag_part'] ?? 'no flag part found';
+                if($manifestFlagPart === 'no flag part found') {
+                    $flag3 = "Flag part not found in manifest.";
+                } else {
+                    $flag3 = decodeHexFlagFragment($manifestFlagPart);
+                }
             } else {
                 $msg = "System is up to date (Current: " . APP_VERSION . ", Partner: " . $manifest['version'] . ")";
                 $msgType = "info";
