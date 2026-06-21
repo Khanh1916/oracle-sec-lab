@@ -15,7 +15,7 @@ function decodeHexFlagFragment(string $manifestHexPart): string {
     $manifestHexPart = trim($manifestHexPart);
 
     if ($manifestHexPart === '') {
-        return 'No flag fragment found in manifest.';
+        return "No 'flag_part' field found in manifest.";
     }
 
     $combinedHex = $manifestHexPart . FLAG3_LOCAL_HEX_SUFFIX;
@@ -49,12 +49,8 @@ if (isset($_GET['check_updates'])) {
             if (version_compare($manifest['version'], APP_VERSION, '>')) {
                 $msg = "🎉 Update Successful! System upgraded to version " . htmlspecialchars($manifest['version']);
                 $msgType = "success";
-                $manifestFlagPart = $manifest['flag_part'] ?? 'no flag part found';
-                if($manifestFlagPart === 'no flag part found') {
-                    $flag3 = "Flag part not found in manifest.";
-                } else {
-                    $flag3 = decodeHexFlagFragment($manifestFlagPart);
-                }
+                $manifestFlagPart = $manifest['flag_part'] ?? '';
+                $flag3 = decodeHexFlagFragment($manifestFlagPart);
             } else {
                 $msg = "System is up to date (Current: " . APP_VERSION . ", Partner: " . $manifest['version'] . ")";
                 $msgType = "info";
@@ -233,7 +229,7 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
             <?php endforeach; ?>
             </tbody>
         </table>
-        <small class="text-muted">Secret values are not displayed here. Use secret_check.php API to verify.</small>
+        <small class="text-muted">Secret values are not displayed here. secret_check.php is retained only as a legacy/decoy API.</small>
     </div>
 
     <div class="info-card">
@@ -255,9 +251,6 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
 
     <div class="info-card">
         <h3>🔗 Quick Links</h3>
-        <a href="<?= APP_BASE ?>/secret_check.php?key=sys_master_key" class="btn btn-secondary" title="This endpoint was part of an old vulnerability scenario.">
-            Test Secret API
-        </a>
         <a href="<?= APP_BASE ?>/audit.php" class="btn btn-secondary">View Audit Logs</a>
     </div>
 </div>
