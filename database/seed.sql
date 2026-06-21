@@ -214,6 +214,10 @@ INSERT INTO SYSTEM_HINTS (hint_key, hint_value, related_vuln) VALUES
   ('HINT_SUPPLY_01', 'Admin update depends on the update_url stored in CONFIG_STORE.', 'VULN3');
 INSERT INTO SYSTEM_HINTS (hint_key, hint_value, related_vuln) VALUES
   ('HINT_SUPPLY_02', 'The update_url config has is_public=0. Can you find it another way?', 'VULN3');
+INSERT INTO SYSTEM_HINTS (hint_key, hint_value, related_vuln) VALUES
+  ('HINT_SUPPLY_03', 'Partner configuration is hidden from the navbar, but not necessarily protected from authenticated users.', 'VULN3');
+INSERT INTO SYSTEM_HINTS (hint_key, hint_value, related_vuln) VALUES
+  ('HINT_SUPPLY_04', 'The partner manifest needs a higher version and a flag_part hex fragment; the server completes the rest.', 'VULN3');
 
 -- ============================================================
 -- FLAG_ARCHIVE (decoy table - trông như bảng flag thật)

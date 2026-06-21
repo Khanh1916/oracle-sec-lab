@@ -229,9 +229,9 @@ apt-get install -y nginx --quiet
 PARTNER_DIR="/var/www/partner-api"
 mkdir -p "$PARTNER_DIR"
 
-# Tạo manifest file chứa mảnh Flag 3 (Mã hóa Hex để tăng độ khó)
-# Hex của 'DBS401{5upp1y_Ch41n_P0150n1ng_0912}'
-# Version 3.0.5 là thấp hơn APP_VERSION (3.1.0-ENTERPRISE) để hacker phải tự tạo manifest version cao hơn để trigger update
+# Tạo manifest mặc định chứa CHỈ nửa đầu hex của Flag 3.
+# Version 3.0.5 thấp hơn APP_VERSION (3.1.0) nên baseline không trigger flag.
+# Người chơi phải đổi update_url qua partner_config.php và tự phục vụ manifest version cao hơn.
 echo '{"version":"3.0.5","status":"stable","checksum":"a8b9c1","flag_part":"4442533430317b3575707031795f436834"}' > "$PARTNER_DIR/manifest.json"
 
 # Cấu hình Nginx chạy trên port 8081
