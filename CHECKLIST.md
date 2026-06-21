@@ -8,9 +8,9 @@
 | 2 | Không thấy flag khi SELECT * FROM FLAGS | ✅ Hex encoded | ✅ Không ở FLAGS | ✅ Không ở FLAGS |
 | 3 | Flag không nằm trong HTML source | ✅ | ✅ | ✅ |
 | 4 | Có ít nhất 3 bước khai thác/suy luận | ✅ 7 bước | ✅ 5 bước | ✅ 6 bước |
-| 5 | Có fake data / decoy gây nhiễu | ✅ FL_DECOY_B + FLAG_ARCHIVE | ✅ TXN-004 fake | ✅ oracle_flag_3_backup |
-| 6 | Có bước decode/transform | ✅ hex + reverse + base64 | ✅ base64 + reverse | ✅ hex decode suffix |
-| 7 | Cần ghép nhiều mảnh từ nhiều bảng | ✅ 3 bảng | ✅ 1 nguồn | ✅ 2 nguồn (DB + manifest) |
+| 5 | Có fake data / decoy gây nhiễu | ✅ FL_DECOY_B + FLAG_ARCHIVE | ✅ item quá đắt + credit gate | ✅ oracle_flag_3_backup |
+| 6 | Có bước decode/transform | ✅ hex + reverse + base64 | ✅ điều kiện credit + business logic | ✅ hex decode suffix |
+| 7 | Cần ghép nhiều mảnh từ nhiều bảng | ✅ 3 bảng | ✅ 1 nguồn | ✅ 2 nguồn (manifest + server-side suffix) |
 | 8 | Có Answer Key đủ chi tiết | ✅ | ✅ | ✅ |
 | 9 | Có secure fix rõ ràng | ✅ | ✅ | ✅ |
 | 10 | 3 flag khó tương đương nhau | ✅ Very Hard | ✅ Very Hard | ✅ Very Hard | (Chained Attack) |
@@ -70,7 +70,7 @@
 | 1 | Giới thiệu web app (login, dashboard) | Tài khoản student1 sẵn sàng |
 | 2 | Demo Vuln 1: SQLi tìm bảng → payload → lấy 3 parts → ghép Flag 1 | Payload list trong ANSWER_KEY |
 | 3 | Demo Vuln 2: Business Logic (Credits Hack) → nhập số âm → mua item → Flag 2 | Tài khoản student1 sẵn sàng |
-| 4 | Demo Vuln 3: Supply Chain → SQLi đổi URL → Admin click update → Flag 3 | Cần server hacker giả lập |
+| 4 | Demo Vuln 3: SQLi recon update_url → tìm partner_config.php → user thường đổi URL → Admin trigger check_updates → Flag 3 | Cần server hacker giả lập |
 | 5 | So sánh secure version (before/after) | Mở 2 tabs: vuln vs secure (search, store, admin) |
 | 6 | Q&A giảng viên | Thuộc nguyên nhân + cách vá |
 
@@ -80,11 +80,11 @@
 
 1. **Điền thông tin thành viên** vào REPORT_DBS401.md (tên, MSSV, giảng viên, ngày nộp).
 2. **Test toàn bộ flow** trên máy clean một lần để đảm bảo không có bug.
-3. **Xác định log_id thực tế** của TRANSCRIPT_EXPORT_HIDDEN trong ANSWER_KEY (phụ thuộc thứ tự insert).
+3. **Reset `CONFIG_STORE.update_url`** về `http://127.0.0.1:8081/manifest.json` trước khi đóng gói/demo.
 4. **Chạy init_passwords.php** để đảm bảo bcrypt hash được tạo đúng.
-5. **Kiểm tra transcript TXN-099-2024-S1** sau khi seed để xác nhận admin_ref_id hiển thị đúng.
-6. **Không commit ANSWER_KEY.md** lên GitHub public nếu có.
-7. **Đóng gói ZIP** theo cấu trúc: `DBS401_Group02_[TenDeTai].zip`.
+5. **Kiểm tra Vuln 3**: manifest mặc định version thấp không ra flag; manifest độc hại version cao chỉ chứa nửa đầu hex và admin.php tự ghép suffix server-side.
+6. **Không commit `docs/ANSWER_KEY.md`, payload guide, report nội bộ** lên GitHub public nếu có.
+7. **Đóng gói ZIP/OVA** theo cấu trúc sạch, không kèm log/cookie/payload tạm.
 
 ---
 

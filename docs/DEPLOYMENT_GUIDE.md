@@ -360,7 +360,11 @@ curl -X POST "http://127.0.0.1/dbs401-oracle-app/store.php" \
      -d "buy=1&quantity=-1000" \
      -b "DBS401_SESSION=..."
 
-# Test update check (Vuln 3)
+# Test hidden partner config access (Vuln 3A)
+curl "http://127.0.0.1/dbs401-oracle-app/partner_config.php" \
+     -b "DBS401_SESSION=..." | grep "Partner Integration"
+
+# Test update check baseline (Vuln 3B)
 curl "http://127.0.0.1/dbs401-oracle-app/admin.php?check_updates=1" \
      -b "DBS401_SESSION=..."
 ```
@@ -372,16 +376,16 @@ sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 << 'EOF'
 -- Kiểm tra bảng FLAGS
 SELECT flag_id, flag_code, is_active FROM FLAGS;
 
--- Kiểm tra ADMIN_SECRETS
-SELECT secret_id, secret_key, is_active FROM ADMIN_SECRETS;
+-- Kiểm tra CONFIG_STORE cho Vuln 3
+SELECT config_key, config_value, is_public FROM CONFIG_STORE
+WHERE config_key IN ('update_url','app_version','sys_alpha_marker');
 
--- Kiểm tra hidden student
-SELECT student_id, full_name, hidden_marker FROM STUDENTS;
+-- Kiểm tra SYSTEM_HINTS cho Vuln 3
+SELECT hint_key, hint_value FROM SYSTEM_HINTS WHERE related_vuln = 'VULN3';
 
--- Kiểm tra admin_ref_id đã được cập nhật
-SELECT e.transcript_ref, e.admin_ref_id, a.action
-FROM ENROLLMENTS e JOIN AUDIT_LOGS a ON e.admin_ref_id = a.log_id
-WHERE e.transcript_ref = 'TXN-099-2024-S1';
+-- Kiểm tra baseline credits cho Vuln 2
+SELECT full_name, credits FROM STUDENTS
+WHERE user_id = (SELECT user_id FROM USERS WHERE username='student1');
 
 EXIT;
 EOF

@@ -162,28 +162,39 @@ Attacker Browser               search.php              Oracle DB
 
 ---
 
-## 5. Vulnerability 3 – Supply Chain Poisoning Data Flow
+## 5. Vulnerability 3 – Broken Access Control + Supply Chain Data Flow
 
 ```
-Attacker Browser            admin.php           Oracle DB / Partner
+Attacker Student          partner_config.php       Oracle DB
      │                          │                      │
-     │── SQLi Update URL ─────► │                      │
-     │                          │── UPDATE config ────►│
-     │                          │   'update_url' =     │
-     │                          │   'hacker.com'       │
+     │── Login as student ─────►│                      │
      │                          │                      │
-     │── Trigger Update Check ─►│                      │
-     │                          │── GET update_url ───►│
-     │                          │◄─ 'hacker.com' ──────│
+     │── POST manifest_url ────►│                      │
+     │   http://attacker:8081   │── UPDATE config ────►│
+     │                          │   update_url         │
+     │◄─ URL updated ───────────│                      │
+     │
+     │    Attacker HTTP Server
+     │    └── /manifest.json
+     │        { version: 9.9.9,
+     │          flag_part: first_hex_half }
+     │
+Admin Browser              admin.php              Partner/Attacker
      │                          │                      │
-     │                          │── Fetch Manifest ───►│ (to Hacker Server)
-     │                          │◄─ Malicious JSON ────│ (contains flag hex)
+     │── ?check_updates=1 ─────►│                      │
+     │                          │── SELECT update_url ►│ Oracle DB
+     │                          │◄─ attacker URL ──────│
+     │                          │── Fetch Manifest ───►│
+     │                          │◄─ JSON version 9.9.9 │
      │                          │                      │
-     │◄─ Display Update OK! ────│                      │ (Show Flag 3 Hex)
-     │   (with Flag Hex)        │                      │
-     │                          │                      │
-     ▼ Attacker decode:
-       hex_decode(flag_part) = "DBS401{5upp1y_Ch41n_P0150n1ng_0912}"
+     │                          │── combine:           │
+     │                          │   manifest flag_part │
+     │                          │ + server-side suffix │
+     │                          │── hex2bin()          │
+     │◄─ Display plaintext flag │                      │
+     │
+     ▼ Attacker/Admin result:
+       DBS401{5upp1y_Ch41n_P0150n1ng_0912}
 ```
 
 ---
@@ -202,8 +213,6 @@ Oracle Database (dbs401_user schema)
 ├── AUDIT_LOGS
 │   ├── action=SYSTEM_AUDIT_CHECK
 │   │   └── metadata_note.fragment = "_n01tc3jn1"  ← reverse("1nj3ct10n_")
-│   ├── action=TRANSCRIPT_EXPORT_HIDDEN
-│   │   └── metadata_note.fragment_b = "}!w4lF_ss3cc4"  ← reverse("4cc3ss_Fl4w!}")
 │   └── action=SECRET_VAULT_ACCESS                ← DECOY log with fake data
 │
 ├── CONFIG_STORE
@@ -216,8 +225,12 @@ Oracle Database (dbs401_user schema)
 │       └── Contains: DBS401{LOGIC_GURU_2024}
 │
 ├── PARTNER MANIFEST (External)
-│   └── flag_part = "444253343031..." 
-│       └── hex_decode → DBS401{5upp1y_Ch41n_P0150n1ng_0912}
+│   └── flag_part = "4442533430317b3575707031795f436834"
+│       └── first hex half only
+│
+├── admin.php (server-side only)
+│   └── FLAG3_LOCAL_HEX_SUFFIX = "316e5f50303135306e316e675f303931327d"
+│       └── combine + hex_decode → DBS401{5upp1y_Ch41n_P0150n1ng_0912}
 │
 ├── ENROLLMENTS
 │   └── (Standard academic records, ownership checks enforced)
