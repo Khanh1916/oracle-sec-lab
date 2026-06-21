@@ -1,12 +1,5 @@
 <?php
-/**
- * DBS401 - Group 02
- * config.php - Database connection configuration
- *
- * IMPORTANT: This file intentionally stores credentials in plaintext
- * for lab demonstration purposes only.
- * In production: use environment variables or a secrets manager.
- */
+
 
 define('DB_HOST',    'localhost');
 define('DB_PORT',    '1539');

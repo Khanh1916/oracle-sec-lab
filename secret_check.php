@@ -1,23 +1,4 @@
 <?php
-/**
- * DBS401 - Group 02
- * secret_check.php  –  Legacy Secret Key API
- *
- * TRẠNG THÁI: Endpoint legacy, KHÔNG phải một trong 3 lỗ hổng chính của lab.
- *
- * Các lỗ hổng chính:
- *   VULN 1: search.php      (SQL Injection)
- *   VULN 2: store.php       (Business Logic – Negative Quantity)
- *   VULN 3: admin.php       (Supply Chain Poisoning)
- *
- * File này vẫn có lỗ hổng SQL Injection (input 'key' không được parameterize),
- * nhưng chỉ trả về found/not_found → không lộ dữ liệu trực tiếp.
- * Không có flag nào được lưu trong ADMIN_SECRETS liên quan đến kịch bản hiện tại.
- *
- * ACCESSIBLE AT:
- *   GET /dbs401-oracle-app/secret_check.php?key=sys_master_key
- *   Returns JSON: {"status":"found",...} or {"status":"not_found",...}
- */
 
 require_once __DIR__ . '/config.php';
 if (empty($_SESSION['user_id'])) {
@@ -35,7 +16,6 @@ if ($key === '') {
     exit;
 }
 
-// Weak blacklist – blocks comment syntax only
 $weakBlacklist = ['--', '/*', '*/', 'xp_', 'exec(', 'execute('];
 $keyLower      = strtolower($key);
 foreach ($weakBlacklist as $bad) {
@@ -52,8 +32,6 @@ if (strlen($key) > 512) {
 
 $conn = getDbConnection();
 
-// VULNERABLE: input concatenated directly (boolean-blind injectable)
-// Nhưng không có flag nào có thể extract qua đây trong kịch bản hiện tại
 $sql  = "SELECT COUNT(*) AS cnt FROM ADMIN_SECRETS
          WHERE secret_key = '$key' AND is_active = 1";
 $stmt = oci_parse($conn, $sql);

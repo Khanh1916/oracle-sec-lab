@@ -1,16 +1,5 @@
 <?php
-/**
- * DBS401 - Group 02
- * transcript.php  –  Transcript Viewer (SECURE)
- *
- * Trang này đã được vá lỗi IDOR (ownership check đã thêm).
- * IDOR không còn là một trong 3 lỗ hổng chính của lab.
- *
- * Các lỗ hổng chính:
- *   VULN 1: search.php      (SQL Injection)
- *   VULN 2: store.php       (Business Logic – Negative Quantity)
- *   VULN 3: admin.php       (Supply Chain Poisoning)
- */
+
 require_once __DIR__ . '/config.php';
 if (empty($_SESSION['user_id'])) { header('Location:'.APP_BASE.'/login.php'); exit; }
 
@@ -23,7 +12,6 @@ if ($ref !== '') {
         $errMsg = 'Invalid transcript reference format.';
     } else {
         $conn = getDbConnection();
-        // SECURE: bind variable + ownership check (JOIN trên user_id)
         $sql = "SELECT e.enrollment_id, e.student_id, e.transcript_ref,
                        e.semester, e.score,
                        s.full_name, s.major, s.email, u.user_id,

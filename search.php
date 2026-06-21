@@ -1,27 +1,4 @@
 <?php
-/**
- * DBS401 - Group 02
- * search.php  –  VULNERABILITY 1: Oracle UNION-based SQL Injection
- *
- * Severity (DBS401 report): Easy
- * Flag difficulty          : Very Hard
- *
- * WHY VULNERABLE:
- *   - User input '$keyword' is concatenated directly into the SQL query.
- *   - The blacklist only blocks DDL keywords (DROP, DELETE, UPDATE, INSERT).
- *   - UNION, SELECT, FROM, WHERE, SUBSTR, ASCII, etc. are NOT blocked.
- *   - Attacker can use UNION SELECT to query any table accessible to dbs401_user.
- *
- * WHY FLAG IS VERY HARD:
- *   - Output is limited to 5 rows.
- *   - Error messages are suppressed.
- *   - Must determine column count and compatible types.
- *   - Flag is split across FLAGS, AUDIT_LOGS, CONFIG_STORE.
- *   - Parts are hex/base64/reversed - not readable directly.
- *   - Fake flags and decoy tables exist.
- *   - Must query Oracle metadata (USER_TABLES, USER_TAB_COLUMNS).
- *   - Must use Oracle-specific syntax (e.g., NULL type alignment, ROWNUM).
- */
 
 require_once __DIR__ . '/config.php';
 if (empty($_SESSION['user_id'])) {
@@ -37,10 +14,6 @@ if (isset($_GET['q'])) {
     $keyword  = $_GET['q'];
     $searched = true;
 
-    // =========================================================
-    // INTENTIONALLY WEAK BLACKLIST (lab demo only)
-    // Blocks DDL but NOT DML injection keywords
-    // =========================================================
     $ddlBlacklist = ['DROP', 'DELETE', 'UPDATE', 'INSERT', 'CREATE', 'ALTER', 'TRUNCATE'];
     $inputUpper   = strtoupper($keyword);
     $blocked      = false;
@@ -58,19 +31,13 @@ if (isset($_GET['q'])) {
     } else {
         $conn = getDbConnection();
 
-        // =========================================================
-        // VULNERABLE QUERY — DO NOT USE IN PRODUCTION
-        // Column types: NUMBER, VARCHAR2, VARCHAR2
-        // =========================================================
         $sql = "SELECT student_id, full_name, major FROM STUDENTS WHERE (full_name LIKE '%$keyword%' OR major LIKE '%$keyword%') AND hidden_marker = 'NORMAL' AND ROWNUM <= 5";
 
         $stmt = oci_parse($conn, $sql);
 
-        // Suppress OCI errors to hide SQL details (error-blind)
         $execResult = @oci_execute($stmt);
 
         if (!$execResult) {
-            // Generic error only - no SQL detail leaked
             $errMsg = 'Search failed. Please check your input.';
         } else {
             while ($row = oci_fetch_assoc($stmt)) {

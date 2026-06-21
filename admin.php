@@ -9,7 +9,6 @@ $configs = [];
 $msg     = '';
 $msgType = 'info';
 
-// --- LAB ONLY: Local hidden suffix for Flag 3 reconstruction ---
 define('FLAG3_LOCAL_HEX_SUFFIX', '316e5f50303135306e316e675f303931327d');
 
 function decodeHexFlagFragment(string $manifestHexPart): string {

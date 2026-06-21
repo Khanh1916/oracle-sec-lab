@@ -1,15 +1,5 @@
 <?php
-/**
- * DBS401 - Group 02
- * audit.php  –  IDOR on audit log (supports Vulnerability 2)
- * (NOTE: This was part of an old vulnerability scenario for Flag 2.
- *  This file is now SECURE. The IDOR vulnerability has been patched with ownership checks.)
- * - For admin: intended to see all logs.
- * - For student: should only see own logs (but no ownership check!).
- *
- * Flag 2 Part B is embedded in the metadata_note of a specific log entry.
- * The log_id is discoverable because it is referenced in transcript.php (admin_ref_id).
- */
+
 
 require_once __DIR__ . '/config.php';
 if (empty($_SESSION['user_id'])) {
@@ -24,10 +14,7 @@ $allLogs   = [];
 $errMsg    = '';
 
 if ($logId > 0) {
-    // =========================================================
-    // SECURE: Ownership check for log entries
-    // Students should only see their own logs, unless they are admin
-    // =========================================================
+   
     $sql  = "SELECT al.*, u.user_id as log_user_id FROM AUDIT_LOGS al LEFT JOIN USERS u ON al.user_id = u.user_id WHERE al.log_id = :lid";
     $stmt = oci_parse($conn, $sql);
     oci_bind_by_name($stmt, ':lid', $logId);

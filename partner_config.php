@@ -92,7 +92,7 @@ $currentUrl = $row['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
     <h2>🤝 Partner Integration Configuration</h2>
 
     <p class="alert alert-info">
-        Configure the partner update manifest URL.
+        Configure the partner update manifest URL (ADMIN ONLY).
         <br>
         <strong>Lab note:</strong> this page is intentionally hidden and misconfigured.
     </p>

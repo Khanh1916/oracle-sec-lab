@@ -1,29 +1,13 @@
 <?php
-/**
- * DBS401 - Group 02
- * store.php – VULNERABILITY 2: Insecure Business Logic (Negative Quantity)
- *
- * Severity (DBS401 report): Hard
- * Flag difficulty          : Very Hard
- *
- * WHY VULNERABLE:
- *   - $qty is cast to int but never validated to be positive.
- *   - cost = qty * price → negative qty → negative cost
- *   - newCredits = credits - (negative cost) → credits INCREASE
- *   - Allows purchasing items worth 999,999 credits with no real funds.
- *
- * FLAG 2: DBS401{LOGIC_GURU_2024}
- *   Appears when student's credits >= 999999 and they buy "Exam Leak 2024"
- */
+
 require_once __DIR__ . '/config.php';
 if (empty($_SESSION['user_id'])) { header('Location:'.APP_BASE.'/login.php'); exit; } 
 
 $conn   = getDbConnection();
-$userId = $_SESSION['user_id']; // Lấy user_id từ session (không phải từ input)
+$userId = $_SESSION['user_id']; 
 $msg     = '';
-$msgType = 'info'; // FIX: initialise $msgType to avoid undefined variable
+$msgType = 'info'; 
 
-// Lấy credits hiện tại của sinh viên
 $stmt = oci_parse($conn, "SELECT credits FROM STUDENTS WHERE user_id = " . $userId);
 // oci_bind_by_name($stmt, ':uid', $userId);
 oci_execute($stmt);
@@ -34,13 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy'])) {
     $itemId = (int)($_POST['item_id'] ?? 1);
     $qty    = (int)($_POST['quantity'] ?? 1);
 
-    // Giá theo item
+    
     $prices = [1 => 100, 2 => 999999];
     $price  = $prices[$itemId] ?? 100;
 
-    // ===========================================================
-    // VULNERABLE LOGIC — thiếu kiểm tra $qty > 0
-    // ===========================================================
     $cost = $qty * $price;
 
     if ($credits >= $cost) {
