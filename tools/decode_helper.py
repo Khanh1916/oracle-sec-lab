@@ -132,30 +132,26 @@ def assemble_flag2():
 def assemble_flag3():
     """
     FLAG 3: DBS401{5upp1y_Ch41n_P0150n1ng_0912}
-    Khai thác qua Supply Chain Poisoning tại admin.php:
-      1. Dùng SQLi (Vuln 1) tìm update_url trong CONFIG_STORE (is_public=0)
-         → giá trị mặc định: http://127.0.0.1:8081/manifest.json
-      2. Sửa update_url trong CONFIG_STORE trỏ về server của hacker
-         (ví dụ: http://hacker-server.io/evil.json)
-      3. evil.json chứa:
-         {"version":"9.9.9","flag_part":"<hex_encoded_flag>"}
-         với version > APP_VERSION (3.1.0) để trigger update thành công
-      4. Admin truy cập admin.php → nhấn "Check for Partner Updates"
-      5. Hệ thống fetch manifest từ server hacker → hiển thị flag_part
-      6. Decode hex → FLAG 3
-
-    Hex của FLAG 3:
-    4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d
+    Khai thác qua Broken Access Control + Supply Chain:
+      1. SQLi recon tìm update_url/app_version trong CONFIG_STORE.
+      2. User thường đổi update_url qua partner_config.php.
+      3. Attacker phục vụ manifest version cao hơn APP_VERSION.
+      4. Manifest chỉ chứa nửa đầu hex trong flag_part.
+      5. admin.php ghép flag_part với FLAG3_LOCAL_HEX_SUFFIX server-side.
+      6. Server decode hex và hiển thị flag plaintext.
     """
     print("\n━━━ FLAG 3 ASSEMBLY ━━━")
-    flag3_hex = "4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d"
-    flag3 = hex_decode(flag3_hex)
-    print(f"  Vulnerability : Supply Chain Poisoning (admin.php)")
-    print(f"  Hex from manifest: {flag3_hex}")
-    print(f"  hex_decode    : {flag3_hex!r}  →  {flag3!r}")
+    manifest_hex_part = "4442533430317b3575707031795f436834"
+    server_side_suffix = "316e5f50303135306e316e675f303931327d"
+    combined_hex = manifest_hex_part + server_side_suffix
+    flag3 = hex_decode(combined_hex)
+    print("  Vulnerability : Broken Access Control + Supply Chain")
+    print(f"  manifest flag_part : {manifest_hex_part}")
+    print(f"  server-side suffix : {server_side_suffix}")
+    print(f"  combined hex       : {combined_hex}")
+    print(f"  hex_decode         : {combined_hex!r}  →  {flag3!r}")
     print(f"\n  ✅ FLAG 3 = {flag3}")
     return flag3
-
 
 def main():
     print(BANNER)

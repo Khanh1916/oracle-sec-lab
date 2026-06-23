@@ -3,15 +3,17 @@
  * DBS401 - Group 02
  * tools/verify_setup.php
  *
- * Script kiểm tra toàn bộ cài đặt của project.
- * Chạy từ command line: php tools/verify_setup.php
- * Hoặc từ browser: http://127.0.0.1/dbs401-oracle-app/tools/verify_setup.php
+ * Script kiểm tra nhanh trạng thái project sau các thay đổi mới:
+ *   - Vuln 1: search.php SQL Injection
+ *   - Vuln 2: store.php Negative Quantity / Credits Hack
+ *   - Vuln 3: partner_config.php Broken Access Control + admin.php Supply Chain trigger
  *
- * ⚠️  Xóa hoặc bảo vệ file này sau khi setup xong!
+ * Chạy CLI: php tools/verify_setup.php
+ * ⚠️ Xóa hoặc chặn truy cập file này trước khi đóng gói/public lab.
  */
 
-// Allow CLI or browser
 $isCli = (php_sapi_name() === 'cli');
+$baseDir = dirname(__DIR__);
 
 function out(string $msg, string $level = 'info'): void {
     global $isCli;
@@ -31,6 +33,24 @@ function out(string $msg, string $level = 'info'): void {
     }
 }
 
+$passCount = 0;
+$failCount = 0;
+$warnCount = 0;
+
+function check(bool $condition, string $passMsg, string $failMsg, bool $critical = true): void {
+    global $passCount, $failCount, $warnCount;
+    if ($condition) {
+        out($passMsg, 'ok');
+        $passCount++;
+    } elseif ($critical) {
+        out($failMsg, 'fail');
+        $failCount++;
+    } else {
+        out($failMsg, 'warn');
+        $warnCount++;
+    }
+}
+
 if (!$isCli) {
     echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>DBS401 Setup Verify</title>";
     echo "<style>body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px;background:#f8f9fa}";
@@ -39,58 +59,47 @@ if (!$isCli) {
     echo "<h1>🔍 DBS401 Group 02 – Setup Verification</h1>";
 }
 
-$passCount = 0;
-$failCount = 0;
-$warnCount = 0;
-
-function check(bool $condition, string $passMsg, string $failMsg, bool $critical = true): void {
-    global $passCount, $failCount;
-    if ($condition) { out($passMsg, 'ok'); $passCount++; }
-    else            { out($failMsg, $critical ? 'fail' : 'warn'); $failCount++; }
-}
-
-// ─── 1. PHP Version ──────────────────────────────────────────────
+// ─── 1. PHP Environment ─────────────────────────────────────────
 if (!$isCli) echo "<div class='section'><h2>1. PHP Environment</h2>";
 else out("═══ PHP Environment ═══", 'head');
 
 check(version_compare(PHP_VERSION, '8.0.0', '>='),
     'PHP Version: ' . PHP_VERSION,
     'PHP Version too old: ' . PHP_VERSION . ' (need 8.0+)');
-
-check(extension_loaded('oci8'),
-    'OCI8 extension: LOADED (' . (function_exists('oci_client_version') ? oci_client_version() : 'unknown') . ')',
-    'OCI8 extension: NOT LOADED! Run: pecl install oci8');
-
-check(extension_loaded('session'),   'session extension: OK',   'session extension: MISSING');
-check(extension_loaded('json'),      'json extension: OK',      'json extension: MISSING');
-check(extension_loaded('mbstring'),  'mbstring extension: OK',  'mbstring extension: MISSING', false);
+check(extension_loaded('oci8'), 'OCI8 extension: LOADED', 'OCI8 extension: NOT LOADED');
+check(extension_loaded('session'), 'session extension: OK', 'session extension: MISSING');
+check(extension_loaded('json'), 'json extension: OK', 'json extension: MISSING');
 
 if (!$isCli) echo "</div>";
 
-// ─── 2. Oracle Connection ────────────────────────────────────────
-if (!$isCli) echo "<div class='section'><h2>2. Oracle Database Connection</h2>";
-else out("═══ Oracle Database ═══", 'head');
+// ─── 2. Config + Oracle ─────────────────────────────────────────
+if (!$isCli) echo "<div class='section'><h2>2. App Config & Oracle</h2>";
+else out("═══ App Config & Oracle ═══", 'head');
 
-$tns  = '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1539))(CONNECT_DATA=(SERVICE_NAME=XE)))';
+$configPath = $baseDir . '/config.php';
+check(file_exists($configPath), 'config.php: FOUND', 'config.php: MISSING');
+
 $conn = null;
-if (extension_loaded('oci8')) {
-    $conn = @oci_connect('dbs401_user', 'dbs401_pass', $tns, 'AL32UTF8');
-    if ($conn) {
-        out('Oracle connection: SUCCESS (dbs401_user@localhost:1539/XEPDB1)', 'ok');
-        $passCount++;
-    } else {
-        $e = oci_error();
-        out('Oracle connection: FAILED – ' . ($e['message'] ?? 'unknown error'), 'fail');
-        $failCount++;
-    }
+if (file_exists($configPath) && extension_loaded('oci8')) {
+    require_once $configPath;
+    check(DB_SERVICE === 'XEPDB1' || DB_SERVICE === 'FREE', 'DB_SERVICE: ' . DB_SERVICE, 'DB_SERVICE unexpected: ' . DB_SERVICE, false);
+    check(APP_VERSION === '3.1.0', 'APP_VERSION: 3.1.0', 'APP_VERSION should be 3.1.0 for Vuln 3 version_compare');
+    check(DEFAULT_UPDATE_URL === 'http://127.0.0.1:8081/manifest.json',
+        'DEFAULT_UPDATE_URL: baseline partner manifest',
+        'DEFAULT_UPDATE_URL mismatch');
+
+    $conn = @getDbConnection();
+    check((bool)$conn,
+        'Oracle connection: SUCCESS (' . DB_USER . '@' . DB_HOST . ':' . DB_PORT . '/' . DB_SERVICE . ')',
+        'Oracle connection: FAILED');
 } else {
-    out('Oracle connection: SKIPPED (OCI8 not loaded)', 'warn');
+    out('Oracle connection: SKIPPED (missing config or OCI8)', 'warn');
     $warnCount++;
 }
 
 if (!$isCli) echo "</div>";
 
-// ─── 3. Database Tables ──────────────────────────────────────────
+// ─── 3. Database Tables ─────────────────────────────────────────
 if (!$isCli) echo "<div class='section'><h2>3. Database Tables</h2>";
 else out("═══ Database Tables ═══", 'head');
 
@@ -102,172 +111,132 @@ $requiredTables = [
 
 if ($conn) {
     foreach ($requiredTables as $table) {
-        $sql  = "SELECT COUNT(*) AS cnt FROM USER_TABLES WHERE table_name = :tn";
-        $stmt = oci_parse($conn, $sql);
+        $stmt = oci_parse($conn, "SELECT COUNT(*) AS cnt FROM USER_TABLES WHERE table_name = :tn");
         oci_bind_by_name($stmt, ':tn', $table);
         oci_execute($stmt);
-        $row  = oci_fetch_assoc($stmt);
-        $exists = (int)($row['CNT'] ?? 0) > 0;
-        check($exists, "Table $table: EXISTS", "Table $table: MISSING – run schema.sql");
+        $row = oci_fetch_assoc($stmt);
+        check((int)($row['CNT'] ?? 0) > 0, "Table $table: EXISTS", "Table $table: MISSING – run schema.sql");
     }
 } else {
-    out('Table checks: SKIPPED (no DB connection)', 'warn');
+    out('Table checks: SKIPPED', 'warn');
     $warnCount++;
 }
 
 if (!$isCli) echo "</div>";
 
-// ─── 4. Data Integrity ───────────────────────────────────────────
+// ─── 4. CTF Data Integrity ──────────────────────────────────────
 if (!$isCli) echo "<div class='section'><h2>4. CTF Data Integrity</h2>";
 else out("═══ CTF Data Integrity ═══", 'head');
 
 if ($conn) {
-    // Check users
-    $sql = "SELECT COUNT(*) AS cnt FROM USERS";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] >= 5, "USERS: " . $row['CNT'] . " accounts found", "USERS: Too few accounts – run seed.sql");
+    $checks = [
+        ["SELECT COUNT(*) AS cnt FROM USERS WHERE username IN ('admin','student1','teacher1')", 3, 'Demo accounts'],
+        ["SELECT COUNT(*) AS cnt FROM FLAGS WHERE flag_code = 'FL1_PART_A' AND is_active = 1", 1, 'Flag 1 Part A in FLAGS'],
+        ["SELECT COUNT(*) AS cnt FROM AUDIT_LOGS WHERE action = 'SYSTEM_AUDIT_CHECK'", 1, 'Flag 1 Part B in AUDIT_LOGS'],
+        ["SELECT COUNT(*) AS cnt FROM CONFIG_STORE WHERE config_key = 'sys_alpha_marker'", 1, 'Flag 1 Part C in CONFIG_STORE'],
+        ["SELECT COUNT(*) AS cnt FROM CONFIG_STORE WHERE config_key = 'update_url' AND config_value = 'http://127.0.0.1:8081/manifest.json'", 1, 'Vuln 3 baseline update_url'],
+        ["SELECT COUNT(*) AS cnt FROM CONFIG_STORE WHERE config_key = 'app_version' AND config_value = '3.1.0'", 1, 'Vuln 3 app_version'],
+        ["SELECT COUNT(*) AS cnt FROM SYSTEM_HINTS WHERE related_vuln = 'VULN3'", 2, 'Vuln 3 hints'],
+    ];
+    foreach ($checks as [$sql, $min, $label]) {
+        $stmt = oci_parse($conn, $sql);
+        oci_execute($stmt);
+        $row = oci_fetch_assoc($stmt);
+        $cnt = (int)($row['CNT'] ?? 0);
+        check($cnt >= $min, "$label: OK ($cnt)", "$label: MISSING/LOW ($cnt)");
+    }
 
-    // Check flags
-    $sql = "SELECT COUNT(*) AS cnt FROM FLAGS WHERE is_active = 1";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] >= 2, "FLAGS (active): " . $row['CNT'] . " records found", "FLAGS: No active flag data – run seed.sql");
-
-    // Check admin_secrets
-    $sql = "SELECT COUNT(*) AS cnt FROM ADMIN_SECRETS WHERE is_active = 1";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] >= 2, "ADMIN_SECRETS (active): " . $row['CNT'] . " records", "ADMIN_SECRETS: Too few active records");
-
-    // Check Flag 1 Part A
-    $sql  = "SELECT COUNT(*) AS cnt FROM FLAGS WHERE flag_code = 'FL1_PART_A' AND is_active = 1";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] > 0, "Flag 1 Part A: FOUND in FLAGS table", "Flag 1 Part A: MISSING – check seed.sql");
-
-    // Check Flag 1 Part B
-    $sql  = "SELECT COUNT(*) AS cnt FROM AUDIT_LOGS WHERE action = 'SYSTEM_AUDIT_CHECK'";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] > 0, "Flag 1 Part B: FOUND in AUDIT_LOGS", "Flag 1 Part B: MISSING in AUDIT_LOGS");
-
-    // Check Flag 1 Part C
-    $sql  = "SELECT COUNT(*) AS cnt FROM CONFIG_STORE WHERE config_key = 'sys_alpha_marker'";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] > 0, "Flag 1 Part C: FOUND in CONFIG_STORE", "Flag 1 Part C: MISSING – check seed.sql");
-
-    // Check hidden student enrollment
-    $sql  = "SELECT COUNT(*) AS cnt FROM ENROLLMENTS WHERE transcript_ref = 'TXN-099-2024-S1'";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] > 0, "Hidden enrollment TXN-099-2024-S1: FOUND", "Hidden enrollment: MISSING – check seed.sql");
-
-    // Check admin_ref_id linked correctly
-    $sql  = "SELECT e.admin_ref_id FROM ENROLLMENTS e WHERE e.transcript_ref = 'TXN-099-2024-S1' AND e.admin_ref_id IS NOT NULL";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    $refOk = $row !== false && !empty($row['ADMIN_REF_ID']);
-    check($refOk,
-        "admin_ref_id linked: LOG-" . ($row['ADMIN_REF_ID'] ?? 'N/A'),
-        "admin_ref_id NOT linked! Run database/fix_refs.sql");
-
-    // Check Flag 3 real key
-    $sql  = "SELECT COUNT(*) AS cnt FROM ADMIN_SECRETS WHERE secret_key = 'oracle_flag_3_primary' AND is_active = 1";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] > 0, "Flag 3 secret key: FOUND (oracle_flag_3_primary)", "Flag 3 secret key: MISSING");
-
-    // Check Flag 3 suffix in config
-    $sql  = "SELECT COUNT(*) AS cnt FROM CONFIG_STORE WHERE config_key = 'oracle_flag_3_suffix'";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    check((int)$row['CNT'] > 0, "Flag 3 suffix: FOUND in CONFIG_STORE", "Flag 3 suffix: MISSING – check seed.sql");
-
-    // Check password hashes updated (not placeholder)
-    $sql  = "SELECT password_hash FROM USERS WHERE username = 'admin'";
-    $stmt = oci_parse($conn, $sql); oci_execute($stmt);
-    $row  = oci_fetch_assoc($stmt);
-    $hashOk = !empty($row['PASSWORD_HASH']) && str_starts_with($row['PASSWORD_HASH'], '$2y$');
-    check($hashOk,
-        "Admin password hash: bcrypt format OK",
-        "Admin password hash: Still placeholder! Run: php database/init_passwords.php");
-
+    $stmt = oci_parse($conn, "SELECT credits FROM STUDENTS WHERE user_id = (SELECT user_id FROM USERS WHERE username='student1')");
+    oci_execute($stmt);
+    $row = oci_fetch_assoc($stmt);
+    check($row !== false && (int)$row['CREDITS'] < 999999,
+        'student1 baseline credits below Exam Leak price',
+        'student1 credits already high; reset DB before demo',
+        false);
 } else {
-    out('Data integrity checks: SKIPPED (no DB connection)', 'warn');
+    out('CTF data checks: SKIPPED', 'warn');
     $warnCount++;
 }
 
 if (!$isCli) echo "</div>";
 
-// ─── 5. File Structure ───────────────────────────────────────────
-if (!$isCli) echo "<div class='section'><h2>5. File Structure</h2>";
+// ─── 5. Source Consistency ──────────────────────────────────────
+if (!$isCli) echo "<div class='section'><h2>5. Source Consistency</h2>";
+else out("═══ Source Consistency ═══", 'head');
+
+$adminSource = @file_get_contents($baseDir . '/admin.php') ?: '';
+$partnerSource = @file_get_contents($baseDir . '/partner_config.php') ?: '';
+$storeSource = @file_get_contents($baseDir . '/store.php') ?: '';
+
+check(str_contains($adminSource, 'FLAG3_LOCAL_HEX_SUFFIX'),
+    'admin.php: server-side Flag 3 suffix present',
+    'admin.php: FLAG3_LOCAL_HEX_SUFFIX missing');
+check(str_contains($adminSource, 'decodeHexFlagFragment') && str_contains($adminSource, "['flag_part']"),
+    'admin.php: combines manifest flag_part with server-side suffix',
+    'admin.php: manifest flag_part decode flow missing');
+check(str_contains($partnerSource, "\$_SESSION['role']") === false && str_contains($partnerSource, "CONFIG_STORE"),
+    'partner_config.php: intentionally missing role check and updates CONFIG_STORE',
+    'partner_config.php: vulnerability changed or missing');
+check(str_contains($storeSource, '$cost = $qty * $price') && !str_contains($storeSource, '$qty <= 0'),
+    'store.php: negative quantity vulnerability still present',
+    'store.php: negative quantity vulnerability appears patched; demo may fail',
+    false);
+
+if (!$isCli) echo "</div>";
+
+// ─── 6. File Structure ──────────────────────────────────────────
+if (!$isCli) echo "<div class='section'><h2>6. File Structure</h2>";
 else out("═══ File Structure ═══", 'head');
 
-$baseDir = dirname(__DIR__);
 $requiredFiles = [
     'config.php', 'index.php', 'login.php', 'logout.php',
-    'dashboard.php', 'search.php', 'profile.php', 'transcript.php',
-    'audit.php', 'admin.php', 'secret_check.php', 'inc_navbar.php',
-    'style.css', '.htaccess',
-    'database/schema.sql', 'database/seed.sql', // Các file này có thể bị xóa sau hardening
-    'database/fix_refs.sql', 'database/init_passwords.php',
-    'secure_versions/search_secure.php',
-    'secure_versions/transcript_secure.php',
-    'secure_versions/secret_check_secure.php',
-    'tools/exploit_flag3_local.py',
-    'tools/decode_helper.py',
-    'setup.sh',
-    'ANSWER_KEY.md', 'REPORT_DBS401.md', 'README.md', 'CHECKLIST.md',
+    'dashboard.php', 'search.php', 'store.php', 'partner_config.php',
+    'profile.php', 'transcript.php', 'audit.php', 'admin.php',
+    'secret_check.php', 'inc_navbar.php', 'style.css', '.htaccess',
+    'database/schema.sql', 'database/seed.sql', 'database/fix_refs.sql', 'database/init_passwords.php',
+    'secure_versions/search_secure.php', 'secure_versions/store_secure.php',
+    'secure_versions/partner_config_secure.php', 'secure_versions/admin_update_secure.php',
+    'tools/exploit_flag3_local.py', 'tools/decode_helper.py',
+    'setup.sh', 'docs/ANSWER_KEY.md', 'REPORT_DBS401.md', 'README.md', 'CHECKLIST.md',
 ];
-
 foreach ($requiredFiles as $file) {
     $path = $baseDir . '/' . $file;
     $isSql = str_ends_with($file, '.sql');
-    // Nếu là file SQL và bị thiếu, chỉ báo WARN vì có thể đã bị setup.sh xóa để bảo mật
     check(file_exists($path), "File exists: $file", "File MISSING: $file", !$isSql);
 }
 
 if (!$isCli) echo "</div>";
 
-// ─── 6. Web Endpoints ────────────────────────────────────────────
+// ─── 7. Quick Links ─────────────────────────────────────────────
 if (!$isCli) {
-    echo "<div class='section'><h2>6. Quick Links</h2>";
+    echo "<div class='section'><h2>7. Quick Links</h2>";
     $links = [
-        'index.php'           => 'Home (redirect)',
-        'login.php'           => 'Login Page',
-        'dashboard.php'       => 'Dashboard',
-        'search.php'          => 'Search [VULN 1]',
-        'transcript.php'      => 'Transcript [VULN 2]',
-        'secret_check.php?key=sys_master_key' => 'Secret Check API [VULN 3]',
-        'admin.php'           => 'Admin Panel',
-        'audit.php'           => 'Audit Logs',
+        'login.php' => 'Login Page',
+        'dashboard.php' => 'Dashboard',
+        'search.php' => 'Search [VULN 1: SQLi]',
+        'store.php' => 'Store [VULN 2: Negative Quantity]',
+        'partner_config.php' => 'Hidden Partner Config [VULN 3A: Broken Access Control]',
+        'admin.php?check_updates=1' => 'Admin Update Trigger [VULN 3B: Supply Chain]',
+        'audit.php' => 'Audit Logs',
     ];
     foreach ($links as $url => $label) {
-        echo "<div style='margin:4px 0'>";
-        echo "<a href='../$url' target='_blank' style='color:#e85d04'>$label</a>";
-        echo " – <code style='font-size:.85em'>../$url</code></div>\n";
+        echo "<div style='margin:4px 0'><a href='../$url' target='_blank' style='color:#e85d04'>$label</a> – <code>../$url</code></div>\n";
     }
     echo "</div>";
 }
 
-// ─── Summary ─────────────────────────────────────────────────────
+// ─── Summary ───────────────────────────────────────────────────
 if (!$isCli) echo "<div class='section'><h2>Summary</h2>";
 else out("═══ Summary ═══", 'head');
 
 $total = $passCount + $failCount + $warnCount;
 out("Total checks : $total", 'info');
 out("Passed       : $passCount", 'ok');
-if ($failCount > 0) out("Failed       : $failCount  ← Fix these before demo!", 'fail');
+if ($failCount > 0) out("Failed       : $failCount ← fix before demo", 'fail');
 if ($warnCount > 0) out("Warnings     : $warnCount", 'warn');
 
-if ($failCount === 0) {
-    out("🎉 All critical checks PASSED! Project is ready for demo.", 'ok');
-} else {
-    out("⚠️  $failCount critical issue(s) found. See above for fix instructions.", 'warn');
-}
+if ($failCount === 0) out("🎉 All critical checks PASSED!", 'ok');
+else out("⚠️  Critical issue(s) found.", 'warn');
 
 if ($conn) oci_close($conn);
-
 if (!$isCli) echo "</div></body></html>";
