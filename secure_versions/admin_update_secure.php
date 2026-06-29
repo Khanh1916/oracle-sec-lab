@@ -8,7 +8,7 @@
  * FIXES APPLIED:
  *   1. Whitelisting: Only allow update URLs from a predefined list.
  *   2. Digital Signature Verification (conceptual): Ensure manifest integrity.
- *   3. Input validation: Ensure config_key for update_url is not directly modifiable via SQLi.
+ *   3. Defense in depth: even if partner_config/update_url is abused, admin update only trusts approved sources.
  *
  * COMPARE WITH VULNERABLE VERSION:
  *   Vulnerable:  $url = $conf['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL; $jsonData = @file_get_contents($url);
@@ -100,7 +100,7 @@ if (isset($_GET['check_updates'])) {
                 <tr><th>Issue</th><td>Supply Chain Poisoning: Trusting <code>update_url</code> from DB without validation.</td></tr>
                 <tr><th>Fix 1</th><td>Implement a server-side whitelist for all allowed update URLs.</td></tr>
                 <tr><th>Fix 2</th><td>(Conceptual) Implement digital signature verification for the manifest file.</td></tr>
-                <tr><th>Fix 3</th><td>Ensure <code>update_url</code> in <code>CONFIG_STORE</code> cannot be modified by low-privileged users (e.g., via SQLi).</td></tr>
+                <tr><th>Fix 3</th><td>Fix <code>partner_config.php</code> so low-privileged users cannot modify <code>update_url</code>; validate again here before fetching.</td></tr>
             </table>
             <pre style="margin-top:12px;background:#1a1a2e;color:#e8e8e8;padding:14px;border-radius:8px;font-size:0.82rem;overflow-x:auto;">
 <span style="color:#f4a261;">// VULNERABLE:</span>

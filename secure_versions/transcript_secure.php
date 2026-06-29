@@ -3,7 +3,7 @@
  * DBS401 - Group 02
  * secure_versions/transcript_secure.php
  *
- * SECURE VERSION of transcript.php (Vulnerability 2 Fix)
+ * SECURE VERSION of legacy transcript.php IDOR scenario (not current Vuln 2)
  *
  * ROOT CAUSE OF IDOR:
  *   - No check that s.user_id = logged-in user's user_id.

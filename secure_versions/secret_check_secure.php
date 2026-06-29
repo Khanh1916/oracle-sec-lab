@@ -3,7 +3,7 @@
  * DBS401 - Group 02
  * secure_versions/secret_check_secure.php
  *
- * SECURE VERSION of secret_check.php (Vulnerability 3 Fix)
+ * SECURE VERSION of legacy secret_check.php (kept as decoy/legacy, not current Vuln 3)
  */
 
 require_once dirname(__DIR__) . '/config.php';
