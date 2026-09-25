@@ -13,7 +13,11 @@ dbs401-oracle-app/
 ├── index.php                   # Redirect về login/dashboard
 ├── login.php                   # Đăng nhập
 ├── logout.php                  # Đăng xuất
-├── dashboard.php               # Trang chính sau login
+├── dashboard.php               # Trang chính sau login & bảng tin đào tạo
+├── courses.php                 # Tra cứu danh mục môn & Đăng ký môn học (Enroll/Drop)
+├── schedule.php                # Thời khóa biểu học tập theo tuần (Weekly Timetable)
+├── grades.php                  # Cổng chấm điểm giảng viên (Faculty Grading Portal)
+├── tuition.php                 # Tra cứu học phí & hóa đơn tín chỉ (Tuition Status)
 ├── search.php                  # [VULN 1] SQL Injection
 ├── profile.php                 # Xem profile cá nhân
 ├── store.php                   # [VULN 2] Business Logic (Negative Quantity)

@@ -190,7 +190,8 @@ else out("═══ File Structure ═══", 'head');
 
 $requiredFiles = [
     'config.php', 'index.php', 'login.php', 'logout.php',
-    'dashboard.php', 'search.php', 'store.php', 'partner_config.php',
+    'dashboard.php', 'courses.php', 'schedule.php', 'grades.php', 'tuition.php',
+    'search.php', 'store.php', 'partner_config.php',
     'profile.php', 'transcript.php', 'audit.php', 'admin.php',
     'secret_check.php', 'inc_navbar.php', 'style.css', '.htaccess',
     'database/schema.sql', 'database/seed.sql', 'database/fix_refs.sql', 'database/init_passwords.php',
@@ -213,6 +214,10 @@ if (!$isCli) {
     $links = [
         'login.php' => 'Login Page',
         'dashboard.php' => 'Dashboard',
+        'courses.php' => 'Course Catalog & Registration',
+        'schedule.php' => 'Weekly Timetable',
+        'grades.php' => 'Faculty Grading Portal',
+        'tuition.php' => 'Tuition & Fee Status',
         'search.php' => 'Search [VULN 1: SQLi]',
         'store.php' => 'Store [VULN 2: Negative Quantity]',
         'partner_config.php' => 'Hidden Partner Config [VULN 3A: Broken Access Control]',

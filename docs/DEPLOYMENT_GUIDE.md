@@ -344,9 +344,9 @@ http://192.168.x.x/dbs401-oracle-app   ← từ máy khác trong LAN
 
 | Account | Password | Expect |
 |---------|----------|--------|
-| student1 | Student@123 | Dashboard với enrollment list |
-| teacher1 | Teacher@123 | Dashboard với search link |
-| admin | Admin@DBS401!2024 | Dashboard với Admin Panel link |
+| student1 | Student@123 | Dashboard với enrollment list, courses, timetable, tuition |
+| teacher1 | Teacher@123 | Dashboard với assigned courses, faculty grading portal |
+| admin | Admin@DBS401!2024 | Dashboard với Admin Panel link, audit logs, system overview |
 
 ### 8.3 Test Từng Chức Năng
 

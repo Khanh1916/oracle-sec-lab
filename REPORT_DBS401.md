@@ -217,14 +217,19 @@ Nhóm xây dựng mô phỏng **cổng thông tin sinh viên FPT** với các ch
 
 | Trang | Chức năng | Ghi chú |
 |-------|-----------|---------|
-| `/login.php` | Đăng nhập | Secure (parameterized) |
-| `/dashboard.php` | Tổng quan tài khoản | Xem điểm, enrollment |
+| `/login.php` | Đăng nhập | Secure (parameterized, session fixation protected) |
+| `/dashboard.php` | Tổng quan sinh viên & Bảng tin đào tạo | Lối tắt dịch vụ, điểm tổng kết, thông báo |
+| `/courses.php` | Danh mục môn học & Đăng ký môn | Cho phép sinh viên đăng ký (Enroll) và hủy môn (Drop) |
+| `/schedule.php` | Thời khóa biểu học tập / giảng dạy | Ma trận lịch học theo tuần và phòng học |
+| `/grades.php` | Cổng chấm điểm giảng viên | Giảng viên nhập và công bố điểm cho lớp phụ trách |
+| `/tuition.php` | Tra cứu học phí & Hóa đơn điện tử | Thống kê học phí theo tín chỉ, tài khoản ảo thanh toán |
 | `/search.php` | Tìm kiếm sinh viên | **[VULN 1]** SQLi |
 | `/profile.php` | Xem thông tin cá nhân | Secure |
 | `/store.php` | Cửa hàng học liệu | **[VULN 2]** Business Logic (Negative Quantity) |
 | `/transcript.php` | Xem bảng điểm/transcript | Secure (đã vá IDOR) |
 | `/audit.php` | Xem audit log | Secure (đã vá IDOR) |
-| `/admin.php` | Quản trị hệ thống | Quản lý người dùng (CRUD), **[VULN 3]** Supply Chain Poisoning |
+| `/partner_config.php` | Cấu hình đối tác cập nhật | **[VULN 3A]** Broken Access Control (trang ẩn) |
+| `/admin.php` | Quản trị hệ thống & Trigger Update | Quản lý người dùng (CRUD), **[VULN 3B]** Supply Chain Poisoning |
 
 ### 5.2 Tài khoản demo
 

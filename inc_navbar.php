@@ -11,13 +11,21 @@ $username = $_SESSION['username'] ?? '';
     </div>
     <div class="navbar-links">
         <a href="<?= APP_BASE ?>/dashboard.php">Dashboard</a>
+        <a href="<?= APP_BASE ?>/courses.php">Courses</a>
+        <a href="<?= APP_BASE ?>/schedule.php">Timetable</a>
+        <?php if ($role === 'student'): ?>
+            <a href="<?= APP_BASE ?>/transcript.php">Transcript</a>
+            <a href="<?= APP_BASE ?>/tuition.php">Tuition</a>
+            <a href="<?= APP_BASE ?>/store.php">Store</a>
+        <?php elseif ($role === 'teacher'): ?>
+            <a href="<?= APP_BASE ?>/grades.php">Grading</a>
+        <?php endif; ?>
         <a href="<?= APP_BASE ?>/search.php">Search</a>
-        <a href="<?= APP_BASE ?>/profile.php">Profile</a>
-        <a href="<?= APP_BASE ?>/transcript.php">Transcript</a>
         <?php if ($role === 'admin'): ?>
             <a href="<?= APP_BASE ?>/admin.php">Admin</a>
             <a href="<?= APP_BASE ?>/audit.php">Audit</a>
         <?php endif; ?>
+        <a href="<?= APP_BASE ?>/profile.php">Profile</a>
         <span class="nav-user">
             👤 <?= htmlspecialchars($username) ?>
             [<span class="badge-inline badge-<?= $role ?>"><?= $role ?></span>]

@@ -36,9 +36,11 @@
 │  └────────────────────────┬────────────────────────────────┘    │
 │                           │                                     │
 │  ┌──────────────────────────────────────────────────────────┐   │
-│  │             secret_check.php (Legacy API)                │   │
-│  │             audit.php                                    │   │
-│  │             admin.php [VULN 3], profile.php, dashboard.php   │
+│  │             courses.php, schedule.php, tuition.php       │   │
+│  │             grades.php (teacher/admin portal)            │   │
+│  │             partner_config.php [VULN 3A] (hidden config) │   │
+│  │             admin.php [VULN 3B], profile.php, dashboard  │   │
+│  │             audit.php, secret_check.php (Legacy API)     │   │
 │  └──────────────────────────────────────────────────────────┘   │
 └────────────────────────────┬────────────────────────────────────┘
                              │ TNS: localhost:1539/XEPDB1
@@ -248,13 +250,18 @@ Oracle Database (dbs401_user schema)
 |----------|---------|---------|-------|---------|
 | login.php | ✅ | ✅ | ✅ | None (secure) |
 | dashboard.php | ✅ | ✅ | ✅ | None |
+| courses.php | ✅ (enroll/drop) | ✅ (view) | ✅ (view) | None (Secure) |
+| schedule.php | ✅ (own) | ✅ (view) | ✅ (view) | None (Secure) |
+| grades.php | ❌ (redirect) | ✅ (grading) | ✅ (grading) | None (Secure) |
+| tuition.php | ✅ (own) | ✅ (view) | ✅ (view) | None (Secure) |
 | search.php | ✅ | ✅ | ✅ | **VULN 1** SQLi |
 | profile.php | ✅ (own) | ✅ | ✅ | None |
 | store.php | ✅ | ✅ | ✅ | **VULN 2** Business Logic |
-| transcript.php | ✅ | ✅ | ✅ | None (Secure) |
+| transcript.php | ✅ (own) | ✅ | ✅ | None (Secure) |
 | audit.php | ✅ (own) | ❌ | ✅ (all) | None (Secure) |
-| admin.php | ❌ | ❌ | ✅ | **VULN 3** Supply Chain |
-| secret_check.php | ✅ | ✅ | ✅ | None (Legacy API) |
+| partner_config.php | ✅ (misconfigured) | ✅ | ✅ | **VULN 3A** Broken Access Control |
+| admin.php | ❌ | ❌ | ✅ | **VULN 3B** Supply Chain |
+| secret_check.php | ✅ | ✅ | ✅ | None (Legacy Decoy API) |
 
 ---
 
