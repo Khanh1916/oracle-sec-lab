@@ -1,4 +1,4 @@
--- xoa cac du lieu cu, tao moi tu dau de seed lai database
+-- Reset existing database records for clean seeding
 DELETE FROM FLAG_ARCHIVE;
 DELETE FROM SYSTEM_HINTS;
 DELETE FROM FAKE_FLAGS;
@@ -23,16 +23,16 @@ DELETE FROM USERS;
 --   Part C (CONFIG_STORE): MHI0Y2wzIX0=            = base64("0r4cl3!}")
 --
 -- FLAG 2: DBS401{LOGIC_GURU_2024}
---   Lấy từ store.php bằng cách thao túng Credits (negative quantity)
+--   Obtained from store.php via credit manipulation (negative quantity)
 --
 -- FLAG 3: DBS401{5upp1y_Ch41n_P0150n1ng_0912}
---   Lấy từ admin.php bằng cách đầu độc update_url trong CONFIG_STORE
---   rồi trigger "Check for Partner Updates"
+--   Obtained from admin.php by poisoning update_url in CONFIG_STORE
+--   and triggering "Check for Partner Updates"
 -- ============================================================
 
 -- ============================================================
 -- USERS
--- NOTE: password_hash là placeholder, chạy init_passwords.php để tạo bcrypt thật
+-- NOTE: password_hash is a placeholder, run init_passwords.php to generate real bcrypt hashes
 -- ============================================================
 INSERT INTO USERS (username, password_hash, role, status) VALUES
   ('admin',    '$2y$12$placeholder.AdminHash',    'admin',   'active');
@@ -46,7 +46,7 @@ INSERT INTO USERS (username, password_hash, role, status) VALUES
   ('student3', '$2y$12$placeholder.Student3Hash', 'student', 'active');
 
 -- ============================================================
--- STUDENTS (dùng subquery SELECT để tránh hardcode user_id)
+-- STUDENTS (SELECT subquery used to bind dynamic user_id)
 -- ============================================================
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) SELECT u.user_id, 'Nguyen Van An', 'an.nv2021@fpt.edu.vn', 'Software Engineering', 3.20, '0901234567', 'Ha Noi', 'NORMAL', 150
 FROM USERS u WHERE u.username = 'student1';
@@ -57,7 +57,7 @@ FROM USERS u WHERE u.username = 'student2';
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) SELECT u.user_id, 'Le Quoc Cuong', 'cuong.lq2021@fpt.edu.vn', 'Artificial Intelligence', 2.90, '0923456789', 'Da Nang', 'NORMAL', 200
 FROM USERS u WHERE u.username = 'student3';
 
--- Thêm sinh viên demo không có tài khoản đăng nhập
+-- Additional demo student records without interactive user logins
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
   (NULL, 'Hoang Minh Duc', 'duc.hm2022@fpt.edu.vn', 'Digital Marketing', 3.10, '0933112233', 'Ha Noi', 'NORMAL', 100);
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
@@ -73,8 +73,8 @@ INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hid
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
   (NULL, 'Bui Khanh Huyen', 'huyen.bk2005@ulis.vnu.edu.vn', 'English Literature', 3.00, '0911111115', 'Nam Dinh', 'NORMAL', 10000000);
 
--- Decoy student (hidden_marker DECOY → không lộ trong search bình thường)
--- internal_note của enrollment chứa FAKE flag dạng base64 để bẫy IDOR hunter
+-- Decoy student (hidden_marker DECOY prevents appearance in standard searches)
+-- Enrollment internal_note contains FAKE base64 flag to trap IDOR hunters
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker) VALUES
   (NULL, 'Pham Thi Dung', 'dung.pt2021@fpt.edu.vn', 'Business IT', 2.50, '0934567890', 'Can Tho', 'DECOY_42');
 
@@ -99,7 +99,7 @@ INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) 
   ('MAS291', 'Statistics & Probability', 'Dr. Le Van Khoa', 3, '2024-S1');
 
 -- ============================================================
--- ENROLLMENTS (dùng subquery để tránh hardcode student_id)
+-- ENROLLMENTS (subqueries used to avoid hardcoded student_id)
 -- ============================================================
 -- student1
 INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
@@ -129,7 +129,7 @@ INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref,
    (SELECT course_id FROM COURSES WHERE course_code='NET201'),
    7.5, '2024-S1', 'TXN-003-2024-S1', 'Normal enrollment.', NULL);
 
--- Decoy student (student Pham Thi Dung) - internal_note chứa FAKE flag dạng base64 để bẫy IDOR hunters
+-- Decoy student (Pham Thi Dung) - internal_note contains FAKE base64 flag to trap IDOR hunters
 -- base64("DBS401{FAKE_IDOR_wrong_student}") = "REJTNDE...WRONG..."
 INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
   ((SELECT student_id FROM STUDENTS WHERE full_name='Pham Thi Dung'),
@@ -139,7 +139,7 @@ INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref,
    NULL);
 
 -- ============================================================
--- AUDIT_LOGS (Flag 1 Part B - fragment cần reverse)
+-- AUDIT_LOGS (Flag 1 Part B - fragment requiring reversal)
 -- ============================================================
 INSERT INTO AUDIT_LOGS (user_id, action, ip_address, metadata_note) VALUES
   (1, 'SYSTEM_AUDIT_CHECK', '127.0.0.1',
@@ -148,7 +148,7 @@ INSERT INTO AUDIT_LOGS (user_id, action, ip_address, metadata_note) VALUES
 INSERT INTO AUDIT_LOGS (user_id, action, ip_address, metadata_note) VALUES
   (1, 'LOGIN_SUCCESS', '192.168.1.50', 'Admin session started');
 
--- Log decoy (để bẫy người đọc sai log)
+-- Decoy log (traps hunters reading unrelated audit logs)
 INSERT INTO AUDIT_LOGS (user_id, action, ip_address, metadata_note) VALUES
   (NULL, 'SECRET_VAULT_ACCESS', '10.0.0.1',
    '{"note":"routine_backup","status":"ok","data":"REJTNDE5eFNFQ1JFVF9CQUNLVVBfRkxBR30="}');
@@ -160,7 +160,7 @@ INSERT INTO AUDIT_LOGS (user_id, action, ip_address, metadata_note) VALUES
 INSERT INTO FLAGS (flag_code, flag_part, part_order, hint, difficulty, is_active) VALUES
   ('FL1_PART_A', '4442533430317B53514C5F', 1, 'Try decoding this as hex bytes', 'Easy', 1);
 
--- Decoy: trông như flag part nhưng là garbage base64
+-- Decoy: mimics flag fragment but contains garbage base64
 INSERT INTO FLAGS (flag_code, flag_part, part_order, hint, difficulty, is_active) VALUES
   ('FL_DECOY_B', 'U09NRV9GQUtFX0ZMQUdfSEVSRQ==', 2, 'Is it base64?', 'Medium', 1);
 
@@ -171,15 +171,15 @@ INSERT INTO FLAGS (flag_code, flag_part, part_order, hint, difficulty, is_active
 INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
   ('sys_alpha_marker', 'MHI0Y2wzIX0=', 0);
 
--- Decoy config (tên nghe giống flag nhưng là fake)
+-- Decoy config (flag-like key name containing decoy base64)
 INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
   ('sys_beta_marker', 'REJTNDE5eEZBS0VfQ09ORklHX01BUktFUn0=', 0);
 
--- Vuln 3 target: URL này sẽ bị hacker đổi sang server độc hại
+-- Vuln 3 target: update URL poisoned by attacker to rogue manifest server
 INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
   ('update_url', 'http://127.0.0.1:8081/manifest.json', 0);
 
--- Public configs (hiển thị ở admin panel)
+-- Public configs (displayed in admin panel)
 INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
   ('app_version', '3.1.0', 1);
 INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
@@ -188,13 +188,13 @@ INSERT INTO CONFIG_STORE (config_key, config_value, is_public) VALUES
   ('max_search_results', '5', 1);
 
 -- ============================================================
--- ADMIN_SECRETS (chỉ giữ các key hợp lý, bỏ Blind SQLi cũ)
+-- ADMIN_SECRETS (retained for verification API and decoys)
 -- ============================================================
--- Secret thật (dùng để verify sys_master_key qua secret_check.php)
+-- Real secret (used to verify sys_master_key via secret_check.php)
 INSERT INTO ADMIN_SECRETS (secret_key, encrypted_value, note, is_active) VALUES
   ('sys_master_key', 'SYS_MASTER_REDACTED_IN_PROD', 'System master key (verified only, no read)', 1);
 
--- Decoy key: bẫy người dùng Blind SQLi vào đây → ra fake flag
+-- Decoy key: traps blind SQLi attempts into returning a fake flag
 INSERT INTO ADMIN_SECRETS (secret_key, encrypted_value, note, is_active) VALUES
   ('oracle_flag_3_backup', 'DBS401{FAKE_blind_wrong_key_xd}', 'Legacy backup - do not use', 1);
 
@@ -202,14 +202,14 @@ INSERT INTO ADMIN_SECRETS (secret_key, encrypted_value, note, is_active) VALUES
 -- FAKE_FLAGS (decoy table)
 -- ============================================================
 INSERT INTO FAKE_FLAGS (fake_code, fake_value, reason) VALUES
-  ('FF001', 'DBS401{FAKE_union_select_lol}', 'Bẫy người dùng UNION đơn giản');
+  ('FF001', 'DBS401{FAKE_union_select_lol}', 'Traps naive automated UNION payloads');
 INSERT INTO FAKE_FLAGS (fake_code, fake_value, reason) VALUES
-  ('FF002', 'DBS401{FAKE_IDOR_wrong_student}', 'Bẫy người tìm sai student ID');
+  ('FF002', 'DBS401{FAKE_IDOR_wrong_student}', 'Traps hunters enumerating wrong student IDs');
 INSERT INTO FAKE_FLAGS (fake_code, fake_value, reason) VALUES
-  ('FF003', 'DBS401{FAKE_IDOR_notreal}', 'Bẫy IDOR stage 1');
+  ('FF003', 'DBS401{FAKE_IDOR_notreal}', 'Traps IDOR stage 1 attempts');
 
 -- ============================================================
--- SYSTEM_HINTS (gợi ý gián tiếp)
+-- SYSTEM_HINTS (indirect CTF hints)
 -- ============================================================
 INSERT INTO SYSTEM_HINTS (hint_key, hint_value, related_vuln) VALUES
   ('HINT_SQLI_01', 'Flags are not in one piece. Check AUDIT_LOGS and CONFIG_STORE too.', 'VULN1');
@@ -227,7 +227,7 @@ INSERT INTO SYSTEM_HINTS (hint_key, hint_value, related_vuln) VALUES
   ('HINT_SUPPLY_04', 'The partner manifest needs a higher version and a flag_part hex fragment; the server completes the rest.', 'VULN3');
 
 -- ============================================================
--- FLAG_ARCHIVE (decoy table - trông như bảng flag thật)
+-- FLAG_ARCHIVE (decoy table mimicking genuine flags table)
 -- ============================================================
 INSERT INTO FLAG_ARCHIVE (archive_code, archive_data) VALUES
   ('OLD_FLAG_2023', 'DBS401{FAKE_archived_flag_123}');
@@ -238,7 +238,7 @@ COMMIT;
 /
 
 -- ============================================================
--- Sau khi seed xong, BẮT BUỘC chạy:
---   1. sqlplus ... @database/fix_refs.sql   (cập nhật admin_ref_id)
---   2. php database/init_passwords.php      (tạo bcrypt hash thật)
+-- Post-seeding execution requirements:
+--   1. sqlplus ... @database/fix_refs.sql   (verifies database state)
+--   2. php database/init_passwords.php      (generates bcrypt hashes)
 -- ============================================================

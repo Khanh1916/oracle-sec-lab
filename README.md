@@ -1,6 +1,17 @@
 # 🎓 OracleSecLab – Vulnerable Oracle Web Application
 ### Enterprise Oracle Database Security & Penetration Testing Practice Lab
 
+<p align="center">
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/PHP-8.1-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.1" /></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Oracle_DB-XE_21c_%7C_23c_Free-F80000?style=for-the-badge&logo=oracle&logoColor=white" alt="Oracle Database" /></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Apache-2.4-D22128?style=for-the-badge&logo=apache&logoColor=white" alt="Apache 2.4" /></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Ubuntu-22.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Linux" /></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3" /></a>
+  <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/OWASP-Top_10_2021-00599C?style=for-the-badge&logo=owasp&logoColor=white" alt="OWASP Top 10" /></a>
+  <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/Vulnerabilities-SQLi_%7C_Logic_%7C_Supply_Chain-blueviolet?style=for-the-badge" alt="Vulnerabilities" /></a>
+  <a href="#-license--attribution"><img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge" alt="License MIT" /></a>
+</p>
+
 > ⚠️ **LEGAL & ETHICAL DISCLAIMER:**  
 > This application is deliberately vulnerable and is intended solely for educational, penetration testing, and security training purposes in private, isolated lab environments. Do **NOT** deploy this application to public internet-facing servers or production infrastructure.
 
@@ -13,6 +24,20 @@
 While many popular vulnerable web applications (like DVWA, WebGoat, or Juice Shop) focus on MySQL, PostgreSQL, or SQLite, **Oracle Database** has unique architectural characteristics, SQL dialect specifics (`DUAL`, `ROWNUM`, `FETCH FIRST`, `USER_TABLES`, `SYS_CONTEXT`), and distinct security challenges. 
 
 This project simulates a realistic university portal (**FPT Student Portal**), featuring complete academic workflows alongside three intentional, deeply layered vulnerabilities.
+
+---
+
+## 💻 Tech Stack
+
+| Component | Technology | Description |
+|:---|:---|:---|
+| **Backend Language** | PHP 8.1+ | Server-side scripting runtime with session management |
+| **Database Engine** | Oracle Database XE 21c / 23c Free | Enterprise RDBMS running on Pluggable Database (`XEPDB1` / `FREEPDB1`) |
+| **Database Driver** | PHP OCI8 & Oracle Instant Client 21c | Native C-level Oracle Call Interface extension |
+| **Web Server** | Apache 2.4 (`mod_php`, `mod_rewrite`) | HTTP server with directory alias & access control |
+| **Operating System** | Ubuntu 20.04 / 22.04 / 24.04 LTS | Linux target environment |
+| **Exploit Tooling** | Python 3 (`requests`, `urllib3`) | Automated PoC exploits and flag assembly decoders |
+| **Security Standards** | OWASP Top 10 (A01: BAC, A03: Injection, A06: Supply Chain) | Realistic enterprise attack chains and secure remediations |
 
 ---
 
@@ -200,10 +225,10 @@ Each vulnerable endpoint has a corresponding hardened implementation in `secure_
 ## 📚 Technical Documentation
 
 For in-depth architectural and exploitation details, consult the `docs/` directory:
-* [System Architecture (`docs/ARCHITECTURE.md`)](file:///f:/SU26_Materials/DBS401/vulnerable-web/vul-web/docs/ARCHITECTURE.md) – Component interactions, network topology, and RBAC matrix.
-* [Deployment Guide (`docs/DEPLOYMENT_GUIDE.md`)](file:///f:/SU26_Materials/DBS401/vulnerable-web/vul-web/docs/DEPLOYMENT_GUIDE.md) – Complete step-by-step installation instructions for Oracle XE and OCI8 on Ubuntu.
-* [Challenge Solution Guide (`docs/ANSWER_KEY.md`)](file:///f:/SU26_Materials/DBS401/vulnerable-web/vul-web/docs/ANSWER_KEY.md) – Complete walkthroughs, SQL payloads, and decoy explanations.
-* [Oracle SQLi Cheatsheet (`docs/ORACLE_PAYLOAD_CHEATSHEET.md`)](file:///f:/SU26_Materials/DBS401/vulnerable-web/vul-web/docs/ORACLE_PAYLOAD_CHEATSHEET.md) – Reference sheet for Oracle-specific injection techniques.
+* [System Architecture](docs/ARCHITECTURE.md) – Component interactions, network topology, and RBAC matrix.
+* [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) – Complete step-by-step installation instructions for Oracle XE and OCI8 on Ubuntu.
+* [Challenge Solution Guide](docs/ANSWER_KEY.md) – Complete walkthroughs, SQL payloads, and decoy explanations.
+* [Oracle SQLi Cheatsheet](docs/ORACLE_PAYLOAD_CHEATSHEET.md) – Reference sheet for Oracle-specific injection techniques.
 
 ---
 

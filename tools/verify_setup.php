@@ -1,15 +1,15 @@
 <?php
 /**
- * DBS401 - Group 02
+ * OracleSecLab
  * tools/verify_setup.php
  *
- * Script kiểm tra nhanh trạng thái project sau các thay đổi mới:
+ * Pre-flight verification script to check environment and challenge status:
  *   - Vuln 1: search.php SQL Injection
- *   - Vuln 2: store.php Negative Quantity / Credits Hack
+ *   - Vuln 2: store.php Negative Quantity / Credits Manipulation
  *   - Vuln 3: partner_config.php Broken Access Control + admin.php Supply Chain trigger
  *
- * Chạy CLI: php tools/verify_setup.php
- * ⚠️ Xóa hoặc chặn truy cập file này trước khi đóng gói/public lab.
+ * CLI Execution: php tools/verify_setup.php
+ * ⚠️ Restrict or remove this file in public CTF competitive environments.
  */
 
 $isCli = (php_sapi_name() === 'cli');
@@ -52,11 +52,11 @@ function check(bool $condition, string $passMsg, string $failMsg, bool $critical
 }
 
 if (!$isCli) {
-    echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>DBS401 Setup Verify</title>";
+    echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>OracleSecLab Setup Verification</title>";
     echo "<style>body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px;background:#f8f9fa}";
     echo "h1{color:#023e8a} h2{color:#e85d04;border-bottom:2px solid #e85d04;padding-bottom:4px}";
     echo ".section{background:#fff;border-radius:8px;padding:20px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.1)}</style></head><body>";
-    echo "<h1>🔍 DBS401 Group 02 – Setup Verification</h1>";
+    echo "<h1>🔍 OracleSecLab – Pre-flight Verification</h1>";
 }
 
 // ─── 1. PHP Environment ─────────────────────────────────────────

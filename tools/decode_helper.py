@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-DBS401 - Group 02
-tools/decode_helper.py  –  Decode Helper for CTF Players
+OracleSecLab
+tools/decode_helper.py – CTF Flag Decode Helper Utility
 
-⚠️  Chỉ sử dụng trong môi trường lab DBS401 nội bộ.
+⚠️ For laboratory and educational testing environments only.
 
-Dùng script này để:
-  1. Decode hex string → ASCII
-  2. Decode base64 string → ASCII
-  3. Reverse string
-  4. Auto-detect và decode một chuỗi lạ
-  5. Assemble flag từ các parts
+Use this script to:
+  1. Decode hex strings to ASCII
+  2. Decode base64 strings to ASCII
+  3. Reverse strings
+  4. Auto-detect and decode unknown encoded strings
+  5. Assemble CTF flags from fragments
 
 Usage:
   python3 decode_helper.py --hex "4442533430317B53514C5F"
@@ -88,9 +88,9 @@ def auto_detect(s: str) -> dict:
 def assemble_flag1():
     """
     FLAG 1: DBS401{SQL_1nj3ct10n_0r4cl3!}
-    Khai thác qua UNION-based SQL Injection tại search.php
+    Exploited via UNION-based SQL Injection at search.php
       Part A → FLAGS table           → hex encoded
-      Part B → AUDIT_LOGS table      → reversed string trong JSON
+      Part B → AUDIT_LOGS table      → reversed string in JSON
       Part C → CONFIG_STORE table    → base64 encoded
     """
     print("\n━━━ FLAG 1 ASSEMBLY ━━━")
@@ -112,15 +112,13 @@ def assemble_flag1():
 def assemble_flag2():
     """
     FLAG 2: DBS401{LOGIC_GURU_2024}
-    Khai thác qua Business Logic (Negative Quantity) tại store.php:
-      1. Đăng nhập student1 / Student@123
-      2. POST store.php với quantity=-20000, item_id=1 (giá 100 credits)
+    Exploited via Business Logic (Negative Quantity) at store.php:
+      1. Authenticate as student1 / Student@123
+      2. POST store.php with quantity=-20000, item_id=1 (100 credits/unit)
          → cost = -20000 * 100 = -2,000,000
          → newCredits = currentCredits - (-2,000,000) = currentCredits + 2,000,000
-      3. Số dư Credits tăng vọt lên > 999,999
-      4. Mua item "Exam Leak 2024 (CLASSIFIED)" → FLAG 2 hiển thị
-
-    Flag này không cần decode – nó hiển thị trực tiếp trên trang store.php.
+      3. Credit balance exceeds 999,999
+      4. Purchase "Exam Leak 2024 (CLASSIFIED)" item → FLAG 2 unlocked
     """
     print("\n━━━ FLAG 2 ASSEMBLY ━━━")
     print("  Vulnerability : Business Logic – Negative Quantity (store.php)")
@@ -135,13 +133,13 @@ def assemble_flag2():
 def assemble_flag3():
     """
     FLAG 3: DBS401{5upp1y_Ch41n_P0150n1ng_0912}
-    Khai thác qua Broken Access Control + Supply Chain:
-      1. SQLi recon tìm update_url/app_version trong CONFIG_STORE.
-      2. User thường đổi update_url qua partner_config.php.
-      3. Attacker phục vụ manifest version cao hơn APP_VERSION.
-      4. Manifest chỉ chứa nửa đầu hex trong flag_part.
-      5. admin.php ghép flag_part với FLAG3_LOCAL_HEX_SUFFIX server-side.
-      6. Server decode hex và hiển thị flag plaintext.
+    Exploited via Broken Access Control + Supply Chain:
+      1. SQLi recon reveals update_url and app_version in CONFIG_STORE.
+      2. Student user alters update_url via partner_config.php.
+      3. Rogue server serves manifest with version higher than APP_VERSION.
+      4. Manifest provides the first half hex in flag_part.
+      5. admin.php concatenates flag_part with server-side FLAG3_LOCAL_HEX_SUFFIX.
+      6. Server decodes hex and renders plaintext flag on administrator dashboard.
     """
     print("\n━━━ FLAG 3 ASSEMBLY ━━━")
     manifest_hex_part = "4442533430317b3575707031795f436834"
@@ -156,9 +154,10 @@ def assemble_flag3():
     print(f"\n  ✅ FLAG 3 = {flag3}")
     return flag3
 
+
 def main():
     print(BANNER)
-    parser = argparse.ArgumentParser(description='DBS401 CTF Decode Helper')
+    parser = argparse.ArgumentParser(description='OracleSecLab CTF Decode Helper')
     parser.add_argument('--hex',      help='Decode hex string to ASCII')
     parser.add_argument('--b64',      help='Decode base64 string to ASCII')
     parser.add_argument('--rev',      help='Reverse a string')

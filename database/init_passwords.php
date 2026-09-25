@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
 /**
- * DBS401 - Group 02
- * init_passwords.php
+ * OracleSecLab - Vulnerable Oracle Web Application
+ * database/init_passwords.php
  * Run ONCE after importing schema.sql and seed.sql.
- * Updates password_hash for all demo users using PHP password_hash().
+ * Updates password_hash for all demo users using PHP password_hash() (bcrypt cost 12).
  *
  * Usage: php init_passwords.php
  */

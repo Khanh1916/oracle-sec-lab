@@ -246,15 +246,15 @@ Oracle Database (dbs401_user schema)
 
 ## 7. Role-Based Access Control
 
-| Endpoint | student | teacher | admin | Lỗ hổng |
-|----------|---------|---------|-------|---------|
-| login.php | ✅ | ✅ | ✅ | None (secure) |
+| Endpoint | student | teacher | admin | Vulnerability Status |
+|----------|---------|---------|-------|----------------------|
+| login.php | ✅ | ✅ | ✅ | None (Secure) |
 | dashboard.php | ✅ | ✅ | ✅ | None |
 | courses.php | ✅ (enroll/drop) | ✅ (view) | ✅ (view) | None (Secure) |
 | schedule.php | ✅ (own) | ✅ (view) | ✅ (view) | None (Secure) |
 | grades.php | ❌ (redirect) | ✅ (grading) | ✅ (grading) | None (Secure) |
 | tuition.php | ✅ (own) | ✅ (view) | ✅ (view) | None (Secure) |
-| search.php | ✅ | ✅ | ✅ | **VULN 1** SQLi |
+| search.php | ✅ | ✅ | ✅ | **VULN 1** SQL Injection |
 | profile.php | ✅ (own) | ✅ | ✅ | None |
 | store.php | ✅ | ✅ | ✅ | **VULN 2** Business Logic |
 | transcript.php | ✅ (own) | ✅ | ✅ | None (Secure) |
@@ -290,7 +290,7 @@ Oracle Database (dbs401_user schema)
 
 **Firewall rule** (if UFW enabled):
 ```bash
-sudo ufw allow 80/tcp comment 'DBS401 lab'
+sudo ufw allow 80/tcp comment 'OracleSecLab HTTP'
 ```
 
-Oracle chỉ bind localhost (1539) → không expose ra ngoài LAN → an toàn cho lab.
+Oracle Database binds strictly to `localhost` (`127.0.0.1:1539`), preventing external database access from the LAN while maintaining complete isolation for the web security lab.

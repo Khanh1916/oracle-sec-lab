@@ -1,21 +1,22 @@
 -- ============================================================
--- DBS401 - Group 02
+-- OracleSecLab - Vulnerable Oracle Web Application
 -- database/reset_db.sql
--- Reset toàn bộ database về trạng thái ban đầu cho demo
+-- Reset all database tables to initial baseline state
 -- ============================================================
--- ⚠️  Xóa toàn bộ dữ liệu! Chỉ chạy khi cần reset.
--- Chạy: sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/reset_db.sql
+-- ⚠️  WARNING: This truncates all tables and purges application data!
+-- Usage:
+--   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/reset_db.sql
 -- ============================================================
 
 PROMPT ================================================
-PROMPT  DBS401 - Group 02 - Database Reset
-PROMPT  WARNING: This will DELETE all data!
+PROMPT  OracleSecLab - Database Reset Routine
+PROMPT  WARNING: This will TRUNCATE and DELETE all lab data!
 PROMPT ================================================
 
--- Disable constraints tạm thời
+-- Defer constraint verification for clean truncation
 ALTER SESSION SET CONSTRAINT_CHECK_TIME = DEFERRED;
 
--- Xóa theo thứ tự (child trước, parent sau)
+-- Truncate tables in dependency order (children first, parents last)
 TRUNCATE TABLE FLAG_ARCHIVE;
 TRUNCATE TABLE SYSTEM_HINTS;
 TRUNCATE TABLE FAKE_FLAGS;
@@ -28,12 +29,8 @@ TRUNCATE TABLE STUDENTS;
 TRUNCATE TABLE COURSES;
 TRUNCATE TABLE USERS;
 
-PROMPT Tables cleared. Reimporting seed data...
-
--- Re-import (phải chạy từ thư mục project)
--- @database/seed.sql
-
-PROMPT Done. Now run:
+PROMPT Tables successfully cleared.
+PROMPT Next steps:
 PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/seed.sql
 PROMPT   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/fix_refs.sql
 PROMPT   php database/init_passwords.php

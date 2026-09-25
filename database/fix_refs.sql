@@ -1,13 +1,12 @@
 -- ============================================================
--- DBS401 - Group 02
+-- OracleSecLab - Vulnerable Oracle Web Application
 -- database/fix_refs.sql
+-- Run AFTER seed.sql to verify CTF references and integrity
 -- ============================================================
--- Chạy SAU seed.sql để:
---   1. Cập nhật admin_ref_id trong ENROLLMENTS trỏ đúng vào
---      log_id của bản ghi SYSTEM_AUDIT_CHECK (Flag 1 Part B hint).
---   2. Xác minh toàn bộ dữ liệu CTF.
--- ============================================================
--- Chạy:
+-- Purpose:
+--   1. Verify and align foreign key linkages across tables.
+--   2. Validate presence of fragmented CTF flags and decoy entries.
+-- Usage:
 --   sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/fix_refs.sql
 -- ============================================================
 
@@ -16,9 +15,6 @@ PROMPT === fix_refs.sql: Verifying AUDIT_LOGS ===
 SELECT log_id, action, SUBSTR(metadata_note, 1, 60) AS meta_preview
 FROM AUDIT_LOGS
 WHERE action IN ('SYSTEM_AUDIT_CHECK', 'SECRET_VAULT_ACCESS');
-
--- Không cần cập nhật admin_ref_id cho transcript nữa (kịch bản IDOR cũ đã bị bỏ).
--- Enrollment TXN-004-2024-S1 (decoy) giữ admin_ref_id = NULL là đúng.
 
 PROMPT === Verifying FLAGS table ===
 SELECT flag_id, flag_code, SUBSTR(flag_part, 1, 30) AS flag_part_preview, is_active
@@ -47,10 +43,10 @@ SELECT enrollment_id, student_id, transcript_ref,
        admin_ref_id
 FROM ENROLLMENTS ORDER BY enrollment_id;
 
-PROMPT === Verifying COURSES (check no duplicate course_code) ===
+PROMPT === Verifying COURSES (unique course_codes) ===
 SELECT course_id, course_code, course_name FROM COURSES ORDER BY course_id;
 
-PROMPT === fix_refs.sql DONE ===
+PROMPT === fix_refs.sql COMPLETED ===
 PROMPT Next step: php database/init_passwords.php
 
 COMMIT;

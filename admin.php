@@ -46,7 +46,7 @@ if (isset($_GET['check_updates'])) {
     if ($jsonData) {
         $manifest = json_decode($jsonData, true);
         if (isset($manifest['version'])) {
-            // So sánh phiên bản: Nếu từ Partner > App hiện tại thì mới trigger thành công
+            // Version comparison: only trigger if the partner version is strictly greater than APP_VERSION
             if (version_compare($manifest['version'], APP_VERSION, '>')) {
                 $msg = "🎉 Update Successful! System upgraded to version " . htmlspecialchars($manifest['version']);
                 $msgType = "success";
@@ -123,8 +123,8 @@ $stmt = oci_parse($conn, $sql);
 oci_execute($stmt);
 while ($r = oci_fetch_assoc($stmt)) $secrets[] = $r;
 
-// HACKER HINT: Chỉ hiển thị các cấu hình công khai.
-// Muốn tìm 'update_url' nhạy cảm (is_public=0), hacker phải sử dụng SQL Injection ở search.php
+// HACKER HINT: Displays only public configurations.
+// To discover sensitive 'update_url' (is_public=0), candidates must use SQL Injection at search.php
 $sql  = "SELECT config_key, config_value, is_public, updated_at FROM CONFIG_STORE WHERE is_public = 1 ORDER BY config_key";
 $stmt = oci_parse($conn, $sql);
 oci_execute($stmt);
