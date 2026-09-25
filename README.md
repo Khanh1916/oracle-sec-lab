@@ -162,7 +162,7 @@ The application is structured as a full-featured university portal:
 ### Automated Setup
 Clone the repository and execute the installer with administrative privileges:
 ```bash
-git clone https://github.com/YourUsername/oracle-sec-lab.git /var/www/html/dbs401-oracle-app
+git clone https://github.com/Khanh1916/oracle-sec-lab.git /var/www/html/dbs401-oracle-app
 cd /var/www/html/dbs401-oracle-app
 sudo bash setup.sh
 ```
