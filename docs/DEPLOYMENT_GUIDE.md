@@ -1,7 +1,7 @@
-# Hướng Dẫn Triển Khai Chi Tiết – DBS401 Group 02
-## FPT Student Portal – Oracle Security Lab
+# Deployment Guide – OracleSecLab
+## Vulnerable Oracle Database Web Application Lab
 
-> Dành cho người mới, viết từng bước cụ thể.
+> Hướng dẫn triển khai môi trường lab chi tiết.
 
 ---
 

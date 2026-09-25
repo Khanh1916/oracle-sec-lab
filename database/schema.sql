@@ -1,7 +1,6 @@
 -- ============================================================
--- DBS401 - Strengthening Database Security with Oracle Database
--- Group 02 - Schema Definition
--- Oracle Database XE 21c / Oracle Database 23c Free
+-- OracleSecLab - Vulnerable Oracle Web Application
+-- Database Schema Definition (Oracle XE 21c / 23c Free)
 -- ============================================================
 -- Run as: sqlplus dbs401_user/dbs401_pass@XE @schema.sql
 -- ============================================================
@@ -25,7 +24,7 @@ CREATE TABLE USERS (
 -- ============================================================
 CREATE TABLE STUDENTS (
     student_id    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id       NUMBER REFERENCES USERS(user_id),
+    user_id       NUMBER REFERENCES USERS(user_id) ON DELETE CASCADE,
     full_name     VARCHAR2(128) NOT NULL,
     email         VARCHAR2(128),
     major         VARCHAR2(64),
@@ -54,8 +53,8 @@ CREATE TABLE COURSES (
 -- ============================================================
 CREATE TABLE ENROLLMENTS (
     enrollment_id  NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    student_id     NUMBER REFERENCES STUDENTS(student_id),
-    course_id      NUMBER REFERENCES COURSES(course_id),
+    student_id     NUMBER REFERENCES STUDENTS(student_id) ON DELETE CASCADE,
+    course_id      NUMBER REFERENCES COURSES(course_id) ON DELETE CASCADE,
     score          NUMBER(5,2),
     semester       VARCHAR2(16),
     transcript_ref VARCHAR2(64) NOT NULL UNIQUE,

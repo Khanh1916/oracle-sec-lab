@@ -1,7 +1,7 @@
 # Oracle SQL Injection Payload Cheatsheet
-## DBS401 – Group 02 – Lab Reference Only
+## OracleSecLab – Penetration Testing Reference
 
-> ⚠️ Chỉ dùng trong môi trường lab DBS401. Không dùng trên hệ thống thật.
+> ⚠️ For educational and laboratory penetration testing practice only.
 
 ---
 

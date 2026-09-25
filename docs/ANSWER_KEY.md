@@ -1,6 +1,6 @@
-# 🔐 ANSWER KEY – DBS401 Group 02 (NỘI BỘ – KHÔNG NỘP CÔNG KHAI)
+# 🔐 Solution Guide & Walkthrough – OracleSecLab
 
-> Chỉ dùng trong lab CTF DBS401 nội bộ. Không chia sẻ trước khi thi/demo.
+> ⚠️ Official Solutions & Flag Master List for instructors and lab practice.
 
 ---
 

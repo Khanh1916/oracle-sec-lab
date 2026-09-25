@@ -30,7 +30,7 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 BANNER = """
 ╔══════════════════════════════════════════════════════╗
-║  DBS401 - Group 02  |  CTF Decode Helper             ║
+║  OracleSecLab  |  CTF Flag Decode Helper             ║
 ║  Lab use only – Not for real systems                 ║
 ╚══════════════════════════════════════════════════════╝
 """

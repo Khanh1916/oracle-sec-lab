@@ -12,7 +12,8 @@ DELETE FROM COURSES;
 DELETE FROM USERS;
 
 -- ============================================================
--- DBS401 - Group 02 - Seed Data
+-- OracleSecLab - Vulnerable Oracle Web Application
+-- Database Seed Data (Oracle XE 21c / 23c Free)
 -- ============================================================
 -- FLAG DESIGN:
 --
@@ -78,7 +79,7 @@ INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hid
   (NULL, 'Pham Thi Dung', 'dung.pt2021@fpt.edu.vn', 'Business IT', 2.50, '0934567890', 'Can Tho', 'DECOY_42');
 
 -- ============================================================
--- COURSES (đã bỏ dòng duplicate MLN122)
+-- COURSES (Academic Curriculum)
 -- ============================================================
 INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
   ('DBS401', 'Database Security', 'Dr. Nguyen Minh Tuan', 3, '2024-S1');
@@ -90,6 +91,12 @@ INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) 
   ('NET201', 'Network Security', 'MSc. Pham Quoc Bao', 3, '2024-S1');
 INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
   ('MLN122', 'Philosophy', 'Dr. Nguyen Van Tri', 2, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('CSD201', 'Data Structures and Algorithms', 'Dr. Tran Thi Mai', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('PRN211', 'Basic Cross-Platform (.NET)', 'MSc. Hoang Van Nam', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('MAS291', 'Statistics & Probability', 'Dr. Le Van Khoa', 3, '2024-S1');
 
 -- ============================================================
 -- ENROLLMENTS (dùng subquery để tránh hardcode student_id)

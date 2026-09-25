@@ -198,7 +198,7 @@ $requiredFiles = [
     'secure_versions/search_secure.php', 'secure_versions/store_secure.php',
     'secure_versions/partner_config_secure.php', 'secure_versions/admin_update_secure.php',
     'tools/exploit_flag3_local.py', 'tools/decode_helper.py',
-    'setup.sh', 'docs/ANSWER_KEY.md', 'REPORT_DBS401.md', 'README.md', 'CHECKLIST.md',
+    'setup.sh', 'docs/ANSWER_KEY.md', 'README.md',
 ];
 foreach ($requiredFiles as $file) {
     $path = $baseDir . '/' . $file;

@@ -1,5 +1,5 @@
-# Kiến Trúc Hệ Thống – DBS401 Group 02
-## FPT Student Portal – Oracle Security Lab
+# System Architecture – OracleSecLab
+## Vulnerable Oracle Database Web Application Lab
 
 ---
 
