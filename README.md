@@ -86,6 +86,7 @@ oracle-sec-lab/
 │   ├── ANSWER_KEY.md           # Official challenge walkthrough & solution guide
 │   └── ORACLE_PAYLOAD_CHEATSHEET.md # Oracle-specific SQL injection reference
 ├── setup.sh                    # Automated installation & deployment script
+├── LICENSE                     # MIT License terms and copyright
 └── README.md                   # This repository documentation
 ```
 
@@ -232,7 +233,15 @@ For in-depth architectural and exploitation details, consult the `docs/` directo
 
 ---
 
+## 👥 Authors & Maintainers
+
+* **khanhnn** – Project Architecture & Security Research
+* **Cao Thanh Lam** – Full-Stack Development & CTF Engineering
+
+---
+
 ## 📄 License & Attribution
 
-Developed for database security education and offensive/defensive research.  
-Released under the MIT License.
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for complete details.
+
+Copyright (c) 2024-2026 **khanhnn**, **Cao Thanh Lam**. Released for database security education and offensive/defensive research.
