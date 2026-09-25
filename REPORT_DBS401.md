@@ -7,10 +7,6 @@
 **Nhóm:** Group 02  
 **Học kỳ:** SUMMER 2026  
 **Ngày nộp:** *12/6/2026*  
-> **Ghi chú về Flag 1:** Việc chia flag thành 3 phần (Hex, Reverse, Base64) ở 3 bảng khác nhau ép người làm lab phải:
-> 1. Sử dụng kỹ thuật Enumerate Metadata để tìm bảng.
-> 2. Biết cách xử lý các hàm chuỗi trong Oracle.
-> 3. Có kỹ năng Decode thủ công/scripting.
 
 
 ## THÀNH VIÊN NHÓM
