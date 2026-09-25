@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $row = oci_fetch_assoc($stmt);
 
         if ($row && password_verify($password, $row['PASSWORD_HASH'])) {
+            session_regenerate_id(true);
             $_SESSION['user_id']  = (int)$row['USER_ID'];
             $_SESSION['username'] = $row['USERNAME'];
             $_SESSION['role']     = $row['ROLE'];

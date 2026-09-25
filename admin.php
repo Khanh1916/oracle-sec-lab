@@ -41,7 +41,8 @@ if (isset($_GET['check_updates'])) {
     $url = $conf['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
     
     // VULNERABLE: Trusting URL from DB without validation or digital signature
-    $jsonData = @file_get_contents($url);
+    $ctx = stream_context_create(['http' => ['timeout' => 5]]);
+    $jsonData = @file_get_contents($url, false, $ctx);
     if ($jsonData) {
         $manifest = json_decode($jsonData, true);
         if (isset($manifest['version'])) {
@@ -100,7 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
     } elseif ($action === 'delete_user') {
         $uid  = (int)($_POST['user_id'] ?? 0);
         if ($uid !== (int)$_SESSION['user_id']) { // Prevent self-deletion
-            // Note: In a real Oracle DB, you might need to handle child records in STUDENTS/ENROLLMENTS first
+            // Xoa ban ghi con trong ENROLLMENTS va STUDENTS de tranh loi khoa ngoai ORA-02292
+            @oci_execute(oci_parse($conn, "DELETE FROM ENROLLMENTS WHERE student_id IN (SELECT student_id FROM STUDENTS WHERE user_id = $uid)"));
+            @oci_execute(oci_parse($conn, "DELETE FROM STUDENTS WHERE user_id = $uid"));
+
             $sql  = "DELETE FROM USERS WHERE user_id = " . $uid;
             $stmt = oci_parse($conn, $sql);
             //oci_bind_by_name($stmt, ':uid', $uid);
@@ -108,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 $msg = "User ID $uid deleted."; $msgType = 'warning';
                 logAction($_SESSION['user_id'], 'ADMIN_DELETE_USER', "Deleted UID $uid");
             } else {
-                $e = oci_error($stmt); $msg = "Delete failed: " . $e['message'] . " (Check foreign key constraints)"; $msgType = 'danger';
+                $e = oci_error($stmt); $msg = "Delete failed: " . $e['message']; $msgType = 'danger';
             }
         }
     }
