@@ -200,12 +200,19 @@ oci_execute($stmt);
 
 In `store.php`, the server validates that the student possesses sufficient credits for the purchase (`$credits >= $cost`), but fails to ensure that `$quantity > 0`:
 
-$$\text{cost} = \text{quantity} \times \text{unit\_price}$$
-$$\text{new\_credits} = \text{current\_credits} - \text{cost}$$
+```text
+cost        = quantity * unit_price
+new_credits = current_credits - cost
+```
 
-If a negative quantity is supplied:
-$$\text{cost} = -20{,}000 \times 100 = -2{,}000{,}000$$
-$$\text{new\_credits} = 150 - (-2{,}000{,}000) = 2{,}000{,}150$$
+If a negative quantity is supplied (e.g., `-20,000` units at `100` credits each):
+
+```text
+cost        = -20,000 * 100         = -2,000,000
+new_credits = 150 - (-2,000,000)    = 2,000,150
+```
+
+Because subtracting a negative number is equivalent to addition (`credits - (-cost) = credits + cost`), the student's credit balance is artificially inflated by 2,000,000 credits.
 
 Submit the manipulated request:
 ```bash
