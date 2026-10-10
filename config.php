@@ -1,11 +1,13 @@
 <?php
 
 
-define('DB_HOST',    'localhost');
-define('DB_PORT',    '1539');
-define('DB_SERVICE', 'XEPDB1');          // Change to 'FREE' for Oracle 23c Free
-define('DB_USER',    'dbs401_user');
-define('DB_PASS',    'dbs401_pass');
+// DB connection reads env vars when present (Docker), else falls back to
+// the original VM defaults so setup.sh / manual installs are unaffected.
+define('DB_HOST',    getenv('DB_HOST')    ?: 'localhost');
+define('DB_PORT',    getenv('DB_PORT')    ?: '1539');
+define('DB_SERVICE', getenv('DB_SERVICE') ?: 'XEPDB1');  // Change to 'FREE' for Oracle 23c Free
+define('DB_USER',    getenv('DB_USER')    ?: 'dbs401_user');
+define('DB_PASS',    getenv('DB_PASS')    ?: 'dbs401_pass');
 define('DB_CHARSET', 'AL32UTF8');
 
 // TNS connection string

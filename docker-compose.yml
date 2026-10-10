@@ -1,0 +1,54 @@
+# =============================================================
+# OracleSecLab - Docker Compose
+# One command lab: Oracle 23c Free + PHP/Apache web app.
+#
+#   docker compose up -d --build        # start (first build ~10-15 min)
+#   docker compose logs -f web          # watch DB import progress
+#   docker compose down                 # stop (keeps data + progress)
+#   docker compose down -v              # stop + RESET lab to baseline
+#
+# Portal:  http://localhost:8080/dbs401-oracle-app
+# =============================================================
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    platform: linux/amd64
+    container_name: dbs401-oracle
+    environment:
+      ORACLE_PASSWORD: oracle          # SYS / SYSTEM password
+      APP_USER: dbs401_user            # created automatically in FREEPDB1
+      APP_USER_PASSWORD: dbs401_pass
+    ports:
+      - "1521:1521"                    # optional: connect with SQL Developer / sqlplus
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 90s
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    platform: linux/amd64
+    container_name: dbs401-web
+    depends_on:
+      oracle:
+        condition: service_healthy
+    environment:
+      DB_HOST: oracle
+      DB_PORT: "1521"
+      DB_SERVICE: FREEPDB1
+      DB_USER: dbs401_user
+      DB_PASS: dbs401_pass
+    ports:
+      - "8080:80"                      # application portal
+      - "8081:8081"                    # baseline partner manifest server
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # lets the target reach an attacker server on the host (Challenge 3)
+
+volumes:
+  oracle-data:

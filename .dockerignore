@@ -1,0 +1,5 @@
+.git
+.gitignore
+oracle-data
+**/*.log
+scratchpad

@@ -7,6 +7,7 @@
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Apache-2.4-D22128?style=for-the-badge&logo=apache&logoColor=white" alt="Apache 2.4" /></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Ubuntu-22.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Linux" /></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3" /></a>
+  <a href="docs/DOCKER_GUIDE.md"><img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose" /></a>
   <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/OWASP-Top_10_2021-00599C?style=for-the-badge&logo=owasp&logoColor=white" alt="OWASP Top 10" /></a>
   <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/Vulnerabilities-SQLi_%7C_Logic_%7C_Supply_Chain-blueviolet?style=for-the-badge" alt="Vulnerabilities" /></a>
   <a href="#-license--attribution"><img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge" alt="License MIT" /></a>
@@ -38,6 +39,7 @@ This project simulates a realistic university portal (**FPT Student Portal**), f
 | **Operating System** | Ubuntu 20.04 / 22.04 / 24.04 LTS | Linux target environment |
 | **Exploit Tooling** | Python 3 (`requests`, `urllib3`) | Automated PoC exploits and flag assembly decoders |
 | **Security Standards** | OWASP Top 10 (A01: BAC, A03: Injection, A06: Supply Chain) | Realistic enterprise attack chains and secure remediations |
+| **Containerization** | Docker & Docker Compose | One-command, cross-platform lab (no manual Oracle install) |
 
 ---
 
@@ -84,8 +86,16 @@ oracle-sec-lab/
 │   ├── ARCHITECTURE.md         # Comprehensive system & data flow architecture
 │   ├── DEPLOYMENT_GUIDE.md     # Step-by-step deployment guide for Ubuntu Linux
 │   ├── ANSWER_KEY.md           # Official challenge walkthrough & solution guide
+│   ├── DOCKER_GUIDE.md         # Docker Compose deployment & usage guide
 │   └── ORACLE_PAYLOAD_CHEATSHEET.md # Oracle-specific SQL injection reference
-├── setup.sh                    # Automated installation & deployment script
+├── docker/
+│   ├── Dockerfile              # PHP 8.1 + Apache + OCI8 web image (+ partner :8081)
+│   ├── entrypoint.sh           # Waits for DB, imports schema/seed, inits passwords
+│   ├── apache-app.conf         # /dbs401-oracle-app alias (mirrors VM setup)
+│   ├── apache-partner.conf     # Partner manifest vhost on port 8081 (Challenge 3)
+│   └── partner-api/manifest.json # Baseline partner manifest (identical to setup.sh)
+├── docker-compose.yml          # One-command lab: Oracle 23c Free + web app
+├── setup.sh                    # Automated VM installation & deployment script
 ├── LICENSE                     # MIT License terms and copyright
 └── README.md                   # This repository documentation
 ```
@@ -159,7 +169,22 @@ The application is structured as a full-featured university portal:
 * **Storage:** Minimum 20GB free disk space
 * **Core Components:** Apache2, PHP 8.1+ with OCI8 extension, Oracle Database XE 21c (or Oracle 23c Free), Python 3.
 
-### Automated Setup
+### Option A — Docker Compose (recommended, cross-platform)
+The fastest way to run the full lab (Oracle + portal) with **no manual Oracle
+installation**. Works on Linux, macOS, and Windows with Docker Desktop:
+```bash
+git clone https://github.com/Khanh1916/oracle-sec-lab.git
+cd oracle-sec-lab
+docker compose up -d --build
+```
+Then open **http://localhost:8080/dbs401-oracle-app**. The first build takes
+~10–15 minutes (it downloads Oracle and compiles OCI8). Reset the lab anytime
+with `docker compose down -v`. All vulnerabilities, flags, and seed data are
+identical to the VM setup — see [docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md).
+
+> Needs Docker Compose v2 and ~4 GB free RAM. Images are `linux/amd64`.
+
+### Option B — Automated VM Setup (Ubuntu)
 Clone the repository and execute the installer with administrative privileges:
 ```bash
 git clone https://github.com/Khanh1916/oracle-sec-lab.git /var/www/html/dbs401-oracle-app
@@ -188,8 +213,9 @@ php database/init_passwords.php
 ```
 
 ### Accessing the Portal
-* **Local:** `http://127.0.0.1/dbs401-oracle-app`
-* **LAN:** `http://<SERVER-IP>/dbs401-oracle-app`
+* **Docker:** `http://localhost:8080/dbs401-oracle-app`
+* **VM Local:** `http://127.0.0.1/dbs401-oracle-app`
+* **VM LAN:** `http://<SERVER-IP>/dbs401-oracle-app`
 
 ---
 

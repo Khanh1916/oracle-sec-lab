@@ -82,7 +82,7 @@ check(file_exists($configPath), 'config.php: FOUND', 'config.php: MISSING');
 $conn = null;
 if (file_exists($configPath) && extension_loaded('oci8')) {
     require_once $configPath;
-    check(DB_SERVICE === 'XEPDB1' || DB_SERVICE === 'FREE', 'DB_SERVICE: ' . DB_SERVICE, 'DB_SERVICE unexpected: ' . DB_SERVICE, false);
+    check(in_array(DB_SERVICE, ['XEPDB1', 'FREE', 'FREEPDB1'], true), 'DB_SERVICE: ' . DB_SERVICE, 'DB_SERVICE unexpected: ' . DB_SERVICE, false);
     check(APP_VERSION === '3.1.0', 'APP_VERSION: 3.1.0', 'APP_VERSION should be 3.1.0 for Vuln 3 version_compare');
     check(DEFAULT_UPDATE_URL === 'http://127.0.0.1:8081/manifest.json',
         'DEFAULT_UPDATE_URL: baseline partner manifest',

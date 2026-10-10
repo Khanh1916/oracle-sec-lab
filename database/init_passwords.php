@@ -9,9 +9,15 @@
  * Usage: php init_passwords.php
  */
 
-$tns = '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1539))(CONNECT_DATA=(SERVICE_NAME=XEPDB1)))';
-$dbUser = 'dbs401_user';
-$dbPass = 'dbs401_pass';
+// Honour env vars when present (Docker), else original VM defaults.
+$tns = sprintf(
+    '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%s))(CONNECT_DATA=(SERVICE_NAME=%s)))',
+    getenv('DB_HOST') ?: 'localhost',
+    getenv('DB_PORT') ?: '1539',
+    getenv('DB_SERVICE') ?: 'XEPDB1'
+);
+$dbUser = getenv('DB_USER') ?: 'dbs401_user';
+$dbPass = getenv('DB_PASS') ?: 'dbs401_pass';
 
 $conn = oci_connect($dbUser, $dbPass, $tns, 'AL32UTF8');
 if (!$conn) {
