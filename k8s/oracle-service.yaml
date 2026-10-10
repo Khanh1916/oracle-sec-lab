@@ -1,0 +1,17 @@
+# Headless Service giving the Oracle pod a stable in-cluster DNS name "oracle".
+# The web container connects to DB_HOST=oracle:1521 within the same namespace.
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle
+  labels:
+    app.kubernetes.io/part-of: oracle-sec-lab
+    app.kubernetes.io/component: database
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/component: database
+  ports:
+    - name: oracle
+      port: 1521
+      targetPort: 1521

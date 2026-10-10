@@ -1,0 +1,18 @@
+# In-cluster Service for the portal. Reach it with `kubectl port-forward`
+# (single instance) or an Ingress (multi-team). Port 8081 is intentionally
+# NOT exposed here — the baseline partner server runs inside the pod.
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    app.kubernetes.io/part-of: oracle-sec-lab
+    app.kubernetes.io/component: web
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

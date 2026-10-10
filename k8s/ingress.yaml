@@ -1,0 +1,24 @@
+# OPTIONAL — only for the multi-team pattern. Gives each namespace its own
+# hostname, e.g. team01.oraclelab.local, team02.oraclelab.local, ...
+# Requires an ingress controller (e.g. ingress-nginx). Edit the host per team,
+# or template it in your per-team overlay. Not part of kustomization.yaml.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web
+  labels:
+    app.kubernetes.io/part-of: oracle-sec-lab
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: oraclelab.local        # change per namespace/team
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 80

@@ -1,0 +1,15 @@
+# Non-secret DB connection settings consumed by the web container.
+# Mirrors the Docker Compose environment. The web image reads these
+# env vars; config.php falls back to VM defaults when they are absent.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbs401-config
+  labels:
+    app.kubernetes.io/part-of: oracle-sec-lab
+data:
+  DB_HOST: "oracle"          # resolves to the oracle Service in this namespace
+  DB_PORT: "1521"
+  DB_SERVICE: "FREEPDB1"
+  DB_USER: "dbs401_user"
+  APP_USER: "dbs401_user"    # consumed by the gvenzl oracle-free image

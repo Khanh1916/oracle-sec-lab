@@ -1,0 +1,84 @@
+# Oracle Database 23c Free as a StatefulSet.
+# StatefulSet (not Deployment) because the DB has durable state: it gets a
+# stable network identity and a dedicated PersistentVolume for /opt/oracle/oradata,
+# so a pod restart keeps the imported schema, seed, and student progress.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: oracle
+  labels:
+    app.kubernetes.io/part-of: oracle-sec-lab
+    app.kubernetes.io/component: database
+spec:
+  serviceName: oracle
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: oracle-sec-lab
+        app.kubernetes.io/component: database
+    spec:
+      containers:
+        - name: oracle
+          image: gvenzl/oracle-free:23-slim
+          ports:
+            - name: oracle
+              containerPort: 1521
+          env:
+            - name: ORACLE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dbs401-secret
+                  key: ORACLE_PASSWORD
+            - name: APP_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: dbs401-config
+                  key: APP_USER
+            - name: APP_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dbs401-secret
+                  key: APP_USER_PASSWORD
+          volumeMounts:
+            - name: oradata
+              mountPath: /opt/oracle/oradata
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              memory: "3Gi"
+              cpu: "2"
+          # Oracle takes a while to initialize on first boot; a startupProbe
+          # gives it generous time before liveness/readiness kick in.
+          startupProbe:
+            exec:
+              command: ["healthcheck.sh"]
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 40      # up to ~10 min for first-time DB creation
+          readinessProbe:
+            exec:
+              command: ["healthcheck.sh"]
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 4
+          livenessProbe:
+            exec:
+              command: ["healthcheck.sh"]
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: oradata
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi

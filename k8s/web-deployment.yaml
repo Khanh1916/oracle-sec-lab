@@ -1,0 +1,57 @@
+# PHP/Apache portal. Uses the SAME image built from docker/Dockerfile.
+# Build + load it into the cluster first (see k8s/README.md), e.g.:
+#   docker build -t oracle-sec-lab-web:latest -f docker/Dockerfile .
+#   minikube image load oracle-sec-lab-web:latest     # or: kind load docker-image ...
+#
+# The container entrypoint waits for Oracle, imports schema/seed on first run,
+# and generates bcrypt hashes — identical behaviour to Docker Compose.
+# The partner manifest server (Challenge 3) runs in THIS pod on port 8081,
+# so admin.php's default update_url (127.0.0.1:8081) resolves in-pod.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app.kubernetes.io/part-of: oracle-sec-lab
+    app.kubernetes.io/component: web
+spec:
+  replicas: 1          # keep at 1: first-run seeding is a one-shot init step
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: oracle-sec-lab
+        app.kubernetes.io/component: web
+    spec:
+      containers:
+        - name: web
+          image: oracle-sec-lab-web:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+            - name: partner
+              containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: dbs401-config
+            - secretRef:
+                name: dbs401-secret
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+          # Only a readiness gate: Apache starts after seeding completes, so we
+          # give it a long window and avoid a liveness probe that could kill the
+          # pod mid-import on first boot.
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 60     # up to ~10 min while the DB seeds

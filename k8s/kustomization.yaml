@@ -1,0 +1,12 @@
+# Base bundle for one OracleSecLab instance.
+# Deploy into any namespace: `kubectl apply -k k8s/ -n <namespace>`.
+# ingress.yaml is intentionally excluded (opt-in, per-team hostname).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - configmap.yaml
+  - secret.yaml
+  - oracle-service.yaml
+  - oracle-statefulset.yaml
+  - web-service.yaml
+  - web-deployment.yaml

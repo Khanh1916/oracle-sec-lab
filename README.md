@@ -8,6 +8,7 @@
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Ubuntu-22.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Linux" /></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3" /></a>
   <a href="docs/DOCKER_GUIDE.md"><img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose" /></a>
+  <a href="k8s/README.md"><img src="https://img.shields.io/badge/Kubernetes-Multi--tenant-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" /></a>
   <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/OWASP-Top_10_2021-00599C?style=for-the-badge&logo=owasp&logoColor=white" alt="OWASP Top 10" /></a>
   <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/Vulnerabilities-SQLi_%7C_Logic_%7C_Supply_Chain-blueviolet?style=for-the-badge" alt="Vulnerabilities" /></a>
   <a href="#-license--attribution"><img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge" alt="License MIT" /></a>
@@ -40,6 +41,7 @@ This project simulates a realistic university portal (**FPT Student Portal**), f
 | **Exploit Tooling** | Python 3 (`requests`, `urllib3`) | Automated PoC exploits and flag assembly decoders |
 | **Security Standards** | OWASP Top 10 (A01: BAC, A03: Injection, A06: Supply Chain) | Realistic enterprise attack chains and secure remediations |
 | **Containerization** | Docker & Docker Compose | One-command, cross-platform lab (no manual Oracle install) |
+| **Orchestration** | Kubernetes (optional) | Multi-tenant deployment: one isolated instance per student/team for CTF events |
 
 ---
 
@@ -94,6 +96,16 @@ oracle-sec-lab/
 │   ├── apache-app.conf         # /dbs401-oracle-app alias (mirrors VM setup)
 │   ├── apache-partner.conf     # Partner manifest vhost on port 8081 (Challenge 3)
 │   └── partner-api/manifest.json # Baseline partner manifest (identical to setup.sh)
+├── k8s/
+│   ├── configmap.yaml          # Non-secret DB connection settings
+│   ├── secret.yaml             # Lab credentials (well-known defaults)
+│   ├── oracle-statefulset.yaml # Oracle 23c Free + PersistentVolume + probes
+│   ├── oracle-service.yaml     # Headless Service (stable DNS "oracle")
+│   ├── web-deployment.yaml     # PHP/Apache portal (same image as Docker)
+│   ├── web-service.yaml        # ClusterIP for the portal
+│   ├── ingress.yaml            # Optional per-team hostname
+│   ├── kustomization.yaml      # Base bundle for one instance
+│   └── README.md               # Why K8s + single & multi-team deployment
 ├── docker-compose.yml          # One-command lab: Oracle 23c Free + web app
 ├── setup.sh                    # Automated VM installation & deployment script
 ├── LICENSE                     # MIT License terms and copyright
@@ -211,6 +223,26 @@ sqlplus dbs401_user/dbs401_pass@localhost:1539/XEPDB1 @database/seed.sql
 # Generate bcrypt password hashes
 php database/init_passwords.php
 ```
+
+### Option C — Kubernetes (multi-team CTF)
+Kubernetes is **not** about making the lab lighter — on one machine, use Docker
+Compose. Its purpose is running **many isolated instances at once** on shared
+infrastructure: one vulnerable copy per student or team, each in its own
+namespace, so one team's exploit can never affect another's database or flags.
+It also gives mass provisioning/teardown, self-healing pods, per-namespace
+resource quotas, and multi-node scheduling for CTF events and classrooms.
+
+```bash
+# Build the web image and load it into your cluster (minikube/kind)
+docker build -t oracle-sec-lab-web:latest -f docker/Dockerfile .
+minikube image load oracle-sec-lab-web:latest
+
+# Deploy one instance
+kubectl create namespace oracle-sec-lab
+kubectl apply -k k8s/ -n oracle-sec-lab
+kubectl port-forward -n oracle-sec-lab svc/web 8080:80
+```
+Full per-team instructions, Ingress, and quotas: [k8s/README.md](k8s/README.md).
 
 ### Accessing the Portal
 * **Docker:** `http://localhost:8080/dbs401-oracle-app`
