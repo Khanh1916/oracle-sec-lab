@@ -295,6 +295,9 @@ For in-depth architectural and exploitation details, consult the `docs/` directo
 
 * **khanhnn** – Project Architecture & Security Research
 * **Cao Thanh Lam** – Full-Stack Development & CTF Engineering
+* **Nguyen Huu Phuc** – Initial Codebase & Foundation Architecture
+* **Nguyen Cong Tien** – Penetration Testing & Quality Assurance (QA)
+* **Nguyen Hai Anh** – Technical Documentation & Knowledge Base
 
 ---
 
@@ -302,4 +305,4 @@ For in-depth architectural and exploitation details, consult the `docs/` directo
 
 This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for complete details.
 
-Copyright (c) 2024-2026 **khanhnn**, **Cao Thanh Lam**. Released for database security education and offensive/defensive research.
+Copyright (c) 2024-2026 **khanhnn**, **Cao Thanh Lam**, **Nguyen Huu Phuc**, **Nguyen Cong Tien**, **Nguyen Hai Anh**. Released for database security education and offensive/defensive research.
