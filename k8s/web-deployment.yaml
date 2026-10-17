@@ -1,7 +1,8 @@
-# PHP/Apache portal. Uses the SAME image built from docker/Dockerfile.
-# Build + load it into the cluster first (see k8s/README.md), e.g.:
-#   docker build -t oracle-sec-lab-web:latest -f docker/Dockerfile .
-#   minikube image load oracle-sec-lab-web:latest     # or: kind load docker-image ...
+# PHP/Apache portal. Uses the SAME image built from docker/Dockerfile,
+# published by CI to GHCR — the cluster pulls it directly, no manual load.
+# To use a local build instead, tag it with the same name and load it:
+#   docker build -t ghcr.io/khanh1916/oracle-sec-lab-web:latest -f docker/Dockerfile .
+#   minikube image load ghcr.io/khanh1916/oracle-sec-lab-web:latest
 #
 # The container entrypoint waits for Oracle, imports schema/seed on first run,
 # and generates bcrypt hashes — identical behaviour to Docker Compose.
@@ -27,8 +28,8 @@ spec:
     spec:
       containers:
         - name: web
-          image: oracle-sec-lab-web:latest
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/khanh1916/oracle-sec-lab-web:latest
+          imagePullPolicy: IfNotPresent   # keeps a locally loaded image if present
           ports:
             - name: http
               containerPort: 80

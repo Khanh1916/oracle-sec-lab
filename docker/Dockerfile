@@ -5,6 +5,9 @@
 # =============================================================
 FROM php:8.1-apache
 
+# Links the GHCR package to this repository (also set by the CI workflow)
+LABEL org.opencontainers.image.source="https://github.com/Khanh1916/oracle-sec-lab"
+
 # Oracle Instant Client version (public OTN download, no login required)
 ENV IC_BASE=2112000 \
     IC_VERSION=21.12.0.0.0dbru \

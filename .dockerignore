@@ -3,3 +3,4 @@
 oracle-data
 **/*.log
 scratchpad
+.github

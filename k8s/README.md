@@ -49,27 +49,36 @@ in-pod partner server on `:8081`, and the same `schema.sql`/`seed.sql`.
 - A Kubernetes cluster: `minikube`, `kind`, `k3s`, or a real cluster with a
   default `StorageClass` (for the Oracle PVC) and **amd64** nodes.
 - `kubectl` (and `kustomize`, built into modern `kubectl`).
-- The web image available to the cluster (built from this repo).
+- Outbound access to `ghcr.io` from the nodes (to pull the web image).
 
-### 1. Build and load the web image
+### The web image
+
+CI publishes the web image to GHCR on every push to `master`:
+
+```
+ghcr.io/khanh1916/oracle-sec-lab-web:latest
+```
+
+`web-deployment.yaml` already points at it, so the cluster pulls it directly —
+**no build step needed**. Pin a specific build with an immutable tag instead of
+`latest` (e.g. `:sha-5b9d55f` or `:1.0.0`, see the package page) when you want
+every team on the exact same image.
+
+**Optional — use a local build** (e.g. after editing PHP source, or offline).
+Tag it with the same name so no manifest change is needed:
 
 ```bash
 # from the repository root
-docker build -t oracle-sec-lab-web:latest -f docker/Dockerfile .
-```
+docker build -t ghcr.io/khanh1916/oracle-sec-lab-web:latest -f docker/Dockerfile .
 
-Then make it reachable by the cluster:
-
-```bash
 # minikube
-minikube image load oracle-sec-lab-web:latest
-
+minikube image load ghcr.io/khanh1916/oracle-sec-lab-web:latest
 # kind
-kind load docker-image oracle-sec-lab-web:latest
-
-# real cluster: push to your registry and update the image name in web-deployment.yaml
-# docker tag oracle-sec-lab-web:latest <registry>/oracle-sec-lab-web:latest && docker push ...
+kind load docker-image ghcr.io/khanh1916/oracle-sec-lab-web:latest
 ```
+
+`imagePullPolicy: IfNotPresent` makes the cluster use the loaded image instead
+of pulling.
 
 ---
 
@@ -159,6 +168,6 @@ identical to the Docker/VM setup.
 | Symptom | Fix |
 |:---|:---|
 | `oracle` pod stuck `0/1` for minutes | Normal on first boot — DB creation is slow; the startupProbe allows ~10 min. |
-| `web` pod `CrashLoopBackOff` with `ImagePullBackOff` | Image not loaded into the cluster — redo the `minikube/kind load` step, or push to a registry and fix the image name. |
+| `web` pod `ImagePullBackOff` | Nodes can't reach `ghcr.io`, or the GHCR package isn't public yet. Check `kubectl describe pod`; as a fallback, load a local build (see "The web image"). |
 | PVC `Pending` | Your cluster has no default `StorageClass`; install one (minikube/kind ship one by default). |
 | Portal: "Database connection failed" | The `oracle` pod isn't Ready yet; the web pod retries automatically — wait and refresh. |

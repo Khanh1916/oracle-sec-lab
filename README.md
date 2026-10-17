@@ -9,6 +9,8 @@
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3" /></a>
   <a href="docs/DOCKER_GUIDE.md"><img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose" /></a>
   <a href="k8s/README.md"><img src="https://img.shields.io/badge/Kubernetes-Multi--tenant-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" /></a>
+  <a href="https://github.com/Khanh1916/oracle-sec-lab/pkgs/container/oracle-sec-lab-web"><img src="https://img.shields.io/badge/GHCR-oracle--sec--lab--web-181717?style=for-the-badge&logo=github&logoColor=white" alt="GHCR package" /></a>
+  <a href="https://github.com/Khanh1916/oracle-sec-lab/actions/workflows/docker-publish.yml"><img src="https://img.shields.io/github/actions/workflow/status/Khanh1916/oracle-sec-lab/docker-publish.yml?branch=master&style=for-the-badge&logo=githubactions&logoColor=white&label=Image%20Build" alt="Image build status" /></a>
   <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/OWASP-Top_10_2021-00599C?style=for-the-badge&logo=owasp&logoColor=white" alt="OWASP Top 10" /></a>
   <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/Vulnerabilities-SQLi_%7C_Logic_%7C_Supply_Chain-blueviolet?style=for-the-badge" alt="Vulnerabilities" /></a>
   <a href="#-license--attribution"><img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge" alt="License MIT" /></a>
@@ -42,6 +44,7 @@ This project simulates a realistic university portal (**FPT Student Portal**), f
 | **Security Standards** | OWASP Top 10 (A01: BAC, A03: Injection, A06: Supply Chain) | Realistic enterprise attack chains and secure remediations |
 | **Containerization** | Docker & Docker Compose | One-command, cross-platform lab (no manual Oracle install) |
 | **Orchestration** | Kubernetes (optional) | Multi-tenant deployment: one isolated instance per student/team for CTF events |
+| **CI/CD** | GitHub Actions + GHCR | Builds the web image on every push and publishes `ghcr.io/khanh1916/oracle-sec-lab-web` |
 
 ---
 
@@ -49,6 +52,8 @@ This project simulates a realistic university portal (**FPT Student Portal**), f
 
 ```
 oracle-sec-lab/
+├── .github/workflows/
+│   └── docker-publish.yml      # CI: build web image & publish to GHCR
 ├── config.php                  # Database connection (OCI8) & global configuration
 ├── index.php                   # Portal landing & role redirection
 ├── login.php                   # Authentication (bcrypt, session management)
@@ -187,12 +192,15 @@ installation**. Works on Linux, macOS, and Windows with Docker Desktop:
 ```bash
 git clone https://github.com/Khanh1916/oracle-sec-lab.git
 cd oracle-sec-lab
-docker compose up -d --build
+docker compose pull        # prebuilt web image from GHCR
+docker compose up -d
 ```
-Then open **http://localhost:8080/dbs401-oracle-app**. The first build takes
-~10–15 minutes (it downloads Oracle and compiles OCI8). Reset the lab anytime
-with `docker compose down -v`. All vulnerabilities, flags, and seed data are
-identical to the VM setup — see [docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md).
+Then open **http://localhost:8080/dbs401-oracle-app**. The first start takes a
+few minutes while Oracle initializes. The web image is prebuilt by CI and
+published to [GHCR](https://github.com/Khanh1916/oracle-sec-lab/pkgs/container/oracle-sec-lab-web);
+to build it yourself instead, use `docker compose up -d --build` (~10–15 min).
+Reset the lab anytime with `docker compose down -v`. All vulnerabilities, flags,
+and seed data are identical to the VM setup — see [docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md).
 
 > Needs Docker Compose v2 and ~4 GB free RAM. Images are `linux/amd64`.
 
@@ -233,11 +241,7 @@ It also gives mass provisioning/teardown, self-healing pods, per-namespace
 resource quotas, and multi-node scheduling for CTF events and classrooms.
 
 ```bash
-# Build the web image and load it into your cluster (minikube/kind)
-docker build -t oracle-sec-lab-web:latest -f docker/Dockerfile .
-minikube image load oracle-sec-lab-web:latest
-
-# Deploy one instance
+# Deploy one instance (the web image is pulled from GHCR automatically)
 kubectl create namespace oracle-sec-lab
 kubectl apply -k k8s/ -n oracle-sec-lab
 kubectl port-forward -n oracle-sec-lab svc/web 8080:80

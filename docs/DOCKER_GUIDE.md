@@ -14,7 +14,7 @@ No manual Oracle XE, Instant Client, or OCI8 installation required.
 | Service | Image / Build | Purpose |
 |:---|:---|:---|
 | `oracle` | `gvenzl/oracle-free:23-slim` | Oracle Database 23c Free. Auto-creates the `dbs401_user` schema in `FREEPDB1`. |
-| `web` | `docker/Dockerfile` | PHP 8.1 + Apache + OCI8. Serves the portal on `:80` **and** the baseline partner manifest on `:8081`. |
+| `web` | `ghcr.io/khanh1916/oracle-sec-lab-web` (prebuilt by CI) or `docker/Dockerfile` | PHP 8.1 + Apache + OCI8. Serves the portal on `:80` **and** the baseline partner manifest on `:8081`. |
 
 **Nothing about the challenges changes.** The three vulnerabilities, all flags,
 the fragmented encodings, decoy tables, and pre-seeded accounts are identical to
@@ -39,15 +39,28 @@ the VM setup. Docker is just a different way to run the exact same code:
 
 ## Quick start
 
-From the repository root:
+From the repository root, pick one:
+
+**Fast — use the prebuilt image from GHCR** (recommended):
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+**Build locally** (after editing PHP source, or if GHCR is unreachable):
 
 ```bash
 docker compose up -d --build
 ```
 
-The **first** run takes a while: it downloads the Oracle image, builds the PHP
-image (compiling OCI8), waits for the database to initialize, then imports the
-schema, seed, and bcrypt password hashes. Watch progress with:
+Run `pull` before `up`: because the `web` service also has a `build:` section,
+a plain `up` with no local image builds from source instead of pulling.
+
+The **first** start still takes a few minutes: Oracle initializes its database,
+then the web container imports the schema, seed, and bcrypt password hashes.
+A local build adds ~10 minutes (it downloads Instant Client and compiles OCI8).
+Watch progress with:
 
 ```bash
 docker compose logs -f web
@@ -69,7 +82,8 @@ Log in with any pre-configured account, e.g. `student1` / `Student@123` or
 
 | Action | Command |
 |:---|:---|
-| Start (after first build) | `docker compose up -d` |
+| Start | `docker compose up -d` |
+| Update to the newest published image | `docker compose pull && docker compose up -d` |
 | Stop, **keep** data + student progress | `docker compose down` |
 | Stop and **RESET** lab to baseline | `docker compose down -v` |
 | Rebuild after editing PHP source | `docker compose up -d --build` |
@@ -124,6 +138,7 @@ User: dbs401_user Password: dbs401_pass
 | Symptom | Fix |
 |:---|:---|
 | `web` exits / loops "database not ready" | Oracle is still initializing on first boot — wait a few minutes; the web container retries automatically. |
+| `pull` warns the `web` image "must be built from source" | GHCR was unreachable or the package isn't public — use `docker compose up -d --build`. |
 | OCI8 build fails during `docker build` | Usually a transient Instant Client download; re-run `docker compose build web`. |
 | Portal shows "Database connection failed" | Check `docker compose ps` — the `oracle` service must be `healthy`. |
 | Want a totally clean slate | `docker compose down -v && docker compose up -d --build` |

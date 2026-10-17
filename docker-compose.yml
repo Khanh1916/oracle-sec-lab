@@ -2,7 +2,9 @@
 # OracleSecLab - Docker Compose
 # One command lab: Oracle 23c Free + PHP/Apache web app.
 #
-#   docker compose up -d --build        # start (first build ~10-15 min)
+#   docker compose pull                 # fetch prebuilt web image from GHCR (fast)
+#   docker compose up -d                # start
+#   docker compose up -d --build        # OR build the web image locally (~10-15 min)
 #   docker compose logs -f web          # watch DB import progress
 #   docker compose down                 # stop (keeps data + progress)
 #   docker compose down -v              # stop + RESET lab to baseline
@@ -30,7 +32,8 @@ services:
       start_period: 90s
 
   web:
-    build:
+    image: ghcr.io/khanh1916/oracle-sec-lab-web:latest   # prebuilt by CI
+    build:                                               # used with --build
       context: .
       dockerfile: docker/Dockerfile
     platform: linux/amd64
