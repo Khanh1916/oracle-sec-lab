@@ -39,6 +39,10 @@ ENV PATH="/opt/oracle/instantclient:${PATH}"
 RUN echo "instantclient,/opt/oracle/instantclient" | pecl install oci8-3.2.1 \
     && docker-php-ext-enable oci8
 
+# Fail the build if OCI8 can't actually load (e.g. missing libaio) or
+# sqlplus is broken - both are needed at runtime by the entrypoint.
+RUN php -m | grep -qx oci8 && sqlplus -V
+
 # --- Apache modules + partner vhost on 8081 -------------------
 RUN a2enmod rewrite headers \
     && echo "Listen 8081" >> /etc/apache2/ports.conf
