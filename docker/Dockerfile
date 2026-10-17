@@ -3,7 +3,9 @@
 # Also hosts the baseline "partner" manifest server on port 8081
 # so Challenge 3 (Supply Chain) works exactly as on the VM setup.
 # =============================================================
-FROM php:8.1-apache
+# Pinned to Debian 12 (bookworm): Debian 13 renamed libaio1 -> libaio1t64,
+# which breaks Oracle Instant Client's dependency on libaio.so.1.
+FROM php:8.1-apache-bookworm
 
 # Links the GHCR package to this repository (also set by the CI workflow)
 LABEL org.opencontainers.image.source="https://github.com/Khanh1916/oracle-sec-lab"
