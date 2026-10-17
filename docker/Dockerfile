@@ -34,7 +34,9 @@ RUN mkdir -p /opt/oracle && cd /opt/oracle \
 ENV PATH="/opt/oracle/instantclient:${PATH}"
 
 # --- PHP OCI8 extension ---------------------------------------
-RUN echo "instantclient,/opt/oracle/instantclient" | pecl install oci8-3.4.0 \
+# PECL oci8 versions track PHP versions: 3.2.1 is the release for PHP 8.1
+# (3.3.x needs PHP 8.2+, 3.4.x needs PHP 8.4).
+RUN echo "instantclient,/opt/oracle/instantclient" | pecl install oci8-3.2.1 \
     && docker-php-ext-enable oci8
 
 # --- Apache modules + partner vhost on 8081 -------------------
