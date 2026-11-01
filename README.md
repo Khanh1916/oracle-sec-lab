@@ -1,27 +1,29 @@
-# 🎓 OracleSecLab – Vulnerable Oracle Web Application
+# OracleSecLab – Vulnerable Oracle Web Application
 ### Enterprise Oracle Database Security & Penetration Testing Practice Lab
 
 <p align="center">
-  <a href="#-tech-stack"><img src="https://img.shields.io/badge/PHP-8.1-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.1" /></a>
-  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Oracle_DB-XE_21c_%7C_23c_Free-F80000?style=for-the-badge&logoColor=white" alt="Oracle Database" /></a>
-  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Apache-2.4-D22128?style=for-the-badge&logo=apache&logoColor=white" alt="Apache 2.4" /></a>
-  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Ubuntu-22.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Linux" /></a>
-  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/PHP-8.1-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.1" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Oracle_DB-XE_21c_%7C_23c_Free-F80000?style=for-the-badge&logoColor=white" alt="Oracle Database" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Apache-2.4-D22128?style=for-the-badge&logo=apache&logoColor=white" alt="Apache 2.4" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Ubuntu-22.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Linux" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3" /></a>
   <a href="docs/DOCKER_GUIDE.md"><img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose" /></a>
   <a href="k8s/README.md"><img src="https://img.shields.io/badge/Kubernetes-Multi--tenant-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" /></a>
   <a href="https://github.com/Khanh1916/oracle-sec-lab/pkgs/container/oracle-sec-lab-web"><img src="https://img.shields.io/badge/GHCR-oracle--sec--lab--web-181717?style=for-the-badge&logo=github&logoColor=white" alt="GHCR package" /></a>
   <a href="https://github.com/Khanh1916/oracle-sec-lab/actions/workflows/docker-publish.yml"><img src="https://img.shields.io/github/actions/workflow/status/Khanh1916/oracle-sec-lab/docker-publish.yml?branch=master&style=for-the-badge&logo=githubactions&logoColor=white&label=Image%20Build" alt="Image build status" /></a>
-  <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/OWASP-Top_10_2021-00599C?style=for-the-badge&logo=owasp&logoColor=white" alt="OWASP Top 10" /></a>
-  <a href="#-vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/Vulnerabilities-SQLi_%7C_Logic_%7C_Supply_Chain-blueviolet?style=for-the-badge" alt="Vulnerabilities" /></a>
-  <a href="#-license--attribution"><img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge" alt="License MIT" /></a>
+  <a href="#vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/OWASP-Top_10_2021-00599C?style=for-the-badge&logo=owasp&logoColor=white" alt="OWASP Top 10" /></a>
+  <a href="#vulnerability--ctf-challenge-matrix"><img src="https://img.shields.io/badge/Vulnerabilities-SQLi_%7C_Logic_%7C_Supply_Chain-blueviolet?style=for-the-badge" alt="Vulnerabilities" /></a>
+  <a href="#license--attribution"><img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge" alt="License MIT" /></a>
 </p>
 
-> ⚠️ **LEGAL & ETHICAL DISCLAIMER:**  
+<p align="center"><strong>English</strong> · <a href="README.vi.md">Tiếng Việt</a></p>
+
+> **LEGAL & ETHICAL DISCLAIMER:**  
 > This application is deliberately vulnerable and is intended solely for educational, penetration testing, and security training purposes in private, isolated lab environments. Do **NOT** deploy this application to public internet-facing servers or production infrastructure.
 
 ---
 
-## 📖 Overview
+## Overview
 
 **OracleSecLab** is an enterprise-modeled web application designed specifically for **Oracle Database Security** research, penetration testing practice, and CTF (Capture The Flag) competitions. 
 
@@ -31,7 +33,21 @@ This project simulates a realistic university portal (**FPT Student Portal**), f
 
 ---
 
-## 💻 Tech Stack
+## Demo
+
+A realistic academic portal with three intentional, chained vulnerabilities:
+
+| Student dashboard | Challenge 1 — Oracle UNION SQL injection |
+|:---:|:---:|
+| ![Student dashboard](docs/images/01-dashboard.jpg) | ![UNION SQL injection in search.php extracting a flag fragment](docs/images/02-challenge1-sqli.jpg) |
+| **Challenge 2 — negative-quantity logic flaw** | **Challenge 3 — supply-chain poisoning** |
+| ![store.php revealing the flag after a negative-quantity exploit](docs/images/03-challenge2-logic.jpg) | ![admin.php revealing the flag after manifest poisoning](docs/images/04-challenge3-supplychain.jpg) |
+
+> The flags shown are per-instance random values from a `RANDOMIZE_FLAGS=1` run, not the real answers.
+
+---
+
+## Tech Stack
 
 | Component | Technology | Description |
 |:---|:---|:---|
@@ -48,7 +64,7 @@ This project simulates a realistic university portal (**FPT Student Portal**), f
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 oracle-sec-lab/
@@ -123,7 +139,7 @@ oracle-sec-lab/
 
 ---
 
-## 🎯 Vulnerability & CTF Challenge Matrix
+## Vulnerability & CTF Challenge Matrix
 
 The application features **3 core vulnerabilities** with multi-step CTF flags, alongside multiple decoys to challenge automated scanners:
 
@@ -133,7 +149,7 @@ The application features **3 core vulnerabilities** with multi-step CTF flags, a
 | **Challenge 2** | Insecure Business Logic | `store.php` (POST) | Hard | Very Hard | `DBS401{...}` |
 | **Challenge 3** | Access Control & Supply Chain | `partner_config.php` + `admin.php` | Hard | Very Hard | `DBS401{...}` |
 
-> 🧩 Flag values are intentionally omitted here so the challenges stay solvable. Instructors can find the full flags and step-by-step solutions in [`docs/ANSWER_KEY.md`](docs/ANSWER_KEY.md).
+> Flag values are intentionally omitted here so the challenges stay solvable. Instructors can find the full flags and step-by-step solutions in [`docs/ANSWER_KEY.md`](docs/ANSWER_KEY.md).
 
 ### Summary of Challenges:
 1. **Challenge 1 – Fragmented Oracle SQL Injection:**
@@ -154,7 +170,7 @@ The application features **3 core vulnerabilities** with multi-step CTF flags, a
 
 ---
 
-## 🏛️ Application Modules
+## Application Modules
 
 The application is structured as a full-featured university portal:
 * **Academic Services:**
@@ -172,7 +188,7 @@ The application is structured as a full-featured university portal:
 
 ---
 
-## 👤 Pre-configured Accounts
+## Pre-configured Accounts
 
 | Username | Password | Role | Description |
 |:---|:---|:---:|:---|
@@ -184,7 +200,7 @@ The application is structured as a full-featured university portal:
 
 ---
 
-## 🚀 Quick Start & Installation
+## Quick Start & Installation
 
 ### Prerequisites
 * **Operating System:** Ubuntu 20.04 / 22.04 / 24.04 LTS
@@ -261,7 +277,7 @@ Full per-team instructions, Ingress, and quotas: [k8s/README.md](k8s/README.md).
 
 ---
 
-## 🛠️ Testing & Verification Tools
+## Testing & Verification Tools
 
 The `tools/` directory provides utilities to verify, exploit, and decode challenges:
 
@@ -278,7 +294,7 @@ python3 tools/decode_helper.py --assemble
 
 ---
 
-## 🛡️ Secure Versions & Remediation
+## Secure Versions & Remediation
 
 Each vulnerable endpoint has a corresponding hardened implementation in `secure_versions/`:
 
@@ -291,7 +307,7 @@ Each vulnerable endpoint has a corresponding hardened implementation in `secure_
 
 ---
 
-## 📚 Technical Documentation
+## Technical Documentation
 
 For in-depth architectural and exploitation details, consult the `docs/` directory:
 * [System Architecture](docs/ARCHITECTURE.md) – Component interactions, network topology, and RBAC matrix.
@@ -301,7 +317,7 @@ For in-depth architectural and exploitation details, consult the `docs/` directo
 
 ---
 
-## 👥 Authors & Maintainers
+## Authors & Maintainers
 
 * **khanhnn** – Project Architecture & Security Research
 * **Cao Thanh Lam** – Full-Stack Development & CTF Engineering
@@ -311,7 +327,7 @@ For in-depth architectural and exploitation details, consult the `docs/` directo
 
 ---
 
-## 🤝 Contributing & Security
+## Contributing & Security
 
 - **Contributing:** see [CONTRIBUTING.md](CONTRIBUTING.md). The one rule to
   remember — the challenge vulnerabilities are intentional; don't "fix" them in
@@ -322,7 +338,7 @@ For in-depth architectural and exploitation details, consult the `docs/` directo
 
 ---
 
-## 📄 License & Attribution
+## License & Attribution
 
 This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for complete details.
 
