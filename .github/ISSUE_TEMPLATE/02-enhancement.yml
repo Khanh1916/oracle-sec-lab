@@ -1,0 +1,22 @@
+name: 💡 Enhancement / new challenge idea
+description: Suggest an improvement, a new challenge, or better docs.
+title: "[idea] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see?
+      description: Describe the improvement, new Oracle-specific challenge, or documentation change.
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Why is it useful?
+      description: Who benefits (students, instructors, CTF organizers) and how?
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Prior art, references, or a sketch of how it might work.

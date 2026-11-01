@@ -3,7 +3,7 @@
 
 <p align="center">
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/PHP-8.1-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.1" /></a>
-  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Oracle_DB-XE_21c_%7C_23c_Free-F80000?style=for-the-badge&logo=oracle&logoColor=white" alt="Oracle Database" /></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Oracle_DB-XE_21c_%7C_23c_Free-F80000?style=for-the-badge&logoColor=white" alt="Oracle Database" /></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Apache-2.4-D22128?style=for-the-badge&logo=apache&logoColor=white" alt="Apache 2.4" /></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Ubuntu-22.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Linux" /></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3" /></a>
@@ -113,6 +113,10 @@ oracle-sec-lab/
 │   └── README.md               # Why K8s + single & multi-team deployment
 ├── docker-compose.yml          # One-command lab: Oracle 23c Free + web app
 ├── setup.sh                    # Automated VM installation & deployment script
+├── tests/
+│   └── e2e_challenges.py       # End-to-end test: all 3 challenges stay solvable
+├── CONTRIBUTING.md             # How to contribute (keep the vulns intentional)
+├── SECURITY.md                 # Security policy (the vulns are by design)
 ├── LICENSE                     # MIT License terms and copyright
 └── README.md                   # This repository documentation
 ```
@@ -304,6 +308,17 @@ For in-depth architectural and exploitation details, consult the `docs/` directo
 * **Nguyen Huu Phuc** – Initial Codebase & Foundation Architecture
 * **Nguyen Cong Tien** – Penetration Testing & Quality Assurance (QA)
 * **Nguyen Hai Anh** – Technical Documentation & Knowledge Base
+
+---
+
+## 🤝 Contributing & Security
+
+- **Contributing:** see [CONTRIBUTING.md](CONTRIBUTING.md). The one rule to
+  remember — the challenge vulnerabilities are intentional; don't "fix" them in
+  the main app (patched copies live in [`secure_versions/`](secure_versions/)).
+- **Security:** the documented weaknesses are by design and should **not** be
+  reported. For issues that go beyond the intended challenges (container escape,
+  host exposure, tooling bugs), see [SECURITY.md](SECURITY.md).
 
 ---
 

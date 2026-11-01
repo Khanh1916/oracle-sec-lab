@@ -1,0 +1,57 @@
+name: 🐞 Deployment / setup bug
+description: Something about installing or running the lab is broken (not a challenge).
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for problems **running** the lab (Docker, Kubernetes, the VM
+        installer, the test suite). This is **not** for the intentional
+        challenge vulnerabilities — see the security policy and answer key.
+  - type: checkboxes
+    attributes:
+      label: Before you file
+      options:
+        - label: This is a problem running the lab, not one of the intended challenges.
+          required: true
+        - label: I searched existing issues and didn't find a duplicate.
+          required: true
+  - type: dropdown
+    id: method
+    attributes:
+      label: Deployment method
+      options:
+        - Docker Compose
+        - Kubernetes
+        - VM installer (setup.sh)
+        - Manual (sqlplus / Apache)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you do, what did you expect, and what actually happened?
+      placeholder: Steps to reproduce, expected vs. actual behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: e.g. `docker compose logs web`, `kubectl describe pod`, or the E2E output. Redact anything sensitive.
+      render: shell
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, CPU architecture (x86_64 / arm64), Docker / Kubernetes / PHP versions, and the image tag or commit you're on.
+      placeholder: |
+        OS: Ubuntu 24.04
+        Arch: x86_64
+        Docker: 27.x / Compose v2.x
+        Image: ghcr.io/khanh1916/oracle-sec-lab-web:1.0.0 (or commit SHA)
+    validations:
+      required: true

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔐 Security report (unintended issues only)
+    url: https://github.com/Khanh1916/oracle-sec-lab/blob/master/SECURITY.md
+    about: The challenge vulnerabilities are intentional — do not report them. Read the security policy for what counts as a real issue and how to report it privately.
+  - name: 🏁 Challenge help / hints
+    url: https://github.com/Khanh1916/oracle-sec-lab/blob/master/docs/ANSWER_KEY.md
+    about: Stuck on a challenge? The answer key and walkthroughs are here. Please don't open issues asking for flags.
