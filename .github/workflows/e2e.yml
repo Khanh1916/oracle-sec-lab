@@ -1,0 +1,56 @@
+# =============================================================
+# End-to-end challenge test.
+# Boots the full Docker Compose stack (Oracle + web) and verifies
+# that all three intended vulnerabilities are still solvable.
+# Builds the web image from the current commit so pull requests test
+# the code under review, not the last published image.
+# =============================================================
+name: E2E challenges
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: pip install "requests>=2.31,<3"
+
+      - name: Build and start the stack
+        run: docker compose up -d --build --wait --wait-timeout 720
+
+      - name: Run end-to-end challenge test
+        env:
+          TARGET_BASE: http://localhost:8080/dbs401-oracle-app
+          PARTNER_BASE: http://localhost:8081
+          ATTACKER_HOST: host.docker.internal
+          ATTACKER_PORT: "9000"
+        run: python tests/e2e_challenges.py
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: |
+          echo "::group::web logs";    docker compose logs --tail 200 web    || true; echo "::endgroup::"
+          echo "::group::oracle logs"; docker compose logs --tail 100 oracle || true; echo "::endgroup::"
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
