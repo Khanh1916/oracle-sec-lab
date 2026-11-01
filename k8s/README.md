@@ -122,14 +122,33 @@ for i in $(seq -w 1 10); do
 done
 ```
 
-Each namespace gets its own Oracle DB, its own flags, and its own partner
-server — fully isolated. Expose them however suits your setup:
+Each namespace gets its own Oracle DB and its own partner server — fully
+isolated. Expose them however suits your setup:
 
 - **Ingress (recommended):** apply `ingress.yaml` per namespace with a distinct
   host (e.g. `team01.oraclelab.local`, `team02.oraclelab.local`), pointing DNS
   or `/etc/hosts` at the ingress controller.
 - **Quick demo:** `kubectl port-forward -n team01 svc/web 8081:80`,
   `... -n team02 svc/web 8082:80`, and so on.
+
+### Unique flags per team
+
+By default every instance uses the same committed flag values. For a real
+competition, give each team its own randomly generated flags by setting
+`RANDOMIZE_FLAGS=1` on the web container. Add it to `web-deployment.yaml` (or an
+overlay) under the container's env:
+
+```yaml
+env:
+  - name: RANDOMIZE_FLAGS
+    value: "1"
+```
+
+Flags are generated once, on first boot, and persist in that namespace's
+database — stable for the whole event, and distinct from every other team's, so
+a flag captured in one namespace is worthless in another. The challenge
+mechanics are identical; only the values differ. (The static flags in
+`docs/ANSWER_KEY.md` and `tools/` apply only when randomization is off.)
 
 Add a safety cap per team (optional):
 

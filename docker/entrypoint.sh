@@ -40,5 +40,14 @@ else
     echo "[entrypoint] Schema already present (USERS table found) - skipping import."
 fi
 
+# Per-instance flags (no-op unless RANDOMIZE_FLAGS=1). Prints shell `export`
+# lines for the flag values that live in PHP source; eval them so Apache - and
+# therefore store.php / admin.php via getenv() - sees this instance's flags.
+FLAG_ENV="$(php "${APP_DIR}/database/apply_dynamic_flags.php" || true)"
+if [ -n "$FLAG_ENV" ]; then
+    eval "$FLAG_ENV"
+    echo "[entrypoint] Applied per-instance flag values."
+fi
+
 echo "[entrypoint] Starting Apache (app :80, partner manifest :8081) ..."
 exec apache2-foreground

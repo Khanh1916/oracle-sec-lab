@@ -47,6 +47,9 @@ services:
       DB_SERVICE: FREEPDB1
       DB_USER: dbs401_user
       DB_PASS: dbs401_pass
+      # Set to 1 to give this instance its own randomly generated flags
+      # (per-team CTF). Off by default: the committed flags are used.
+      RANDOMIZE_FLAGS: ${RANDOMIZE_FLAGS:-0}
     ports:
       - "8080:80"                      # application portal
       - "8081:8081"                    # baseline partner manifest server

@@ -9,7 +9,7 @@ $configs = [];
 $msg     = '';
 $msgType = 'info';
 
-define('FLAG3_LOCAL_HEX_SUFFIX', '316e5f50303135306e316e675f303931327d');
+define('FLAG3_LOCAL_HEX_SUFFIX', getenv('FLAG3_SUFFIX_HEX') ?: '316e5f50303135306e316e675f303931327d');
 
 function decodeHexFlagFragment(string $manifestHexPart): string {
     $manifestHexPart = trim($manifestHexPart);

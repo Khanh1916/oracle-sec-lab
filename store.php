@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy'])) {
                 <td>
                     <?php if ($credits >= 999999): ?>
                         <div class="alert alert-success" style="margin:0;padding:8px 12px;">
-                            <strong>🚩 FLAG:</strong> <code>DBS401{LOGIC_GURU_2024}</code>
+                            <strong>🚩 FLAG:</strong> <code><?= htmlspecialchars(getenv('FLAG2') ?: 'DBS401{LOGIC_GURU_2024}') ?></code>
                         </div>
                     <?php else: ?>
                         <form method="POST">

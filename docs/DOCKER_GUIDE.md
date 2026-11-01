@@ -96,6 +96,20 @@ schema and seed. Use it to reset the lab between classes or teams.
 
 ---
 
+## Per-instance (random) flags — optional
+
+By default the lab uses the committed flag values. To give a run its own randomly
+generated flags (useful so the published answers don't apply), start it with:
+
+```bash
+RANDOMIZE_FLAGS=1 docker compose up -d
+```
+
+Flags are generated once and persist in the database, so they stay stable across
+restarts and reset only with `docker compose down -v`. All three challenges are
+solved exactly the same way; only the flag values change. See
+[`k8s/README.md`](../k8s/README.md#unique-flags-per-team) for the per-team CTF use case.
+
 ## Solving the challenges under Docker
 
 - **Challenge 1 (SQL Injection)** and **Challenge 2 (Negative Quantity)** need
