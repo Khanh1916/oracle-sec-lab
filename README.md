@@ -125,9 +125,11 @@ The application features **3 core vulnerabilities** with multi-step CTF flags, a
 
 | Challenge | Vulnerability Type | Vulnerable Endpoint | Difficulty (Bug) | Flag Complexity | Flag Format |
 |:---|:---|:---|:---:|:---:|:---|
-| **Challenge 1** | Oracle UNION SQL Injection | `search.php?q=` | Easy | Very Hard | `DBS401{SQL_1nj3ct10n_0r4cl3!}` |
-| **Challenge 2** | Insecure Business Logic | `store.php` (POST) | Hard | Very Hard | `DBS401{LOGIC_GURU_2024}` |
-| **Challenge 3** | Access Control & Supply Chain | `partner_config.php` + `admin.php` | Hard | Very Hard | `DBS401{5upp1y_Ch41n_P0150n1ng_0912}` |
+| **Challenge 1** | Oracle UNION SQL Injection | `search.php?q=` | Easy | Very Hard | `DBS401{...}` |
+| **Challenge 2** | Insecure Business Logic | `store.php` (POST) | Hard | Very Hard | `DBS401{...}` |
+| **Challenge 3** | Access Control & Supply Chain | `partner_config.php` + `admin.php` | Hard | Very Hard | `DBS401{...}` |
+
+> 🧩 Flag values are intentionally omitted here so the challenges stay solvable. Instructors can find the full flags and step-by-step solutions in [`docs/ANSWER_KEY.md`](docs/ANSWER_KEY.md).
 
 ### Summary of Challenges:
 1. **Challenge 1 – Fragmented Oracle SQL Injection:**
