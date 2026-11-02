@@ -28,13 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $manifestUrl = trim($_POST['manifest_url'] ?? '');
 
     if ($manifestUrl === '') {
-        $msg = 'Manifest URL is required.';
+        $msg = t('pc.msg_required');
         $msgType = 'danger';
     } elseif (strlen($manifestUrl) > 255) {
-        $msg = 'Manifest URL is too long.';
+        $msg = t('pc.msg_toolong');
         $msgType = 'danger';
     } elseif (!preg_match('#^https?://#i', $manifestUrl)) {
-        $msg = 'Manifest URL must start with http:// or https://';
+        $msg = t('pc.msg_scheme');
         $msgType = 'danger';
     } else {
         /*
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         oci_bind_by_name($stmt, ':url', $manifestUrl);
 
         if (oci_execute($stmt)) {
-            $msg = 'Partner manifest URL updated successfully.';
+            $msg = t('pc.msg_ok');
             $msgType = 'success';
 
             logAction(
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
         } else {
             $e = oci_error($stmt);
-            $msg = 'Update failed: ' . $e['message'];
+            $msg = tf('pc.msg_fail_fmt', $e['message']);
             $msgType = 'danger';
         }
     }
@@ -80,23 +80,23 @@ $row = oci_fetch_assoc($q);
 $currentUrl = $row['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Partner Configuration – FPT Student Portal</title>
+    <title><?= t('pc.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>🤝 Partner Integration Configuration</h2>
+    <h2>🤝 <?= t('pc.heading') ?></h2>
 
     <p class="alert alert-info">
-        Configure the partner update manifest URL (ADMIN ONLY).
+        <?= t('pc.info') ?>
         <br>
-        <strong>Lab note:</strong> this page is intentionally hidden and misconfigured.
+        <strong><?= t('pc.lab_note') ?></strong> <?= t('pc.lab_note_body') ?>
     </p>
 
     <?php if ($msg): ?>
@@ -106,15 +106,15 @@ $currentUrl = $row['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
     <?php endif; ?>
 
     <div class="info-card">
-        <h3>Current Partner Manifest URL</h3>
+        <h3><?= t('pc.current') ?></h3>
         <p><code><?= htmlspecialchars($currentUrl) ?></code></p>
     </div>
 
     <div class="info-card">
-        <h3>Update Partner Manifest Source</h3>
+        <h3><?= t('pc.update_src') ?></h3>
         <form method="POST" action="">
             <div class="form-group">
-                <label for="manifest_url">Manifest URL</label>
+                <label for="manifest_url"><?= t('pc.manifest_url') ?></label>
                 <input type="text"
                        id="manifest_url"
                        name="manifest_url"
@@ -124,7 +124,7 @@ $currentUrl = $row['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
             </div>
 
             <button type="submit" class="btn btn-primary">
-                Save Partner URL
+                <?= t('pc.save') ?>
             </button>
         </form>
     </div>

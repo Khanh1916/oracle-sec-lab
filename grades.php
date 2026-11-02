@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_grades'])) {
     }
 
     if ($updatedCount > 0) {
-        $msg     = "Successfully updated grades for $updatedCount student(s).";
+        $msg     = tf('gr.msg_ok_fmt', $updatedCount);
         $msgType = 'success';
         logAction($userId, 'TEACHER_GRADE_UPDATE', "Updated grades for course ID $selectedCourseId");
     }
@@ -87,19 +87,19 @@ foreach ($courses as $c) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Faculty Grading Portal – FPT Student Portal</title>
+    <title><?= t('gr.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📝 Faculty Grading & Assessment Portal</h2>
-    <p class="text-muted">Enter and update final academic marks for enrolled students in your classes.</p>
+    <h2>📝 <?= t('gr.heading') ?></h2>
+    <p class="text-muted"><?= t('gr.intro') ?></p>
 
     <?php if ($msg): ?>
         <div class="alert alert-<?= htmlspecialchars($msgType) ?>">
@@ -109,7 +109,7 @@ foreach ($courses as $c) {
 
     <div class="info-card">
         <form method="GET" action="" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-            <label for="course_select" style="font-weight:600; color:var(--secondary);">Select Assigned Course:</label>
+            <label for="course_select" style="font-weight:600; color:var(--secondary);"><?= t('gr.select_course') ?></label>
             <select id="course_select" name="course_id" style="padding:8px 12px; border-radius:var(--radius); border:1px solid var(--border); font-size:0.95rem; min-width:320px;">
                 <?php foreach ($courses as $c): ?>
                     <option value="<?= (int)$c['COURSE_ID'] ?>" <?= (int)$c['COURSE_ID'] === $selectedCourseId ? 'selected' : '' ?>>
@@ -117,7 +117,7 @@ foreach ($courses as $c) {
                     </option>
                 <?php endforeach; ?>
             </select>
-            <button type="submit" class="btn btn-secondary" style="padding:7px 16px;">Load Class Roster</button>
+            <button type="submit" class="btn btn-secondary" style="padding:7px 16px;"><?= t('gr.load') ?></button>
         </form>
     </div>
 
@@ -125,28 +125,28 @@ foreach ($courses as $c) {
     <div class="info-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
             <div>
-                <h3>Class Roster: <?= htmlspecialchars($currentCourse['COURSE_CODE']) ?> (<?= htmlspecialchars($currentCourse['COURSE_NAME']) ?>)</h3>
-                <small class="text-muted">Semester: <?= htmlspecialchars($currentCourse['SEMESTER'] ?? '2024-S1') ?> &bull; Instructor: <?= htmlspecialchars($currentCourse['TEACHER_NAME'] ?? 'TBA') ?></small>
+                <h3><?= tf('gr.roster_fmt', htmlspecialchars($currentCourse['COURSE_CODE']), htmlspecialchars($currentCourse['COURSE_NAME'])) ?></h3>
+                <small class="text-muted"><?= tf('gr.sem_instr_fmt', htmlspecialchars($currentCourse['SEMESTER'] ?? '2024-S1'), htmlspecialchars($currentCourse['TEACHER_NAME'] ?? 'TBA')) ?></small>
             </div>
             <div>
-                <span class="badge badge-student"><?= count($enrolledStudents) ?> Students Enrolled</span>
+                <span class="badge badge-student"><?= tf('gr.students_fmt', count($enrolledStudents)) ?></span>
             </div>
         </div>
 
         <?php if (count($enrolledStudents) === 0): ?>
-            <p class="no-results">No students are currently enrolled in this course.</p>
+            <p class="no-results"><?= t('gr.none') ?></p>
         <?php else: ?>
             <form method="POST" action="">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Student ID</th>
-                            <th>Full Name</th>
-                            <th>Major</th>
-                            <th>Username</th>
-                            <th>Transcript Ref</th>
-                            <th style="width:130px; text-align:center;">Final Score (0-10)</th>
-                            <th style="text-align:center;">Grade Status</th>
+                            <th><?= t('db.f_sid') ?></th>
+                            <th><?= t('db.f_fullname') ?></th>
+                            <th><?= t('db.f_major') ?></th>
+                            <th><?= t('gr.h_username') ?></th>
+                            <th><?= t('gr.h_tref') ?></th>
+                            <th style="width:130px; text-align:center;"><?= t('gr.h_score') ?></th>
+                            <th style="text-align:center;"><?= t('gr.h_status') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -154,12 +154,12 @@ foreach ($courses as $c) {
                         <?php
                         $score = $s['SCORE'] !== null ? number_format((float)$s['SCORE'], 1) : '';
                         $numScore = $s['SCORE'] !== null ? (float)$s['SCORE'] : null;
-                        $statusBadge = '<span class="badge-inline" style="background:#e9ecef;color:#6c757d;">Pending</span>';
+                        $statusBadge = '<span class="badge-inline" style="background:#e9ecef;color:#6c757d;">' . t('gr.pending') . '</span>';
                         if ($numScore !== null) {
                             if ($numScore >= 5.0) {
-                                $statusBadge = '<span class="badge badge-student">PASSED</span>';
+                                $statusBadge = '<span class="badge badge-student">' . t('gr.passed') . '</span>';
                             } else {
-                                $statusBadge = '<span class="badge badge-admin">FAILED</span>';
+                                $statusBadge = '<span class="badge badge-admin">' . t('gr.failed') . '</span>';
                             }
                         }
                         ?>
@@ -184,7 +184,7 @@ foreach ($courses as $c) {
 
                 <div style="margin-top:20px; display:flex; justify-content:flex-end;">
                     <button type="submit" name="save_grades" class="btn btn-primary" style="padding:10px 24px;">
-                        💾 Save & Publish Grades
+                        💾 <?= t('gr.save') ?>
                     </button>
                 </div>
             </form>
@@ -194,11 +194,11 @@ foreach ($courses as $c) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ Grading Guidelines</summary>
+            <summary>ℹ️ <?= t('gr.guidelines') ?></summary>
             <ul>
-                <li>Grades are entered on a 10.0 scale (passing threshold is 5.0).</li>
-                <li>Blank fields will remain as 'Pending' in the student's official transcript.</li>
-                <li>Finalized grades will update the cumulative GPA on the student dashboard.</li>
+                <li><?= t('gr.g1') ?></li>
+                <li><?= t('gr.g2') ?></li>
+                <li><?= t('gr.g3') ?></li>
             </ul>
         </details>
     </div>

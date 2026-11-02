@@ -48,19 +48,19 @@ if (isset($_GET['check_updates'])) {
         if (isset($manifest['version'])) {
             // Version comparison: only trigger if the partner version is strictly greater than APP_VERSION
             if (version_compare($manifest['version'], APP_VERSION, '>')) {
-                $msg = "🎉 Update Successful! System upgraded to version " . htmlspecialchars($manifest['version']);
+                $msg = tf('ad.msg_upd_ok_fmt', htmlspecialchars($manifest['version']));
                 $msgType = "success";
                 $manifestFlagPart = $manifest['flag_part'] ?? '';
                 $flag3 = decodeHexFlagFragment($manifestFlagPart);
             } else {
-                $msg = "System is up to date (Current: " . APP_VERSION . ", Partner: " . $manifest['version'] . ")";
+                $msg = tf('ad.msg_uptodate_fmt', APP_VERSION, $manifest['version']);
                 $msgType = "info";
             }
         } else {
-            $msg = "Invalid manifest format from provider."; $msgType = "danger";
+            $msg = t('ad.msg_bad_manifest'); $msgType = "danger";
         }
     } else {
-        $msg = "Could not connect to update server at: " . htmlspecialchars($url); $msgType = "danger";
+        $msg = tf('ad.msg_no_connect_fmt', htmlspecialchars($url)); $msgType = "danger";
     }
 }
 
@@ -81,10 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
             oci_bind_by_name($stmt, ':pw', $hash);
             oci_bind_by_name($stmt, ':rl', $role);
             if (@oci_execute($stmt)) {
-                $msg = "User '$uname' created successfully."; $msgType = 'success';
+                $msg = tf('ad.msg_user_ok_fmt', $uname); $msgType = 'success';
                 logAction($_SESSION['user_id'], 'ADMIN_CREATE_USER', "Created user: $uname");
             } else {
-                $e = oci_error($stmt); $msg = "Error: " . $e['message']; $msgType = 'danger';
+                $e = oci_error($stmt); $msg = tf('ad.msg_error_fmt', $e['message']); $msgType = 'danger';
             }
         }
     } elseif ($action === 'update_status') {
@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
         oci_bind_by_name($stmt, ':st', $status);
         //oci_bind_by_name($stmt, ':uid', $uid);
         if (oci_execute($stmt)) {
-            $msg = "User ID $uid status updated to $status.";
+            $msg = tf('ad.msg_status_fmt', $uid, $status);
             logAction($_SESSION['user_id'], 'ADMIN_UPDATE_USER', "Status change for UID $uid to $status");
         }
     } elseif ($action === 'delete_user') {
@@ -109,10 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
             $stmt = oci_parse($conn, $sql);
             //oci_bind_by_name($stmt, ':uid', $uid);
             if (@oci_execute($stmt)) {
-                $msg = "User ID $uid deleted."; $msgType = 'warning';
+                $msg = tf('ad.msg_deleted_fmt', $uid); $msgType = 'warning';
                 logAction($_SESSION['user_id'], 'ADMIN_DELETE_USER', "Deleted UID $uid");
             } else {
-                $e = oci_error($stmt); $msg = "Delete failed: " . $e['message']; $msgType = 'danger';
+                $e = oci_error($stmt); $msg = tf('ad.msg_del_fail_fmt', $e['message']); $msgType = 'danger';
             }
         }
     }
@@ -137,19 +137,19 @@ $users = [];
 while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Admin Panel – FPT Student Portal</title>
+    <title><?= t('ad.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>⚙️ Admin Panel</h2>
-    <p class="alert alert-info">This panel is restricted to admin users only.</p>
+    <h2>⚙️ <?= t('ad.title') ?></h2>
+    <p class="alert alert-info"><?= t('ad.restricted') ?></p>
 
     <?php if ($msg): ?>
         <div class="alert alert-<?= $msgType ?>"><?= htmlspecialchars($msg) ?></div>
@@ -163,33 +163,33 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
     <?php endif; ?>
 
     <div class="info-card">
-        <h3>👥 User Management</h3>
+        <h3>👥 <?= t('ad.user_mgmt') ?></h3>
         <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px;">
-            <h4>Add New User</h4>
+            <h4><?= t('ad.add_user') ?></h4>
             <form method="POST" action="" style="display: flex; gap: 10px; align-items: flex-end;">
                 <input type="hidden" name="action" value="create_user">
                 <div>
-                    <label style="display:block; font-size:12px;">Username</label>
+                    <label style="display:block; font-size:12px;"><?= t('p.username') ?></label>
                     <input type="text" name="username" required style="padding:5px;">
                 </div>
                 <div>
-                    <label style="display:block; font-size:12px;">Password</label>
+                    <label style="display:block; font-size:12px;"><?= t('lg.password') ?></label>
                     <input type="password" name="password" required style="padding:5px;">
                 </div>
                 <div>
-                    <label style="display:block; font-size:12px;">Role</label>
+                    <label style="display:block; font-size:12px;"><?= t('ad.role') ?></label>
                     <select name="role" style="padding:5px;">
-                        <option value="student">Student</option>
-                        <option value="teacher">Teacher</option>
-                        <option value="admin">Admin</option>
+                        <option value="student"><?= t('ad.role_student') ?></option>
+                        <option value="teacher"><?= t('ad.role_teacher') ?></option>
+                        <option value="admin"><?= t('ad.role_admin') ?></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary" style="padding: 6px 12px;">Add User</button>
+                <button type="submit" class="btn btn-primary" style="padding: 6px 12px;"><?= t('ad.btn_add') ?></button>
             </form>
         </div>
 
         <table class="data-table">
-            <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+            <thead><tr><th><?= t('ad.h_id') ?></th><th><?= t('p.username') ?></th><th><?= t('ad.role') ?></th><th><?= t('p.status') ?></th><th><?= t('ad.h_created') ?></th><th><?= t('ad.h_actions') ?></th></tr></thead>
             <tbody>
             <?php foreach ($users as $u): ?>
             <tr>
@@ -203,13 +203,13 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
                         <input type="hidden" name="action" value="update_status">
                         <input type="hidden" name="user_id" value="<?= $u['USER_ID'] ?>">
                         <input type="hidden" name="status" value="<?= $u['STATUS'] ?>">
-                        <button type="submit" class="btn btn-secondary" style="padding:2px 5px; font-size:11px;">Toggle Status</button>
+                        <button type="submit" class="btn btn-secondary" style="padding:2px 5px; font-size:11px;"><?= t('ad.toggle') ?></button>
                     </form>
                     <?php if ($u['USER_ID'] != $_SESSION['user_id']): ?>
-                    <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                    <form method="POST" action="" style="display:inline;" onsubmit="return confirm('<?= t('ad.confirm') ?>');">
                         <input type="hidden" name="action" value="delete_user">
                         <input type="hidden" name="user_id" value="<?= $u['USER_ID'] ?>">
-                        <button type="submit" class="btn btn-logout" style="padding:2px 5px; font-size:11px; background:#d9534f;">Delete</button>
+                        <button type="submit" class="btn btn-logout" style="padding:2px 5px; font-size:11px; background:#d9534f;"><?= t('ad.delete') ?></button>
                     </form>
                     <?php endif; ?>
                 </td>
@@ -220,9 +220,9 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
     </div>
 
     <div class="info-card">
-        <h3>🔐 Admin Secrets (key names only – values masked)</h3>
+        <h3>🔐 <?= t('ad.secrets') ?></h3>
         <table class="data-table">
-            <thead><tr><th>ID</th><th>Key Name</th><th>Note</th><th>Active</th><th>Created</th></tr></thead>
+            <thead><tr><th><?= t('ad.h_id') ?></th><th><?= t('ad.h_keyname') ?></th><th><?= t('ad.h_note') ?></th><th><?= t('ad.h_active') ?></th><th><?= t('ad.h_created') ?></th></tr></thead>
             <tbody>
             <?php foreach ($secrets as $s): ?>
             <tr>
@@ -235,13 +235,13 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
             <?php endforeach; ?>
             </tbody>
         </table>
-        <small class="text-muted">Secret values are not displayed here. secret_check.php is retained only as a legacy/decoy API.</small>
+        <small class="text-muted"><?= t('ad.secrets_note') ?></small>
     </div>
 
     <div class="info-card">
-        <h3>⚙️ Configuration Store</h3>
+        <h3>⚙️ <?= t('ad.config_store') ?></h3>
         <table class="data-table">
-            <thead><tr><th>Key</th><th>Value</th><th>Public</th><th>Updated</th></tr></thead>
+            <thead><tr><th><?= t('ad.h_key') ?></th><th><?= t('ad.h_value') ?></th><th><?= t('ad.h_public') ?></th><th><?= t('ad.h_updated') ?></th></tr></thead>
             <tbody>
             <?php foreach ($configs as $c): ?>
             <tr>
@@ -256,8 +256,8 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
     </div>
 
     <div class="info-card">
-        <h3>🔗 Quick Links</h3>
-        <a href="<?= APP_BASE ?>/audit.php" class="btn btn-secondary">View Audit Logs</a>
+        <h3>🔗 <?= t('ad.quick_links') ?></h3>
+        <a href="<?= APP_BASE ?>/audit.php" class="btn btn-secondary"><?= t('ad.view_audit') ?></a>
     </div>
 </div>
 <?php include __DIR__ . '/inc_footer.php'; ?>
