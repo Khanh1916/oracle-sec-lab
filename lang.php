@@ -37,6 +37,15 @@ $GLOBALS['I18N'] = [
         'ctl.theme'         => 'Theme',
         'ctl.light'         => 'Light mode',
         'ctl.dark'          => 'Dark mode',
+        'ctl.fullscreen'    => 'Fullscreen',
+        'ctl.menu'          => 'Menu',
+        // Sidebar section groups
+        'nav.grp_study'     => 'Study',
+        'nav.grp_finance'   => 'Finance',
+        'nav.grp_tools'     => 'Utilities',
+        'nav.grp_teaching'  => 'Teaching',
+        'nav.grp_admin'     => 'Administration',
+        'nav.grp_account'   => 'Account',
         // Footer
         'footer.tagline'    => 'DBS401 – Database Security Lab. For authorized training &amp; CTF use only.',
         'footer.academics'  => 'Academics',
@@ -236,6 +245,15 @@ $GLOBALS['I18N'] = [
         'ctl.theme'         => 'Giao diện',
         'ctl.light'         => 'Chế độ sáng',
         'ctl.dark'          => 'Chế độ tối',
+        'ctl.fullscreen'    => 'Toàn màn hình',
+        'ctl.menu'          => 'Menu',
+        // Sidebar section groups
+        'nav.grp_study'     => 'Học tập',
+        'nav.grp_finance'   => 'Tài chính',
+        'nav.grp_tools'     => 'Tiện ích',
+        'nav.grp_teaching'  => 'Giảng dạy',
+        'nav.grp_admin'     => 'Quản trị',
+        'nav.grp_account'   => 'Tài khoản',
         // Footer
         'footer.tagline'    => 'DBS401 – Phòng Lab An toàn CSDL. Chỉ dùng cho mục đích đào tạo &amp; CTF được cấp phép.',
         'footer.academics'  => 'Học vụ',
