@@ -74,11 +74,11 @@ function logAction(int|null $userId, string $action, string $metaNote = ''): voi
  */
 function notifCategoryMeta(string $cat): array {
     switch (strtolower($cat)) {
-        case 'academic': return ['Academic',  'tag-academic'];
-        case 'exam':     return ['Exam',      'tag-exam'];
-        case 'finance':  return ['Finance',   'tag-finance'];
-        case 'system':   return ['IT System', 'tag-system'];
-        default:         return ['Notice',    'tag-notice'];
+        case 'academic': return [t('cat.academic'), 'tag-academic'];
+        case 'exam':     return [t('cat.exam'),     'tag-exam'];
+        case 'finance':  return [t('cat.finance'),  'tag-finance'];
+        case 'system':   return [t('cat.system'),   'tag-system'];
+        default:         return [t('cat.notice'),   'tag-notice'];
     }
 }
 

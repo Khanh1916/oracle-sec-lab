@@ -9,14 +9,14 @@ $role   = $_SESSION['role'];
 // ---- Handle updates (Post/Redirect/Get) ------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    $flash  = ['type' => 'danger', 'msg' => 'Unknown action.'];
+    $flash  = ['type' => 'danger', 'msg' => t('p.msg_unknown')];
 
     if ($action === 'update_contact' && $role === 'student') {
         $email   = trim($_POST['email'] ?? '');
         $phone   = trim($_POST['phone'] ?? '');
         $address = trim($_POST['address'] ?? '');
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $flash = ['type' => 'danger', 'msg' => 'Please enter a valid email address.'];
+            $flash = ['type' => 'danger', 'msg' => t('p.msg_email')];
         } else {
             $sql  = "UPDATE STUDENTS SET email = :em, phone = :ph, address = :ad WHERE user_id = :p_uid";
             $stmt = oci_parse($conn, $sql);
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             oci_bind_by_name($stmt, ':p_uid', $userId);
             oci_execute($stmt);
             logAction($userId, 'PROFILE_UPDATE', 'contact details');
-            $flash = ['type' => 'success', 'msg' => 'Contact information updated.'];
+            $flash = ['type' => 'success', 'msg' => t('p.msg_contact_ok')];
         }
     } elseif ($action === 'change_password') {
         $current = (string)($_POST['current_password'] ?? '');
@@ -40,11 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $row  = oci_fetch_assoc($stmt);
 
         if (!$row || !password_verify($current, $row['PASSWORD_HASH'])) {
-            $flash = ['type' => 'danger', 'msg' => 'Current password is incorrect.'];
+            $flash = ['type' => 'danger', 'msg' => t('p.msg_cur_wrong')];
         } elseif (strlen($new) < 8) {
-            $flash = ['type' => 'danger', 'msg' => 'New password must be at least 8 characters.'];
+            $flash = ['type' => 'danger', 'msg' => t('p.msg_min8')];
         } elseif ($new !== $confirm) {
-            $flash = ['type' => 'danger', 'msg' => 'New password and confirmation do not match.'];
+            $flash = ['type' => 'danger', 'msg' => t('p.msg_mismatch')];
         } else {
             $hash = password_hash($new, PASSWORD_BCRYPT, ['cost' => 12]);
             $sql  = "UPDATE USERS SET password_hash = :h WHERE user_id = :p_uid";
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             oci_bind_by_name($stmt, ':p_uid', $userId);
             oci_execute($stmt);
             logAction($userId, 'PASSWORD_CHANGE', '');
-            $flash = ['type' => 'success', 'msg' => 'Password changed successfully.'];
+            $flash = ['type' => 'success', 'msg' => t('p.msg_pw_ok')];
         }
     }
 
@@ -81,20 +81,21 @@ $clean = preg_replace('/[^A-Za-z0-9 ]/', '', $displayName);
 $parts = preg_split('/\s+/', trim($clean));
 $initials = strtoupper(substr($parts[0] ?? 'U', 0, 1) . (count($parts) > 1 ? substr(end($parts), 0, 1) : ''));
 if ($initials === '') { $initials = 'U'; }
+$na = t('p.na');
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>My Profile – FPT Student Portal</title>
+    <title><?= t('p.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>👤 My Profile</h2>
+    <h2>👤 <?= t('p.title') ?></h2>
 
     <?php if ($flash): ?>
         <div class="alert alert-<?= htmlspecialchars($flash['type']) ?>"><?= htmlspecialchars($flash['msg']) ?></div>
@@ -109,73 +110,73 @@ if ($initials === '') { $initials = 'U'; }
                 <span class="badge badge-<?= $role ?>"><?= strtoupper($role) ?></span>
             </div>
             <ul class="profile-facts">
-                <li><span>Username</span><strong><?= htmlspecialchars($p['USERNAME']) ?></strong></li>
+                <li><span><?= t('p.username') ?></span><strong><?= htmlspecialchars($p['USERNAME']) ?></strong></li>
                 <?php if (!empty($p['STUDENT_ID'])): ?>
-                <li><span>Student ID</span><strong>SID-<?= str_pad((string)$p['STUDENT_ID'], 3, '0', STR_PAD_LEFT) ?></strong></li>
+                <li><span><?= t('db.f_sid') ?></span><strong>SID-<?= str_pad((string)$p['STUDENT_ID'], 3, '0', STR_PAD_LEFT) ?></strong></li>
                 <?php endif; ?>
-                <li><span>Status</span><strong><?= htmlspecialchars($p['STATUS']) ?></strong></li>
-                <li><span>Member since</span><strong><?= htmlspecialchars($p['MEMBER_SINCE']) ?></strong></li>
+                <li><span><?= t('p.status') ?></span><strong><?= htmlspecialchars($p['STATUS']) ?></strong></li>
+                <li><span><?= t('p.member_since') ?></span><strong><?= htmlspecialchars($p['MEMBER_SINCE']) ?></strong></li>
             </ul>
         </aside>
 
         <!-- Detail + forms -->
         <div class="profile-main">
             <div class="info-card">
-                <h3>📋 Account &amp; Academic Information</h3>
+                <h3>📋 <?= t('p.acct_info') ?></h3>
                 <table class="info-table">
-                    <tr><th>Full Name</th><td><?= htmlspecialchars($p['FULL_NAME'] ?? 'N/A') ?></td></tr>
-                    <tr><th>Email</th><td><?= htmlspecialchars($p['EMAIL'] ?? 'N/A') ?></td></tr>
-                    <tr><th>Academic Major</th><td><?= htmlspecialchars($p['MAJOR'] ?? 'N/A') ?></td></tr>
+                    <tr><th><?= t('db.f_fullname') ?></th><td><?= htmlspecialchars($p['FULL_NAME'] ?? $na) ?></td></tr>
+                    <tr><th><?= t('db.f_email') ?></th><td><?= htmlspecialchars($p['EMAIL'] ?? $na) ?></td></tr>
+                    <tr><th><?= t('db.f_major') ?></th><td><?= htmlspecialchars($p['MAJOR'] ?? $na) ?></td></tr>
                     <?php if ($p['GPA'] !== null): ?>
-                    <tr><th>Cumulative GPA</th><td><span class="badge badge-student"><?= number_format((float)$p['GPA'], 2) ?> / 4.00</span></td></tr>
+                    <tr><th><?= t('db.gpa') ?></th><td><span class="badge badge-student"><?= number_format((float)$p['GPA'], 2) ?> / 4.00</span></td></tr>
                     <?php endif; ?>
                     <?php if ($p['CREDITS'] !== null): ?>
-                    <tr><th>Material Credits</th><td><?= number_format((int)$p['CREDITS']) ?> credits</td></tr>
+                    <tr><th><?= t('db.material') ?></th><td><?= number_format((int)$p['CREDITS']) ?> <?= t('db.credits') ?></td></tr>
                     <?php endif; ?>
-                    <tr><th>Phone</th><td><?= htmlspecialchars($p['PHONE'] ?? 'N/A') ?></td></tr>
-                    <tr><th>Address</th><td><?= htmlspecialchars($p['ADDRESS'] ?? 'N/A') ?></td></tr>
+                    <tr><th><?= t('p.phone') ?></th><td><?= htmlspecialchars($p['PHONE'] ?? $na) ?></td></tr>
+                    <tr><th><?= t('p.address') ?></th><td><?= htmlspecialchars($p['ADDRESS'] ?? $na) ?></td></tr>
                 </table>
             </div>
 
             <?php if ($role === 'student'): ?>
             <div class="info-card">
-                <h3>✏️ Edit Contact Information</h3>
+                <h3>✏️ <?= t('p.edit_contact') ?></h3>
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="update_contact">
                     <div class="form-group">
-                        <label for="email">Email</label>
+                        <label for="email"><?= t('db.f_email') ?></label>
                         <input type="email" id="email" name="email" value="<?= htmlspecialchars($p['EMAIL'] ?? '') ?>">
                     </div>
                     <div class="form-group">
-                        <label for="phone">Phone</label>
+                        <label for="phone"><?= t('p.phone') ?></label>
                         <input type="text" id="phone" name="phone" value="<?= htmlspecialchars($p['PHONE'] ?? '') ?>">
                     </div>
                     <div class="form-group">
-                        <label for="address">Address</label>
+                        <label for="address"><?= t('p.address') ?></label>
                         <input type="text" id="address" name="address" value="<?= htmlspecialchars($p['ADDRESS'] ?? '') ?>">
                     </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-primary"><?= t('p.save') ?></button>
                 </form>
             </div>
             <?php endif; ?>
 
             <div class="info-card">
-                <h3>🔒 Change Password</h3>
+                <h3>🔒 <?= t('p.change_pw') ?></h3>
                 <form method="POST" action="" autocomplete="off">
                     <input type="hidden" name="action" value="change_password">
                     <div class="form-group">
-                        <label for="current_password">Current Password</label>
+                        <label for="current_password"><?= t('p.cur_pw') ?></label>
                         <input type="password" id="current_password" name="current_password" required autocomplete="current-password">
                     </div>
                     <div class="form-group">
-                        <label for="new_password">New Password <small class="text-muted">(min. 8 characters)</small></label>
+                        <label for="new_password"><?= t('p.new_pw') ?> <small class="text-muted"><?= t('p.min8') ?></small></label>
                         <input type="password" id="new_password" name="new_password" required autocomplete="new-password">
                     </div>
                     <div class="form-group">
-                        <label for="confirm_password">Confirm New Password</label>
+                        <label for="confirm_password"><?= t('p.confirm_pw') ?></label>
                         <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password">
                     </div>
-                    <button type="submit" class="btn btn-primary">Update Password</button>
+                    <button type="submit" class="btn btn-primary"><?= t('p.update_pw') ?></button>
                 </form>
             </div>
         </div>
