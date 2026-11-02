@@ -1,5 +1,7 @@
 -- Reset existing database records for clean seeding
 DELETE FROM PLSQL_VAULT;
+DELETE FROM ATTENDANCE;
+DELETE FROM EXAMS;
 DELETE FROM NOTIFICATION_READS;
 DELETE FROM NOTIFICATIONS;
 DELETE FROM FLAG_ARCHIVE;
@@ -55,13 +57,13 @@ INSERT INTO USERS (username, password_hash, role, status) VALUES
 -- ============================================================
 -- STUDENTS (SELECT subquery used to bind dynamic user_id)
 -- ============================================================
-INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) SELECT u.user_id, 'Nguyen Van An', 'an.nv2021@fpt.edu.vn', 'Software Engineering', 3.20, '0901234567', 'Ha Noi', 'NORMAL', 150
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) SELECT u.user_id, 'Nguyen Van An', 'an.nv2021@fpt.edu.vn', 'Software Engineering', 3.20, '0901234567', 'Ha Noi', 'NORMAL', 150, 'HN'
 FROM USERS u WHERE u.username = 'student1';
 
-INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) SELECT u.user_id, 'Tran Thi Binh', 'binh.tt2021@fpt.edu.vn', 'Information Security', 3.55, '0912345678', 'Ho Chi Minh', 'NORMAL', 50
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) SELECT u.user_id, 'Tran Thi Binh', 'binh.tt2021@fpt.edu.vn', 'Information Security', 3.55, '0912345678', 'Ho Chi Minh', 'NORMAL', 50, 'HCM'
 FROM USERS u WHERE u.username = 'student2';
 
-INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) SELECT u.user_id, 'Le Quoc Cuong', 'cuong.lq2021@fpt.edu.vn', 'Artificial Intelligence', 2.90, '0923456789', 'Da Nang', 'NORMAL', 200
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) SELECT u.user_id, 'Le Quoc Cuong', 'cuong.lq2021@fpt.edu.vn', 'Artificial Intelligence', 2.90, '0923456789', 'Da Nang', 'NORMAL', 200, 'DN'
 FROM USERS u WHERE u.username = 'student3';
 
 -- Additional demo student records without interactive user logins
@@ -103,7 +105,7 @@ INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) 
 INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
   ('PRN211', 'Basic Cross-Platform (.NET)', 'MSc. Hoang Van Nam', 3, '2024-S1');
 INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
-  ('MAS291', 'Statistics & Probability', 'Dr. Le Van Khoa', 3, '2024-S1');
+  ('MAS291', 'Statistics and Probability', 'Dr. Le Van Khoa', 3, '2024-S1');
 
 -- ============================================================
 -- ENROLLMENTS (subqueries used to avoid hardcoded student_id)
@@ -287,6 +289,79 @@ INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
   ('notice', 'Library Extended Opening Hours During Examination Period',
    'The campus library will remain open until 23:00 on weekdays throughout the examination period to support student revision.',
    'all', SYSTIMESTAMP - NUMTODSINTERVAL(6, 'DAY'));
+
+-- ============================================================
+-- EXAMS  (examination timetable - cosmetic, no flags)
+-- Dates are relative to SYSDATE: Progress Tests already sat, Final Exams ahead.
+-- ============================================================
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 14, '07:30',  60, 'LAB-401', 'On computer' FROM COURSES WHERE course_code = 'DBS401';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam',    TRUNC(SYSDATE) +  7, '07:30', 120, 'BE-302',  'On paper'    FROM COURSES WHERE course_code = 'DBS401';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 12, '10:00',  60, 'CS-202',  'On computer' FROM COURSES WHERE course_code = 'PRJ401';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam',    TRUNC(SYSDATE) +  9, '10:00',  90, 'AL-204',  'On paper'    FROM COURSES WHERE course_code = 'PRJ401';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 10, '12:50',  60, 'NV-205',  'On paper'    FROM COURSES WHERE course_code = 'SWD392';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam',    TRUNC(SYSDATE) + 11, '12:50',  90, 'DE-101',  'On paper'    FROM COURSES WHERE course_code = 'SWD392';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) -  9, '15:20',  60, 'LAB-401', 'On computer' FROM COURSES WHERE course_code = 'NET201';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam',    TRUNC(SYSDATE) + 14, '07:30',  90, 'BE-302',  'On computer' FROM COURSES WHERE course_code = 'NET201';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) -  7, '07:30',  60, 'CS-202',  'On computer' FROM COURSES WHERE course_code = 'CSD201';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam',    TRUNC(SYSDATE) + 16, '10:00', 120, 'AL-204',  'On paper'    FROM COURSES WHERE course_code = 'CSD201';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) -  5, '10:00',  60, 'DE-101',  'On paper'    FROM COURSES WHERE course_code = 'MAS291';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam',    TRUNC(SYSDATE) + 18, '12:50',  90, 'NV-205',  'On paper'    FROM COURSES WHERE course_code = 'MAS291';
+
+-- ============================================================
+-- ATTENDANCE  (per-student class attendance - cosmetic, no flags)
+-- 6 weekly sessions per enrolled course; one course dips below the 80% rule.
+-- ============================================================
+-- student1 - DBS401 (5/6 attended)
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 42, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 35, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 28, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 2', 'absent' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBS401';
+
+-- student1 - PRJ401 (4/6 attended - below threshold)
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 42, 'Slot 3', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'PRJ401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 35, 'Slot 3', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'PRJ401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 28, 'Slot 3', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'PRJ401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 3', 'late' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'PRJ401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 3', 'absent' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'PRJ401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 3', 'absent' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'PRJ401';
+
+-- student2 - DBS401 (6/6 attended)
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 42, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 35, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 28, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'DBS401';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'DBS401';
+
+-- student2 - SWD392 (5/6 attended)
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 42, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'SWD392';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 35, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'SWD392';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 28, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'SWD392';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'SWD392';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 1', 'late' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'SWD392';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 1', 'absent' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student2') AND c.course_code = 'SWD392';
+
+-- student3 - NET201 (5/6 attended)
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 42, 'Slot 4', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 35, 'Slot 4', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 28, 'Slot 4', 'late' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 4', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 4', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 4', 'absent' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
 
 COMMIT;
 /

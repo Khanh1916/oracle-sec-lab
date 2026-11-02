@@ -236,3 +236,134 @@ a:hover { text-decoration: underline; }
     .profile-grid { grid-template-columns: 1fr; }
     .notif-row { padding: 14px 16px; }
 }
+
+/* ======================================================================
+   Header controls: campus (read-only), language, dark-mode toggle
+   ====================================================================== */
+.ctl-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--nav-text); background: rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 8px; white-space: nowrap; }
+.ctl-caret { font-size: 0.65rem; opacity: 0.8; }
+.nav-campus > summary:hover .ctl-chip, .nav-lang > summary:hover .ctl-chip { background: rgba(255,255,255,0.16); }
+.nav-theme { background: rgba(255,255,255,0.08); border: none; color: var(--nav-text); cursor: pointer; width: 34px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; padding: 0; line-height: 1; }
+.nav-theme:hover { background: rgba(255,255,255,0.16); }
+.np-choice { width: 100%; background: none; border: none; cursor: pointer; justify-content: space-between; font-size: 0.85rem; text-align: left; font-family: inherit; }
+.np-choice .np-check { opacity: 0; color: var(--primary); font-weight: 700; }
+.np-choice.np-active .np-check { opacity: 1; }
+.np-choice.np-active { background: #fff7ed; }
+.nav-pop-item.np-campus { align-items: flex-start; gap: 10px; }
+.np-campus-ico { font-size: 1.1rem; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: #eef2ff; border-radius: 8px; flex-shrink: 0; }
+.np-campus-text { display: flex; flex-direction: column; }
+.np-campus-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+/* ======================================================================
+   Exam Schedule page
+   ====================================================================== */
+.exam-dow { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.exam-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+.exam-form { font-size: 0.78rem; background: #eef2f7; color: var(--secondary); padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+.exam-upcoming td { background: rgba(232,93,4,0.05); }
+.exam-table td { vertical-align: top; }
+.exam-badge-up { background: var(--primary); color: #fff; }
+.exam-badge-done { background: #e9ecef; color: #6c757d; }
+
+/* ======================================================================
+   Attendance Tracker page
+   ====================================================================== */
+.att-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.att-card { margin-bottom: 0; }
+.att-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+.att-pct { font-size: 1.4rem; font-weight: 800; line-height: 1; }
+.att-big { font-size: 2rem; font-weight: 800; line-height: 1; }
+.att-track { background: #edf0f4; border-radius: 99px; height: 10px; overflow: hidden; width: 100%; }
+.att-fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
+.att-fill.good { background: var(--success); }
+.att-fill.ok   { background: var(--primary); }
+.att-fill.warn { background: var(--warning); }
+.att-fill.bad  { background: var(--danger); }
+.att-good { color: var(--success); }
+.att-ok   { color: var(--primary); }
+.att-warn { color: #b45309; }
+.att-bad  { color: var(--danger); }
+.att-present { color: #15803d; }
+.att-late    { color: #b45309; }
+.att-absent  { color: #b91c1c; }
+.att-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 0.78rem; font-weight: 600; }
+.att-pill { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 0.74rem; font-weight: 700; }
+.att-pill.att-present { background: #dcfce7; color: #15803d; }
+.att-pill.att-late    { background: #fef3c7; color: #b45309; }
+.att-pill.att-absent  { background: #fee2e2; color: #b91c1c; }
+
+@media (max-width: 768px) {
+    .navbar-links .nav-campus, .navbar-links .nav-lang { width: 100%; }
+    .ctl-chip { width: 100%; justify-content: space-between; }
+    .nav-theme { width: 100%; justify-content: center; margin-top: 2px; }
+}
+
+/* ======================================================================
+   Dark mode  (toggled from the navbar; cosmetic only)
+   ====================================================================== */
+:root { --row-border: #f0f0f0; }
+
+:root[data-theme="dark"] {
+    --primary:   #f97316;
+    --primary-d: #ea6a0a;
+    --secondary: #6f9eea;
+    --success:   #46c483;
+    --warning:   #fbbf24;
+    --danger:    #f87171;
+    --bg:        #12151f;
+    --card-bg:   #1b2130;
+    --text:      #e5e9f2;
+    --muted:     #9aa4b8;
+    --border:    #2d3650;
+    --nav-bg:    #0e1118;
+    --nav-text:  #e8e8e8;
+    --shadow:    0 2px 12px rgba(0,0,0,0.5);
+    --row-border:#262f44;
+}
+
+/* surfaces with hard-coded light colours */
+:root[data-theme="dark"] body { background: var(--bg); color: var(--text); }
+:root[data-theme="dark"] .data-table th { background: #232a3d; color: #cdd5e6; border-bottom-color: var(--border); }
+:root[data-theme="dark"] .data-table td { border-bottom-color: var(--row-border); }
+:root[data-theme="dark"] .data-table tr:hover td { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .info-table td { border-bottom-color: var(--row-border); }
+:root[data-theme="dark"] .portal-btn { background: var(--card-bg); }
+:root[data-theme="dark"] .hint-box details { background: #171c28; }
+:root[data-theme="dark"] .no-results { background: #171c28; }
+:root[data-theme="dark"] code { background: #232a3d; color: #e5e9f2; }
+:root[data-theme="dark"] .nav-pop-panel { background: #1b2130; color: var(--text); border-color: var(--border); }
+:root[data-theme="dark"] .nav-pop-item { color: var(--text) !important; }
+:root[data-theme="dark"] .nav-pop-item:hover { background: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .nav-pop-all { border-top-color: var(--border); }
+:root[data-theme="dark"] .nav-pop-user { border-bottom-color: var(--border); }
+:root[data-theme="dark"] .np-choice.np-active { background: rgba(249,115,22,0.14); }
+:root[data-theme="dark"] .np-campus-ico { background: #232a3d; }
+
+/* alerts & notifications */
+:root[data-theme="dark"] .alert-success { background: rgba(70,196,131,0.14); }
+:root[data-theme="dark"] .alert-danger  { background: rgba(248,113,113,0.14); }
+:root[data-theme="dark"] .alert-warning { background: rgba(251,191,36,0.14); color: #fcd9a1; }
+:root[data-theme="dark"] .alert-info    { background: rgba(111,158,234,0.14); }
+:root[data-theme="dark"] .notif-row { border-bottom-color: var(--row-border); }
+:root[data-theme="dark"] .notif-unread,
+:root[data-theme="dark"] .nav-pop-item.np-unread { background: rgba(249,115,22,0.12); }
+
+/* exam / attendance surfaces */
+:root[data-theme="dark"] .exam-form { background: #232a3d; color: #cdd5e6; }
+:root[data-theme="dark"] .exam-badge-done { background: #2a3146; color: #9aa4b8; }
+:root[data-theme="dark"] .exam-upcoming td { background: rgba(249,115,22,0.08); }
+:root[data-theme="dark"] .att-track { background: #2a3146; }
+:root[data-theme="dark"] .att-pill.att-present { background: rgba(70,196,131,0.18); color: #7ee2ad; }
+:root[data-theme="dark"] .att-pill.att-late    { background: rgba(251,191,36,0.18); color: #fcd9a1; }
+:root[data-theme="dark"] .att-pill.att-absent  { background: rgba(248,113,113,0.18); color: #f6a9a9; }
+:root[data-theme="dark"] .att-warn { color: #fbbf24; }
+
+/* timetable (schedule.php inline <style>; overridden via higher specificity) */
+:root[data-theme="dark"] .timetable th { background: #232a3d; color: #cdd5e6; }
+:root[data-theme="dark"] .timetable th, :root[data-theme="dark"] .timetable td { border-color: var(--border); }
+:root[data-theme="dark"] .slot-cell { background: #171c28; }
+:root[data-theme="dark"] .class-box { background: rgba(2,62,138,0.28); border-left-color: var(--secondary); }
+:root[data-theme="dark"] .class-box span[style] { color: var(--text) !important; }
+
+/* dashboard category tags keep their light chips legible in dark mode */
+:root[data-theme="dark"] .news-item { border-bottom-color: var(--row-border); }

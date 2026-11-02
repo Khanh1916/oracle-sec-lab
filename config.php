@@ -142,6 +142,40 @@ function markAllNotificationsRead($conn, int $userId, string $role): void {
     oci_execute($stmt);
 }
 
+/**
+ * Portal UI preferences (cosmetic shell).
+ * Dark mode and language are user choices, persisted in client-side cookies
+ * (written by JS in the navbar) and read here so the server renders the chosen
+ * language and theme without a flash. Campus is NOT a choice: each student has
+ * a single fixed home campus stored on their STUDENTS record (see the navbar).
+ */
+$GLOBALS['PORTAL_LANGS'] = ['en' => 'English', 'vi' => 'Tiếng Việt'];
+$GLOBALS['PORTAL_CAMPUSES'] = [
+    'HN'  => 'Hà Nội',
+    'DN'  => 'Đà Nẵng',
+    'CT'  => 'Cần Thơ',
+    'HCM' => 'TP. Hồ Chí Minh',
+    'QN'  => 'Quy Nhơn',
+];
+$cl = $_COOKIE['portal_lang'] ?? 'en';
+$GLOBALS['PORTAL_LANG']   = isset($GLOBALS['PORTAL_LANGS'][$cl]) ? $cl : 'en';
+$GLOBALS['PORTAL_THEME']  = (($_COOKIE['portal_theme'] ?? '') === 'dark') ? 'dark' : 'light';
+
+require_once __DIR__ . '/lang.php';
+
+/** Translate a shell UI key to the selected language (falls back to English, then the key). */
+function t(string $key): string {
+    $lang = $GLOBALS['PORTAL_LANG'] ?? 'en';
+    $dict = $GLOBALS['I18N'][$lang] ?? [];
+    if (isset($dict[$key])) return $dict[$key];
+    return $GLOBALS['I18N']['en'][$key] ?? $key;
+}
+
+/** Translate then sprintf (for templated strings ending in _fmt). */
+function tf(string $key, ...$args): string {
+    return vsprintf(t($key), $args);
+}
+
 // Start session
 session_name(SESSION_NAME);
 session_set_cookie_params([

@@ -77,6 +77,8 @@ oracle-sec-lab/
 ├── dashboard.php               # Student / Faculty / Admin dashboard & notice board
 ├── courses.php                 # Academic course catalog & registration (Enroll/Drop)
 ├── schedule.php                # Weekly class timetable & room schedule
+├── exams.php                   # Examination schedule (dates, rooms, seats; bilingual)
+├── attendance.php              # Attendance tracker (per-course %, 80% rule, session log)
 ├── grades.php                  # Faculty grading portal & roster scoring
 ├── tuition.php                 # Tuition fee billing, e-Invoices & virtual accounts
 ├── search.php                  # [VULN 1] Oracle SQL Injection (UNION-based)
@@ -89,8 +91,10 @@ oracle-sec-lab/
 ├── partner_config.php          # [VULN 3A] Hidden partner configuration (Broken Access Control)
 ├── admin.php                   # [VULN 3B] Admin panel & Supply Chain update trigger
 ├── secret_check.php            # Secret key API (Legacy decoy challenge)
-├── inc_navbar.php              # Shared role-aware navigation bar
-├── style.css                   # Responsive UI stylesheet
+├── inc_navbar.php              # Shared navbar: nav + campus, VI/EN switch, dark-mode toggle
+├── inc_footer.php              # Shared site footer
+├── lang.php                    # Bilingual (EN/VI) dictionary for the portal shell
+├── style.css                   # Responsive UI stylesheet (incl. dark theme)
 ├── database/
 │   ├── schema.sql              # Oracle DDL schema definition
 │   ├── seed.sql                # Seed data, courses, enrollments & fragmented flags

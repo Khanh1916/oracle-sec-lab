@@ -156,6 +156,16 @@ if ($role === 'teacher') {
                 <span class="label">Class Timetable</span>
                 <span class="sub">Weekly Lecture Schedule</span>
             </a>
+            <a href="<?= APP_BASE ?>/exams.php" class="portal-btn">
+                <span class="icon">📝</span>
+                <span class="label">Exam Schedule</span>
+                <span class="sub">Dates, Rooms & Seats</span>
+            </a>
+            <a href="<?= APP_BASE ?>/attendance.php" class="portal-btn">
+                <span class="icon">✅</span>
+                <span class="label">Attendance</span>
+                <span class="sub">Class Attendance Record</span>
+            </a>
             <a href="<?= APP_BASE ?>/transcript.php" class="portal-btn">
                 <span class="icon">📄</span>
                 <span class="label">Grade Transcript</span>
@@ -191,6 +201,16 @@ if ($role === 'teacher') {
                 <span class="icon">📅</span>
                 <span class="label">Teaching Schedule</span>
                 <span class="sub">Assigned Lecture Slots</span>
+            </a>
+            <a href="<?= APP_BASE ?>/exams.php" class="portal-btn">
+                <span class="icon">📝</span>
+                <span class="label">Exam Schedule</span>
+                <span class="sub">Examination Calendar</span>
+            </a>
+            <a href="<?= APP_BASE ?>/attendance.php" class="portal-btn">
+                <span class="icon">✅</span>
+                <span class="label">Attendance</span>
+                <span class="sub">Attendance by Course</span>
             </a>
             <a href="<?= APP_BASE ?>/search.php" class="portal-btn">
                 <span class="icon">🔍</span>

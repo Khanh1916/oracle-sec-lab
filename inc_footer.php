@@ -7,29 +7,29 @@ $year = date('Y');
     <div class="footer-inner">
         <div class="footer-col footer-brand">
             <span class="footer-logo">🎓 <?= htmlspecialchars(APP_NAME) ?></span>
-            <p class="footer-tagline">DBS401 – Database Security Lab. For authorized training &amp; CTF use only.</p>
+            <p class="footer-tagline"><?= t('footer.tagline') ?></p>
         </div>
         <div class="footer-col">
-            <h4>Academics</h4>
-            <a href="<?= APP_BASE ?>/courses.php">Course Catalog</a>
-            <a href="<?= APP_BASE ?>/schedule.php">Class Timetable</a>
-            <a href="<?= APP_BASE ?>/transcript.php">Grade Transcript</a>
+            <h4><?= t('footer.academics') ?></h4>
+            <a href="<?= APP_BASE ?>/courses.php"><?= t('footer.course_catalog') ?></a>
+            <a href="<?= APP_BASE ?>/schedule.php"><?= t('footer.class_timetable') ?></a>
+            <a href="<?= APP_BASE ?>/transcript.php"><?= t('footer.grade_transcript') ?></a>
         </div>
         <div class="footer-col">
-            <h4>Services</h4>
-            <a href="<?= APP_BASE ?>/tuition.php">Tuition &amp; Fees</a>
-            <a href="<?= APP_BASE ?>/store.php">Material Store</a>
-            <a href="<?= APP_BASE ?>/profile.php">My Profile</a>
+            <h4><?= t('footer.services') ?></h4>
+            <a href="<?= APP_BASE ?>/tuition.php"><?= t('footer.tuition_fees') ?></a>
+            <a href="<?= APP_BASE ?>/store.php"><?= t('footer.material_store') ?></a>
+            <a href="<?= APP_BASE ?>/profile.php"><?= t('footer.my_profile') ?></a>
         </div>
         <div class="footer-col">
-            <h4>Support</h4>
-            <a href="#">IT Helpdesk</a>
-            <a href="#">Student Handbook</a>
-            <a href="#">Contact Office</a>
+            <h4><?= t('footer.support') ?></h4>
+            <a href="#"><?= t('footer.it_helpdesk') ?></a>
+            <a href="#"><?= t('footer.student_handbook') ?></a>
+            <a href="#"><?= t('footer.contact_office') ?></a>
         </div>
     </div>
     <div class="footer-bottom">
-        <span>&copy; <?= $year ?> <?= htmlspecialchars(APP_NAME) ?>. All rights reserved.</span>
+        <span>&copy; <?= $year ?> <?= htmlspecialchars(APP_NAME) ?>. <?= t('footer.rights') ?></span>
         <span class="footer-meta">Oracle Database 23c &middot; PHP 8.3 &middot; v<?= htmlspecialchars(APP_VERSION) ?></span>
     </div>
 </footer>

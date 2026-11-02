@@ -33,6 +33,7 @@ CREATE TABLE STUDENTS (
     address       VARCHAR2(256),
     hidden_marker VARCHAR2(64) DEFAULT 'NORMAL',
     credits       NUMBER(10)   DEFAULT 0,
+    campus        VARCHAR2(8)  DEFAULT 'HN',   -- fixed home campus: HN|DN|CT|HCM|QN
     created_at    TIMESTAMP DEFAULT SYSTIMESTAMP
 );
 
@@ -171,6 +172,34 @@ CREATE TABLE NOTIFICATION_READS (
     notification_id NUMBER NOT NULL,
     read_at         TIMESTAMP DEFAULT SYSTIMESTAMP,
     CONSTRAINT pk_notif_read PRIMARY KEY (user_id, notification_id)
+);
+
+-- ============================================================
+-- EXAMS  (examination timetable per course)
+-- Cosmetic portal feature - NOT part of any challenge, holds no flags.
+-- ============================================================
+CREATE TABLE EXAMS (
+    exam_id      NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    course_id    NUMBER REFERENCES COURSES(course_id) ON DELETE CASCADE,
+    exam_type    VARCHAR2(40)  DEFAULT 'Final Exam',   -- Progress Test | Practical Exam | Final Exam
+    exam_date    DATE,
+    start_time   VARCHAR2(10),                          -- 'HH24:MI' display string
+    duration_min NUMBER(4)     DEFAULT 90,
+    room         VARCHAR2(20),
+    exam_form    VARCHAR2(30)  DEFAULT 'On paper'       -- On paper | On computer
+);
+
+-- ============================================================
+-- ATTENDANCE  (per-student, per-session class attendance)
+-- Cosmetic portal feature - NOT part of any challenge, holds no flags.
+-- ============================================================
+CREATE TABLE ATTENDANCE (
+    attendance_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    student_id    NUMBER REFERENCES STUDENTS(student_id) ON DELETE CASCADE,
+    course_id     NUMBER REFERENCES COURSES(course_id)   ON DELETE CASCADE,
+    session_date  DATE,
+    slot          VARCHAR2(16),
+    status        VARCHAR2(10) DEFAULT 'present'          -- present | late | absent
 );
 
 -- ============================================================
