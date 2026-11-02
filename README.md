@@ -66,6 +66,26 @@ A realistic academic portal with three intentional, chained vulnerabilities:
 
 ## Repository Structure
 
+The application is a flat multi-page PHP app: every page at the repo root is
+served under `/dbs401-oracle-app/<page>.php` and shares `config.php` + the
+`inc_*.php` includes. The paths are a fixed contract — challenge URLs, the
+Apache alias, `.htaccess` rules, the docs and the e2e tests all depend on
+them. For a quick mental model, the root files group by role as follows.
+
+| Group | Files | Role |
+|-------|-------|------|
+| **Entry & auth** | `index.php` · `login.php` · `logout.php` · `dashboard.php` | Landing, role-based redirect, bcrypt login/session, role dashboard |
+| **Student pages** | `profile.php` · `schedule.php` · `exams.php` · `attendance.php` · `courses.php` · `grades.php` · `tuition.php` · `transcript.php` · `notifications.php` · `audit.php` | Everyday portal features (safe, parameterized queries) |
+| **CTF challenge pages** | `search.php` (V1) · `store.php` (V2) · `partner_config.php` + `admin.php` (V3) · `course_lookup.php` (V4) · `secret_check.php` (decoy) | The intentionally-vulnerable endpoints — see the challenge matrix below |
+| **Shared includes & config** | `config.php` · `lang.php` · `inc_navbar.php` · `inc_footer.php` | DB/connection + constants, EN/VI dictionary, sidebar + footer shell (blocked from direct web access) |
+| **Assets & server config** | `style.css` · `favicon.svg` · `.htaccess` | UI stylesheet (+ dark theme), icon, Apache hardening |
+
+Everything else is non-web tooling kept out of the document root by
+`.htaccess`: `database/` (DDL, seed, provisioning), `secure_versions/`
+(the patched solutions), `docs/`, `tools/`, `tests/`, `k8s/` and `docker/`.
+
+Full tree:
+
 ```
 oracle-sec-lab/
 ├── .github/workflows/

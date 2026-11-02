@@ -9,9 +9,13 @@ Options -Indexes
     Require all denied
 </FilesMatch>
 
-# ── Protect lab-only tools/docs from direct web access ─────
-RedirectMatch 403 ^/dbs401-oracle-app/docs/(ANSWER_KEY|ORACLE_PAYLOAD_CHEATSHEET).*
-RedirectMatch 403 ^/dbs401-oracle-app/tools/(exploit|decode|verify).*
+# ── Protect lab-only folders from direct web access ───────
+# These hold solutions, writeups, provisioning scripts and infra manifests.
+# None are served over HTTP: the app includes config.php etc. from the
+# filesystem (__DIR__), never by URL. Blocking them stops students from
+# reading the fixes (secure_versions/), the answer key (docs/) or running
+# the provisioning scripts (database/*.php) straight from the browser.
+RedirectMatch 403 ^/dbs401-oracle-app/(secure_versions|docs|tools|tests|k8s|database)(/|$)
 
 # ── Protect database folder ───────────────────────────────
 <FilesMatch "\.(sql)$">
