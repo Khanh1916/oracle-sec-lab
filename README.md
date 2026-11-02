@@ -188,15 +188,29 @@ The application is structured as a full-featured university portal:
 * **Academic Services:**
   * **Course Catalog & Registration (`courses.php`):** Browse curriculum, enroll in open courses, and drop courses before midterm.
   * **Weekly Class Timetable (`schedule.php`):** Interactive weekly schedule grid (Monday–Saturday, Slots 1–4) with classroom allocation.
+  * **Examination Schedule (`exams.php`):** Per-student exam timetable (date, time, room, seat, form) with upcoming/completed status; institution-wide calendar for staff.
+  * **Attendance Tracker (`attendance.php`):** Per-course attendance percentage, the 80% eligibility rule with warnings, and a session log; per-course aggregate for staff.
   * **Faculty Grading Portal (`grades.php`):** Instructors can view student class rosters and publish official grades.
   * **Tuition & Billing (`tuition.php`):** Credit-based fee calculation, e-Invoices, and virtual bank account integration.
   * **Transcript Viewer (`transcript.php`):** Secure transcript lookup with reference IDs.
+* **Student Account:**
+  * **Profile (`profile.php`):** View account & academic details, edit contact information, and change password (bcrypt).
+  * **Notification Center (`notifications.php`):** DB-backed campus announcements with per-user read/unread state and a live navbar bell.
 * **Administrative Services:**
   * **User Management (`admin.php`):** Full CRUD for students, teachers, and admins with cascade integrity.
   * **Security Audit Trail (`audit.php`):** System and user action audit log with IP and metadata tracking.
 * **Campus Life:**
   * **Material Store (`store.php`):** Academic books and digital guides exchange.
   * **Student Directory (`search.php`):** Peer lookup.
+
+### Portal Experience
+
+The portal is wrapped in a modern app shell (purely cosmetic — no challenge logic depends on it):
+
+* **Collapsible left sidebar + minimal top header:** grouped navigation (Study / Finance / Teaching / Administration / Utilities / Account) with an icon-rail collapse (persisted per user), off-canvas on mobile.
+* **Bilingual interface (English / Tiếng Việt):** cookie-based i18n (`lang.php` + `t()`), applied across every portal page, the shared shell, dates/weekdays, and notification tags.
+* **Light / Dark mode:** a no-flash theme toggle persisted per user.
+* **Per-student home campus:** each student has a fixed primary campus (Hà Nội, Đà Nẵng, Cần Thơ, TP. Hồ Chí Minh, Quy Nhơn) shown read-only in the header.
 
 ---
 

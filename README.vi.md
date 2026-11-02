@@ -27,6 +27,13 @@ Trong khi phần lớn các ứng dụng web có lỗ hổng phổ biến (như 
 
 Dự án mô phỏng một cổng thông tin sinh viên sát thực tế (**FPT Student Portal**), bao gồm đầy đủ các nghiệp vụ học vụ cùng bốn lỗ hổng chủ đích được thiết kế nhiều tầng.
 
+**Trải nghiệm portal** (thuần giao diện — không ảnh hưởng logic thử thách):
+
+* **Nghiệp vụ học vụ:** Trang chủ, Thời khóa biểu, **Lịch thi**, **Điểm danh**, Môn học, Bảng điểm, Học phí, Cửa hàng, Tìm kiếm, Chấm điểm (giảng viên), Quản trị/Nhật ký (admin).
+* **Tài khoản sinh viên:** **Hồ sơ** (sửa liên hệ, đổi mật khẩu) và **Trung tâm thông báo** (đã đọc/chưa đọc, chuông thông báo).
+* **Giao diện sidebar bên trái + header trên gọn**, thu gọn thành thanh icon (lưu theo người dùng), off-canvas trên mobile.
+* **Song ngữ Tiếng Việt / English**, **chế độ Sáng / Tối**, và **cơ sở chính cố định theo từng sinh viên** (Hà Nội, Đà Nẵng, Cần Thơ, TP. Hồ Chí Minh, Quy Nhơn).
+
 ---
 
 ## Demo

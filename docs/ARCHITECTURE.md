@@ -85,6 +85,8 @@
 
 ---
 
+> The schema also includes **cosmetic portal tables that hold no flags** and are not part of any challenge: `NOTIFICATIONS` + `NOTIFICATION_READS` (announcements with per-user read state), `EXAMS` (examination timetable), and `ATTENDANCE` (per-session attendance), plus a `STUDENTS.campus` column (fixed home campus). These back the exam/attendance/notification pages and the bilingual (EN/VI) + dark-mode portal shell.
+
 ## 2. Authentication & Session Flow
 
 ```
