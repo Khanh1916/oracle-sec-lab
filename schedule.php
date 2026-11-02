@@ -80,12 +80,12 @@ foreach ($enrolledCourses as $idx => $course) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Class Timetable – FPT Student Portal</title>
+    <title><?= t('sch.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
     <style>
         .timetable { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
@@ -110,28 +110,28 @@ foreach ($enrolledCourses as $idx => $course) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📅 Weekly Class Timetable</h2>
+    <h2>📅 <?= t('sch.heading') ?></h2>
     <p class="text-muted">
-        Semester Summer 2024 &bull; Weekly academic schedule for
-        <strong><?= $student ? htmlspecialchars($student['FULL_NAME']) : htmlspecialchars($username) ?></strong>
+        <?= t('sem.label') ?> <?= t('sem.value') ?> &bull;
+        <?= tf('sch.subtitle_fmt', '<strong>' . ($student ? htmlspecialchars($student['FULL_NAME']) : htmlspecialchars($username)) . '</strong>') ?>
     </p>
 
     <div class="info-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:8px;">
             <div style="font-weight:600; color:var(--secondary);">
-                Active Semester: <code>2024-S1 (Summer)</code>
+                <?= t('sch.active_sem') ?>: <code>2024-S1 (Summer)</code>
             </div>
             <div>
-                <span class="badge badge-student"><?= count($enrolledCourses) ?> Enrolled Subjects</span>
+                <span class="badge badge-student"><?= tf('sch.enrolled_fmt', count($enrolledCourses)) ?></span>
             </div>
         </div>
 
         <table class="timetable">
             <thead>
                 <tr>
-                    <th style="width:120px;">Time / Slot</th>
+                    <th style="width:120px;"><?= t('sch.time_slot') ?></th>
                     <?php foreach ($days as $day): ?>
-                        <th><?= $day ?></th>
+                        <th><?= t('day.' . strtolower($day)) ?></th>
                     <?php endforeach; ?>
                 </tr>
             </thead>
@@ -165,11 +165,11 @@ foreach ($enrolledCourses as $idx => $course) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ Attendance & Timetable Policy</summary>
+            <summary>ℹ️ <?= t('sch.policy') ?></summary>
             <ul>
-                <li>Students must maintain an attendance record of at least 80% to be eligible for final examinations.</li>
-                <li>Rooms prefixed with <code>LAB</code> are located in Building Delta.</li>
-                <li>Report scheduling conflicts to the Office of Academic Affairs within the first 2 weeks.</li>
+                <li><?= t('sch.pol1') ?></li>
+                <li><?= t('sch.pol2') ?></li>
+                <li><?= t('sch.pol3') ?></li>
             </ul>
         </details>
     </div>
