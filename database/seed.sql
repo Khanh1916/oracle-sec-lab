@@ -1,4 +1,5 @@
 -- Reset existing database records for clean seeding
+DELETE FROM PLSQL_VAULT;
 DELETE FROM FLAG_ARCHIVE;
 DELETE FROM SYSTEM_HINTS;
 DELETE FROM FAKE_FLAGS;
@@ -28,6 +29,10 @@ DELETE FROM USERS;
 -- FLAG 3: DBS401{5upp1y_Ch41n_P0150n1ng_0912}
 --   Obtained from admin.php by poisoning update_url in CONFIG_STORE
 --   and triggering "Check for Partner Updates"
+--
+-- FLAG 4: DBS401{PL5QL_1nj3ct10n_D3f1n3r}
+--   PL/SQL injection via EXECUTE IMMEDIATE inside FN_COURSE_LOOKUP
+--   (course_lookup.php). Stored in PLSQL_VAULT (label='CHALLENGE_4').
 -- ============================================================
 
 -- ============================================================
@@ -233,6 +238,17 @@ INSERT INTO FLAG_ARCHIVE (archive_code, archive_data) VALUES
   ('OLD_FLAG_2023', 'DBS401{FAKE_archived_flag_123}');
 INSERT INTO FLAG_ARCHIVE (archive_code, archive_data) VALUES
   ('OLD_FLAG_2022', 'DBS401{FAKE_nothing_here_xd}');
+
+-- ============================================================
+-- PLSQL_VAULT (Challenge 4 - reachable only via PL/SQL injection)
+-- ============================================================
+-- Real Flag 4 lives in the CHALLENGE_4 row. The DECOY row has the same shape,
+-- so a naive "UNION SELECT secret_flag FROM PLSQL_VAULT" returns two rows and
+-- the function raises TOO_MANY_ROWS - the attacker must select a single row.
+INSERT INTO PLSQL_VAULT (label, secret_flag) VALUES
+  ('CHALLENGE_4', 'DBS401{PL5QL_1nj3ct10n_D3f1n3r}');
+INSERT INTO PLSQL_VAULT (label, secret_flag) VALUES
+  ('DECOY', 'DBS401{FAKE_plsql_not_this_row}');
 
 COMMIT;
 /

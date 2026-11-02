@@ -12,6 +12,7 @@ $username = $_SESSION['username'] ?? '';
     <div class="navbar-links">
         <a href="<?= APP_BASE ?>/dashboard.php">Dashboard</a>
         <a href="<?= APP_BASE ?>/courses.php">Courses</a>
+        <a href="<?= APP_BASE ?>/course_lookup.php">Course Info</a>
         <a href="<?= APP_BASE ?>/schedule.php">Timetable</a>
         <?php if ($role === 'student'): ?>
             <a href="<?= APP_BASE ?>/transcript.php">Transcript</a>

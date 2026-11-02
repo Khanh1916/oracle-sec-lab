@@ -142,6 +142,18 @@ CREATE TABLE FLAG_ARCHIVE (
 );
 
 -- ============================================================
+-- PLSQL_VAULT  (Challenge 4 - PL/SQL injection target)
+-- Holds the Flag 4 secret. No web endpoint queries this table directly;
+-- it is only reachable by injecting into the FN_COURSE_LOOKUP function's
+-- dynamic SQL. Intentionally NOT granted to PUBLIC.
+-- ============================================================
+CREATE TABLE PLSQL_VAULT (
+    vault_id    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    label       VARCHAR2(64),
+    secret_flag VARCHAR2(256)
+);
+
+-- ============================================================
 -- Grant permissions
 -- ============================================================
 GRANT SELECT, INSERT, UPDATE ON USERS          TO PUBLIC;
@@ -157,4 +169,26 @@ GRANT SELECT                ON SYSTEM_HINTS    TO PUBLIC;
 GRANT SELECT                ON FLAG_ARCHIVE    TO PUBLIC;
 
 COMMIT;
+/
+
+-- ============================================================
+-- FN_COURSE_LOOKUP  (Challenge 4 - vulnerable stored function)
+-- ============================================================
+-- Looks up a course name by code. VULNERABLE: it builds the query by string
+-- concatenation and runs it with EXECUTE IMMEDIATE (definer's rights), so a
+-- crafted course code injects into the PL/SQL dynamic SQL. Note that callers
+-- using a bind variable for the argument are NOT protected - the injection
+-- happens inside this function, not at the call site.
+CREATE OR REPLACE FUNCTION FN_COURSE_LOOKUP(p_code IN VARCHAR2) RETURN VARCHAR2 AS
+    v_result VARCHAR2(4000);
+    v_sql    VARCHAR2(4000);
+BEGIN
+    v_sql := 'SELECT course_name FROM COURSES WHERE course_code = ''' || p_code || '''';
+    EXECUTE IMMEDIATE v_sql INTO v_result;
+    RETURN v_result;
+EXCEPTION
+    WHEN NO_DATA_FOUND  THEN RETURN 'No course found for that code.';
+    WHEN TOO_MANY_ROWS  THEN RETURN 'Ambiguous result (more than one row).';
+    WHEN OTHERS         THEN RETURN 'Lookup error.';
+END;
 /

@@ -25,7 +25,7 @@
 
 Trong khi phần lớn các ứng dụng web có lỗ hổng phổ biến (như DVWA, WebGoat hay Juice Shop) tập trung vào MySQL, PostgreSQL hoặc SQLite, **Oracle Database** lại có những đặc thù kiến trúc riêng, cú pháp SQL riêng (`DUAL`, `ROWNUM`, `FETCH FIRST`, `USER_TABLES`, `SYS_CONTEXT`) và những thách thức bảo mật riêng biệt.
 
-Dự án mô phỏng một cổng thông tin sinh viên sát thực tế (**FPT Student Portal**), bao gồm đầy đủ các nghiệp vụ học vụ cùng ba lỗ hổng chủ đích được thiết kế nhiều tầng.
+Dự án mô phỏng một cổng thông tin sinh viên sát thực tế (**FPT Student Portal**), bao gồm đầy đủ các nghiệp vụ học vụ cùng bốn lỗ hổng chủ đích được thiết kế nhiều tầng.
 
 ---
 
@@ -62,13 +62,14 @@ Một cổng thông tin học vụ sát thực tế với ba lỗ hổng chủ �
 
 ## Ma trận lỗ hổng & thử thách CTF
 
-Ứng dụng có **3 lỗ hổng cốt lõi** với flag CTF nhiều bước, kèm nhiều mồi nhử để làm khó các trình quét tự động:
+Ứng dụng có **4 lỗ hổng cốt lõi** với flag CTF nhiều bước, kèm nhiều mồi nhử để làm khó các trình quét tự động:
 
 | Thử thách | Loại lỗ hổng | Điểm vào | Độ khó (lỗi) | Độ phức tạp (flag) | Định dạng flag |
 |:---|:---|:---|:---:|:---:|:---|
 | **Thử thách 1** | SQL Injection UNION (Oracle) | `search.php?q=` | Dễ | Rất khó | `DBS401{...}` |
 | **Thử thách 2** | Lỗi logic nghiệp vụ | `store.php` (POST) | Khó | Rất khó | `DBS401{...}` |
 | **Thử thách 3** | Kiểm soát truy cập & chuỗi cung ứng | `partner_config.php` + `admin.php` | Khó | Rất khó | `DBS401{...}` |
+| **Thử thách 4** | PL/SQL Injection (`EXECUTE IMMEDIATE`) | `course_lookup.php` | Trung bình | Khó | `DBS401{...}` |
 
 > Giá trị flag được cố ý ẩn đi để giữ tính thử thách. Giảng viên có thể xem toàn bộ flag và lời giải từng bước trong [`docs/ANSWER_KEY.md`](docs/ANSWER_KEY.md).
 
@@ -88,6 +89,10 @@ Một cổng thông tin học vụ sát thực tế với ba lỗ hổng chủ �
    * Điểm vào ẩn `partner_config.php` không kiểm tra quyền admin, cho phép bất kỳ sinh viên nào ghi đè `CONFIG_STORE.update_url`.
    * Khi quản trị viên kiểm tra cập nhật (`admin.php?check_updates=1`), máy chủ tải về một manifest JSON do kẻ tấn công kiểm soát.
    * Nếu phiên bản trong manifest cao hơn `APP_VERSION`, `admin.php` ghép mảnh hex của manifest với hậu tố cố định phía máy chủ và lộ Flag 3.
+4. **Thử thách 4 – PL/SQL Injection của Oracle (`EXECUTE IMMEDIATE`):**
+   * `course_lookup.php` truyền mã môn học qua **biến ràng buộc** (bind), nhưng stored function `FN_COURSE_LOOKUP` lại dựng truy vấn bằng phép nối chuỗi bên trong `EXECUTE IMMEDIATE` — nên injection xảy ra trong PL/SQL chứ không phải ở tầng PHP. Tham số hóa ở ranh giới ứng dụng **không** cứu được một stored program có lỗ hổng.
+   * Hàm trả về một giá trị duy nhất qua `... INTO`, nên một `UNION SELECT` ngây thơ vào bảng `PLSQL_VAULT` (có mồi nhử) sẽ gây `TOO_MANY_ROWS`; kẻ tấn công phải trả về đúng một hàng.
+   * Flag 4 nằm trong `PLSQL_VAULT` (`label='CHALLENGE_4'`), chỉ truy cập được qua hàm có lỗ hổng.
 
 ---
 
@@ -173,6 +178,7 @@ Mỗi điểm vào có lỗ hổng đều có một bản cài đặt đã đư�
 | `store.php` | `secure_versions/store_secure.php` | Kiểm tra số nguyên dương phía máy chủ (`$qty > 0`), xác minh tín chỉ nguyên tử. |
 | `partner_config.php` | `secure_versions/partner_config_secure.php` | Phân quyền theo vai trò (`$_SESSION['role'] === 'admin'`), danh sách trắng tên miền. |
 | `admin.php` | `secure_versions/admin_update_secure.php` | Danh sách trắng URL cập nhật, từ chối manifest bên thứ ba không tin cậy. |
+| `course_lookup.php` | `secure_versions/course_lookup_secure.php` | Sửa stored function: dùng SQL tĩnh (không nối chuỗi) hoặc `EXECUTE IMMEDIATE ... USING` có ràng buộc, quyền invoker. |
 
 ---
 

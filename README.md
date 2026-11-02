@@ -80,6 +80,7 @@ oracle-sec-lab/
 ├── grades.php                  # Faculty grading portal & roster scoring
 ├── tuition.php                 # Tuition fee billing, e-Invoices & virtual accounts
 ├── search.php                  # [VULN 1] Oracle SQL Injection (UNION-based)
+├── course_lookup.php           # [VULN 4] Oracle PL/SQL Injection (EXECUTE IMMEDIATE)
 ├── profile.php                 # User & student profile viewer
 ├── store.php                   # [VULN 2] Business Logic Flaw (Negative Quantity)
 ├── transcript.php              # Official academic transcript record viewer
@@ -100,6 +101,7 @@ oracle-sec-lab/
 │   ├── partner_config_secure.php # Patched Vuln 3A (Strict RBAC & approved URL allowlist)
 │   ├── admin_update_secure.php # Patched Vuln 3B (Update source allowlist & signature check)
 │   ├── transcript_secure.php   # IDOR-protected transcript viewer
+│   ├── course_lookup_secure.php # Patched Vuln 4 (static SQL / bound EXECUTE IMMEDIATE)
 │   └── secret_check_secure.php # Parameterized secret verification API
 ├── tools/
 │   ├── exploit_flag3_local.py  # Fully automated PoC exploit for Vulnerability 3
@@ -141,13 +143,14 @@ oracle-sec-lab/
 
 ## Vulnerability & CTF Challenge Matrix
 
-The application features **3 core vulnerabilities** with multi-step CTF flags, alongside multiple decoys to challenge automated scanners:
+The application features **4 core vulnerabilities** with multi-step CTF flags, alongside multiple decoys to challenge automated scanners:
 
 | Challenge | Vulnerability Type | Vulnerable Endpoint | Difficulty (Bug) | Flag Complexity | Flag Format |
 |:---|:---|:---|:---:|:---:|:---|
 | **Challenge 1** | Oracle UNION SQL Injection | `search.php?q=` | Easy | Very Hard | `DBS401{...}` |
 | **Challenge 2** | Insecure Business Logic | `store.php` (POST) | Hard | Very Hard | `DBS401{...}` |
 | **Challenge 3** | Access Control & Supply Chain | `partner_config.php` + `admin.php` | Hard | Very Hard | `DBS401{...}` |
+| **Challenge 4** | Oracle PL/SQL Injection (`EXECUTE IMMEDIATE`) | `course_lookup.php` | Medium | Hard | `DBS401{...}` |
 
 > Flag values are intentionally omitted here so the challenges stay solvable. Instructors can find the full flags and step-by-step solutions in [`docs/ANSWER_KEY.md`](docs/ANSWER_KEY.md).
 
@@ -167,6 +170,10 @@ The application features **3 core vulnerabilities** with multi-step CTF flags, a
    * Hidden endpoint `partner_config.php` fails to enforce admin authorization, allowing any student to overwrite `CONFIG_STORE.update_url`.
    * When an administrator checks for updates (`admin.php?check_updates=1`), the server fetches an attacker-controlled JSON manifest.
    * If the manifest version is higher than `APP_VERSION`, `admin.php` combines the manifest's hex fragment with a server-side hardcoded suffix, revealing Flag 3.
+4. **Challenge 4 – Oracle PL/SQL Injection (`EXECUTE IMMEDIATE`):**
+   * `course_lookup.php` passes the course code as a **bind variable**, yet the stored function `FN_COURSE_LOOKUP` builds its query by string concatenation inside `EXECUTE IMMEDIATE` — so the injection lands in PL/SQL, not at the PHP call site. Binding at the app boundary does not protect a vulnerable stored program.
+   * The function returns a single value via `... INTO`, so a naive `UNION SELECT` against the decoy-laden `PLSQL_VAULT` raises `TOO_MANY_ROWS`; the attacker must return exactly one row.
+   * Flag 4 lives in `PLSQL_VAULT` (`label='CHALLENGE_4'`), reachable only through the vulnerable function.
 
 ---
 
@@ -304,6 +311,7 @@ Each vulnerable endpoint has a corresponding hardened implementation in `secure_
 | `store.php` | `secure_versions/store_secure.php` | Server-side positive integer validation (`$qty > 0`), atomic credit verification. |
 | `partner_config.php` | `secure_versions/partner_config_secure.php` | Role-based authorization (`$_SESSION['role'] === 'admin'`), strict domain allowlist. |
 | `admin.php` | `secure_versions/admin_update_secure.php` | Update URL whitelist verification, rejection of untrusted third-party manifest payloads. |
+| `course_lookup.php` | `secure_versions/course_lookup_secure.php` | Fix the stored function: static SQL (no concatenation) or bound `EXECUTE IMMEDIATE ... USING`, invoker's rights. |
 
 ---
 

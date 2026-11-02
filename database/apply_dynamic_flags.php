@@ -125,11 +125,20 @@ if ($want && !$done) {
     $manifestHex = bin2hex(substr($flag3, 0, $half));
     $suffixHex   = bin2hex(substr($flag3, $half));
 
+    // ---- Challenge 4: DBS401{...}, stored in PLSQL_VAULT --------------------
+    // Read only via PL/SQL injection in FN_COURSE_LOOKUP, so it lives in the DB
+    // and needs no environment plumbing. Update the CHALLENGE_4 row in place.
+    $flag4 = 'DBS401{' . rand_token(6) . '_' . rand_token(7) . '}';
+    $u = oci_parse($conn, "UPDATE PLSQL_VAULT SET secret_flag = :v WHERE label = 'CHALLENGE_4'");
+    oci_bind_by_name($u, ':v', $flag4);
+    oci_execute($u);
+
     cfg_put($conn, 'runtime_flag1', $flag1);
     cfg_put($conn, 'runtime_flag2', $flag2);
     cfg_put($conn, 'runtime_flag3', $flag3);
     cfg_put($conn, 'runtime_flag3_manifest_hex', $manifestHex);
     cfg_put($conn, 'runtime_flag3_suffix_hex', $suffixHex);
+    cfg_put($conn, 'runtime_flag4', $flag4);
     cfg_put($conn, 'runtime_flags_done', '1');
     oci_commit($conn);
     note('flags generated and persisted');
