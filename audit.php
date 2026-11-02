@@ -48,6 +48,8 @@ if ($logId > 0) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
     <title>Audit Logs – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
@@ -113,5 +115,6 @@ if ($logId > 0) {
     </div>
     <?php endif; ?>
 </div>
+<?php include __DIR__ . '/inc_footer.php'; ?>
 </body>
 </html>

@@ -50,6 +50,8 @@ if ($role === 'teacher') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
     <title>Dashboard – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
     <style>
@@ -95,6 +97,51 @@ if ($role === 'teacher') {
         </h2>
         <span class="text-muted" style="font-size:0.85rem;">Semester: <strong>Summer 2024 (2024-S1)</strong></span>
     </div>
+
+    <!-- At-a-glance KPIs -->
+    <?php if ($studentRow): ?>
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-icon">🎯</span>
+            <span class="kpi-value"><?= number_format((float)$studentRow['GPA'], 2) ?></span>
+            <span class="kpi-label">Cumulative GPA</span>
+            <span class="kpi-sub">out of 4.00</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">📚</span>
+            <span class="kpi-value"><?= count($enrollments) ?></span>
+            <span class="kpi-label">Enrolled Courses</span>
+            <span class="kpi-sub">this semester</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">🎓</span>
+            <span class="kpi-value"><?= (int)$totalCredits ?></span>
+            <span class="kpi-label">Credit Load</span>
+            <span class="kpi-sub">credits enrolled</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">💳</span>
+            <span class="kpi-value"><?= number_format((int)$studentRow['CREDITS']) ?></span>
+            <span class="kpi-label">Material Credits</span>
+            <span class="kpi-sub">store balance</span>
+        </div>
+    </div>
+    <?php elseif ($role === 'teacher'): $tCredits = 0; foreach ($teacherCourses as $tc) { $tCredits += (int)$tc['CREDITS']; } ?>
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-icon">📖</span>
+            <span class="kpi-value"><?= count($teacherCourses) ?></span>
+            <span class="kpi-label">Assigned Courses</span>
+            <span class="kpi-sub">current catalog</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">🎓</span>
+            <span class="kpi-value"><?= (int)$tCredits ?></span>
+            <span class="kpi-label">Teaching Credits</span>
+            <span class="kpi-sub">total load</span>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- Quick Academic Services Grid -->
     <div class="portal-grid">
@@ -261,6 +308,35 @@ if ($role === 'teacher') {
     </div>
     <?php endif; ?>
 
+    <!-- Academic Performance chart (student) -->
+    <?php if ($studentRow && $enrollments): ?>
+    <div class="info-card">
+        <h3>📊 Academic Performance — Course Scores</h3>
+        <div class="score-chart">
+            <?php foreach ($enrollments as $e):
+                $sc  = $e['SCORE'];
+                $has = $sc !== null && $sc !== '';
+                $val = $has ? (float)$sc : 0.0;
+                $pct = $has ? max(5.0, min(100.0, $val * 10)) : 6.0;
+                $cls = !$has ? 'pending' : ($val >= 8 ? 'good' : ($val >= 6.5 ? 'ok' : ($val >= 5 ? 'warn' : 'bad')));
+            ?>
+            <div class="sc-col" title="<?= htmlspecialchars($e['COURSE_NAME']) ?>">
+                <div class="sc-val"><?= $has ? number_format($val, 1) : '—' ?></div>
+                <div class="sc-track"><div class="sc-bar <?= $cls ?>" style="height: <?= $pct ?>%"></div></div>
+                <div class="sc-label"><?= htmlspecialchars($e['COURSE_CODE']) ?></div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <div class="sc-legend">
+            <span><i class="dot good"></i> ≥ 8.0</span>
+            <span><i class="dot ok"></i> 6.5–7.9</span>
+            <span><i class="dot warn"></i> 5.0–6.4</span>
+            <span><i class="dot bad"></i> &lt; 5.0</span>
+            <span><i class="dot pending"></i> In progress</span>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Campus Bulletin / Notice Board -->
     <div class="info-card">
         <h3>📢 Campus Announcements & Academic Notices</h3>
@@ -287,5 +363,6 @@ if ($role === 'teacher') {
         </div>
     </div>
 </div>
+<?php include __DIR__ . '/inc_footer.php'; ?>
 </body>
 </html>

@@ -45,6 +45,8 @@ if ($ref !== '') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
     <title>Transcript – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
@@ -95,5 +97,6 @@ if ($ref !== '') {
         </details>
     </div>
 </div>
+<?php include __DIR__ . '/inc_footer.php'; ?>
 </body>
 </html>

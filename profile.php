@@ -15,7 +15,9 @@ $profile = oci_fetch_assoc($stmt);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Profile – FPT Student Portal</title>
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg"><title>Profile – FPT Student Portal</title>
 <link rel="stylesheet" href="<?= APP_BASE ?>/style.css"></head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
@@ -36,5 +38,6 @@ $profile = oci_fetch_assoc($stmt);
         </table>
     </div>
 </div>
+<?php include __DIR__ . '/inc_footer.php'; ?>
 </body>
 </html>

@@ -1,14 +1,21 @@
 <?php
-// inc_navbar.php  –  Shared navigation bar
+// inc_navbar.php  –  Shared navigation bar (top app bar)
 if (empty($_SESSION['user_id'])) return;
 $role     = $_SESSION['role']     ?? 'student';
 $username = $_SESSION['username'] ?? '';
+// Avatar initials from the username (purely cosmetic).
+$clean    = preg_replace('/[^A-Za-z0-9]/', '', $username);
+$initials = strtoupper(substr($clean !== '' ? $clean : 'U', 0, 2));
 ?>
 <nav class="navbar">
     <div class="navbar-brand">
-        <a href="<?= APP_BASE ?>/dashboard.php">🎓 FPT Student Portal</a>
+        <a href="<?= APP_BASE ?>/dashboard.php">🎓 <?= htmlspecialchars(APP_NAME) ?></a>
         <span class="nav-subtitle">DBS401 Security Lab</span>
     </div>
+
+    <input type="checkbox" id="nav-toggle" class="nav-toggle">
+    <label for="nav-toggle" class="nav-burger" aria-label="Menu">&#9776;</label>
+
     <div class="navbar-links">
         <a href="<?= APP_BASE ?>/dashboard.php">Dashboard</a>
         <a href="<?= APP_BASE ?>/courses.php">Courses</a>
@@ -26,11 +33,61 @@ $username = $_SESSION['username'] ?? '';
             <a href="<?= APP_BASE ?>/admin.php">Admin</a>
             <a href="<?= APP_BASE ?>/audit.php">Audit</a>
         <?php endif; ?>
-        <a href="<?= APP_BASE ?>/profile.php">Profile</a>
-        <span class="nav-user">
-            👤 <?= htmlspecialchars($username) ?>
-            [<span class="badge-inline badge-<?= $role ?>"><?= $role ?></span>]
-        </span>
-        <a href="<?= APP_BASE ?>/logout.php" class="btn-logout">Logout</a>
+
+        <!-- Notification bell -->
+        <details class="nav-pop nav-bell">
+            <summary aria-label="Notifications">🔔<span class="nav-count">3</span></summary>
+            <div class="nav-pop-panel">
+                <div class="nav-pop-head">Notifications</div>
+                <a class="nav-pop-item np-notif" href="<?= APP_BASE ?>/dashboard.php">
+                    <span class="np-tag tag-notice">Notice</span>
+                    <span>Final Defense Schedule for DBS401 released</span>
+                </a>
+                <a class="nav-pop-item np-notif" href="<?= APP_BASE ?>/dashboard.php">
+                    <span class="np-tag tag-exam">Academic</span>
+                    <span>Course Add/Drop period extended 48h</span>
+                </a>
+                <a class="nav-pop-item np-notif" href="<?= APP_BASE ?>/dashboard.php">
+                    <span class="np-tag tag-system">IT</span>
+                    <span>Database maintenance window this Sunday</span>
+                </a>
+                <a class="nav-pop-all" href="<?= APP_BASE ?>/dashboard.php">View all announcements &rarr;</a>
+            </div>
+        </details>
+
+        <!-- Account menu -->
+        <details class="nav-pop nav-avatar">
+            <summary aria-label="Account">
+                <span class="avatar-circle"><?= htmlspecialchars($initials) ?></span>
+            </summary>
+            <div class="nav-pop-panel">
+                <div class="nav-pop-user">
+                    <span class="avatar-circle lg"><?= htmlspecialchars($initials) ?></span>
+                    <div>
+                        <strong><?= htmlspecialchars($username) ?></strong><br>
+                        <span class="badge-inline badge-<?= $role ?>"><?= $role ?></span>
+                    </div>
+                </div>
+                <a class="nav-pop-item" href="<?= APP_BASE ?>/profile.php">👤 My Profile</a>
+                <?php if ($role === 'admin'): ?>
+                    <a class="nav-pop-item" href="<?= APP_BASE ?>/admin.php">⚙️ Admin Panel</a>
+                <?php endif; ?>
+                <a class="nav-pop-item np-logout" href="<?= APP_BASE ?>/logout.php">&#8617; Logout</a>
+            </div>
+        </details>
     </div>
 </nav>
+<script>
+// Close any other open nav dropdown, and close on outside click (no framework).
+(function () {
+    var pops = document.querySelectorAll('.navbar .nav-pop');
+    pops.forEach(function (d) {
+        d.addEventListener('toggle', function () {
+            if (d.open) pops.forEach(function (o) { if (o !== d) o.open = false; });
+        });
+    });
+    document.addEventListener('click', function (e) {
+        pops.forEach(function (d) { if (d.open && !d.contains(e.target)) d.open = false; });
+    });
+})();
+</script>

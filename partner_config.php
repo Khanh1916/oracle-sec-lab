@@ -83,6 +83,8 @@ $currentUrl = $row['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
     <title>Partner Configuration – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
@@ -127,5 +129,6 @@ $currentUrl = $row['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
         </form>
     </div>
 </div>
+<?php include __DIR__ . '/inc_footer.php'; ?>
 </body>
 </html>

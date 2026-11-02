@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="13" fill="#1a1a2e"/>
+  <!-- graduation cap mortarboard -->
+  <path d="M32 16 L54 25 L32 34 L10 25 Z" fill="#e85d04"/>
+  <path d="M20 30 L20 40 C20 44 44 44 44 40 L44 30 L32 35 Z" fill="#f4a261"/>
+  <!-- tassel -->
+  <path d="M54 25 L54 37" stroke="#e85d04" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="54" cy="39" r="2.6" fill="#e85d04"/>
+</svg>

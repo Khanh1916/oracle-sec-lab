@@ -49,6 +49,8 @@ $paymentStatus = 'PAID';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
     <title>Tuition & Financial Status – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
     <style>
@@ -149,5 +151,6 @@ $paymentStatus = 'PAID';
         </details>
     </div>
 </div>
+<?php include __DIR__ . '/inc_footer.php'; ?>
 </body>
 </html>
