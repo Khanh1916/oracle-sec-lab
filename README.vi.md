@@ -201,8 +201,7 @@ Mỗi điểm vào có lỗ hổng đều có một bản cài đặt đã đư�
 
 ## Tác giả & người bảo trì
 
-* **khanhnn** – Kiến trúc dự án & Nghiên cứu bảo mật
-* **Cao Thanh Lam** – Phát triển Full-Stack & Thiết kế CTF
+* **Cao Thanh Lam** – Kiến trúc dự án, Nghiên cứu bảo mật & Phát triển Full-Stack / Thiết kế CTF
 * **Nguyen Huu Phuc** – Mã nguồn ban đầu & Kiến trúc nền tảng
 * **Nguyen Cong Tien** – Kiểm thử xâm nhập & Đảm bảo chất lượng (QA)
 * **Nguyen Hai Anh** – Tài liệu kỹ thuật & Cơ sở tri thức
@@ -220,4 +219,4 @@ Mỗi điểm vào có lỗ hổng đều có một bản cài đặt đã đư�
 
 Dự án được cấp phép theo **Giấy phép MIT** – xem tệp [LICENSE](LICENSE) để biết chi tiết.
 
-Bản quyền (c) 2024-2026 **khanhnn**, **Cao Thanh Lam**, **Nguyen Huu Phuc**, **Nguyen Cong Tien**, **Nguyen Hai Anh**. Phát hành cho mục đích giáo dục bảo mật cơ sở dữ liệu và nghiên cứu tấn công/phòng thủ.
+Bản quyền (c) 2024-2026 **Cao Thanh Lam**, **Nguyen Huu Phuc**, **Nguyen Cong Tien**, **Nguyen Hai Anh**. Phát hành cho mục đích giáo dục bảo mật cơ sở dữ liệu và nghiên cứu tấn công/phòng thủ.
