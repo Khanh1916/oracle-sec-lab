@@ -43,15 +43,15 @@ if ($role === 'student') {
 
 $totalTuition = $totalCredits * $feePerCredit;
 $invoiceRef   = $student ? sprintf("INV-2024-S1-%04d", (int)$student['STUDENT_ID']) : 'INV-2024-S1-0001';
-$paymentStatus = 'PAID';
+$paymentStatus = t('tu.status_paid');
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Tuition & Financial Status – FPT Student Portal</title>
+    <title><?= t('tu.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
     <style>
         .invoice-card { border-left: 4px solid var(--primary); }
@@ -64,24 +64,24 @@ $paymentStatus = 'PAID';
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>💳 Tuition & Financial Fee Status</h2>
-    <p class="text-muted">Semester Summer 2024 &bull; Official tuition invoice and academic fee summary.</p>
+    <h2>💳 <?= t('tu.heading') ?></h2>
+    <p class="text-muted"><?= t('sem.label') ?> <?= t('sem.value') ?> &bull; <?= t('tu.intro') ?></p>
 
     <div class="summary-box">
         <div class="summary-item">
-            <div class="summary-label">Invoice Ref</div>
+            <div class="summary-label"><?= t('tu.invoice_ref') ?></div>
             <div class="summary-val" style="font-size:1.1rem;"><code><?= htmlspecialchars($invoiceRef) ?></code></div>
         </div>
         <div class="summary-item">
-            <div class="summary-label">Registered Credits</div>
-            <div class="summary-val"><?= $totalCredits ?> Credits</div>
+            <div class="summary-label"><?= t('tu.reg_credits') ?></div>
+            <div class="summary-val"><?= $totalCredits ?> <?= t('tu.credits') ?></div>
         </div>
         <div class="summary-item">
-            <div class="summary-label">Total Semester Tuition</div>
+            <div class="summary-label"><?= t('tu.total_tuition') ?></div>
             <div class="summary-val"><?= number_format($totalTuition) ?> VND</div>
         </div>
         <div class="summary-item">
-            <div class="summary-label">Financial Status</div>
+            <div class="summary-label"><?= t('tu.fin_status') ?></div>
             <div class="summary-val" style="color:var(--success);">
                 <span class="badge badge-student" style="font-size:0.9rem; padding:4px 12px;">✅ <?= $paymentStatus ?></span>
             </div>
@@ -90,38 +90,38 @@ $paymentStatus = 'PAID';
 
     <?php if ($student): ?>
     <div class="info-card invoice-card">
-        <h3>Tuition Billing Breakdown</h3>
+        <h3><?= t('tu.breakdown') ?></h3>
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Course Code</th>
-                    <th>Course Title</th>
-                    <th>Credits</th>
-                    <th>Fee Rate / Credit</th>
-                    <th>Subtotal (VND)</th>
-                    <th>Status</th>
+                    <th><?= t('tu.h_code') ?></th>
+                    <th><?= t('tu.h_title') ?></th>
+                    <th><?= t('tu.credits') ?></th>
+                    <th><?= t('tu.h_rate') ?></th>
+                    <th><?= t('tu.h_subtotal') ?></th>
+                    <th><?= t('tu.h_status') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (count($enrolledCourses) === 0): ?>
-                    <tr><td colspan="6" class="no-results">No courses enrolled for billing in current semester.</td></tr>
+                    <tr><td colspan="6" class="no-results"><?= t('tu.none') ?></td></tr>
                 <?php else: ?>
                     <?php foreach ($enrolledCourses as $c): ?>
                     <?php $sub = (int)$c['CREDITS'] * $feePerCredit; ?>
                     <tr>
                         <td><strong><?= htmlspecialchars($c['COURSE_CODE']) ?></strong></td>
                         <td><?= htmlspecialchars($c['COURSE_NAME']) ?></td>
-                        <td><?= (int)$c['CREDITS'] ?> cr</td>
+                        <td><?= (int)$c['CREDITS'] ?> <?= t('db.cr') ?></td>
                         <td><?= number_format($feePerCredit) ?> VND</td>
                         <td><strong><?= number_format($sub) ?> VND</strong></td>
-                        <td><span class="badge badge-student">SETTLED</span></td>
+                        <td><span class="badge badge-student"><?= t('tu.settled') ?></span></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
             <tfoot>
                 <tr style="background:#f8f9fa; font-weight:700;">
-                    <td colspan="4" style="text-align:right;">Total Amount Due:</td>
+                    <td colspan="4" style="text-align:right;"><?= t('tu.total_due') ?></td>
                     <td colspan="2" style="color:var(--primary); font-size:1.05rem;"><?= number_format($totalTuition) ?> VND</td>
                 </tr>
             </tfoot>
@@ -129,24 +129,24 @@ $paymentStatus = 'PAID';
     </div>
 
     <div class="info-card">
-        <h3>🏦 Payment & Virtual Account Information</h3>
+        <h3>🏦 <?= t('tu.payment_info') ?></h3>
         <table class="info-table">
-            <tr><th>Beneficiary Bank</th><td>TPBank (Tien Phong Commercial Joint Stock Bank)</td></tr>
-            <tr><th>Beneficiary Account</th><td><code>FPTEDU<?= str_pad((string)$student['STUDENT_ID'], 6, '0', STR_PAD_LEFT) ?></code></td></tr>
-            <tr><th>Account Holder</th><td>TRUONG DAI HOC FPT - <?= htmlspecialchars(strtoupper($student['FULL_NAME'])) ?></td></tr>
-            <tr><th>Transfer Description</th><td><code>HP SUMMER 2024 <?= htmlspecialchars($student['FULL_NAME']) ?></code></td></tr>
-            <tr><th>Material Store Credits</th><td><strong><?= number_format((int)$student['CREDITS']) ?> credits</strong> available in <a href="<?= APP_BASE ?>/store.php">Course Store</a></td></tr>
+            <tr><th><?= t('tu.bank') ?></th><td>TPBank (Tien Phong Commercial Joint Stock Bank)</td></tr>
+            <tr><th><?= t('tu.acct') ?></th><td><code>FPTEDU<?= str_pad((string)$student['STUDENT_ID'], 6, '0', STR_PAD_LEFT) ?></code></td></tr>
+            <tr><th><?= t('tu.holder') ?></th><td>TRUONG DAI HOC FPT - <?= htmlspecialchars(strtoupper($student['FULL_NAME'])) ?></td></tr>
+            <tr><th><?= t('tu.desc') ?></th><td><code>HP SUMMER 2024 <?= htmlspecialchars($student['FULL_NAME']) ?></code></td></tr>
+            <tr><th><?= t('tu.store_credits') ?></th><td><?= tf('tu.store_avail_fmt', '<strong>' . number_format((int)$student['CREDITS']) . ' ' . t('db.credits') . '</strong>', '<a href="' . APP_BASE . '/store.php">' . t('tu.course_store') . '</a>') ?></td></tr>
         </table>
     </div>
     <?php endif; ?>
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ Tuition Payment Regulations</summary>
+            <summary>ℹ️ <?= t('tu.regs') ?></summary>
             <ul>
-                <li>Tuition must be paid in full at least 7 days before the start of the semester.</li>
-                <li>Late payment incurs a penalty fee according to University Financial Regulations.</li>
-                <li>Electronic receipts (e-Invoices) will be sent to your student email within 48 hours of payment.</li>
+                <li><?= t('tu.reg1') ?></li>
+                <li><?= t('tu.reg2') ?></li>
+                <li><?= t('tu.reg3') ?></li>
             </ul>
         </details>
     </div>

@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
 
     if ($username === '' || $password === '') {
-        $error = 'Please enter username and password.';
+        $error = t('lg.err_empty');
     } else {
         $conn = getDbConnection();
         // Parameterized query - login itself is NOT vulnerable
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             logAction(null, 'LOGIN_FAILED',
                       json_encode(['attempted_user' => htmlspecialchars($username)]));
-            $error = 'Invalid username or password.';
+            $error = t('lg.err_invalid');
         }
     }
 }
@@ -43,12 +43,12 @@ if (!empty($_SESSION['user_id'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Login – FPT Student Portal</title>
+    <title><?= t('lg.btn') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
 <body>
@@ -56,7 +56,7 @@ if (!empty($_SESSION['user_id'])) {
     <div class="auth-card">
         <div class="auth-logo">
             <h1>🎓 FPT Student Portal</h1>
-            <p>Database Security Lab – DBS401</p>
+            <p><?= t('lg.subtitle') ?></p>
         </div>
 
         <?php if ($error): ?>
@@ -65,23 +65,23 @@ if (!empty($_SESSION['user_id'])) {
 
         <form method="POST" action="">
             <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username"><?= t('p.username') ?></label>
                 <input type="text" id="username" name="username"
                        placeholder="e.g. student1"
                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
                        required autocomplete="username">
             </div>
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password"><?= t('lg.password') ?></label>
                 <input type="password" id="password" name="password"
                        placeholder="Password" required autocomplete="current-password">
             </div>
-            <button type="submit" class="btn btn-primary btn-full">Login</button>
+            <button type="submit" class="btn btn-primary btn-full"><?= t('lg.btn') ?></button>
         </form>
 
         <div class="auth-hint">
             <small>
-                Demo accounts:<br>
+                <?= t('lg.demo') ?><br>
                 <code>admin / Admin@DBS401!2024</code><br>
                 <code>student1 / Student@123</code><br>
                 <code>teacher1 / Teacher@123</code>

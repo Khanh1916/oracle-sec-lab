@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $student) {
         $chkRow = oci_fetch_assoc($chk);
 
         if ((int)($chkRow['CNT'] ?? 0) > 0) {
-            $msg     = 'You are already registered for this course.';
+            $msg     = t('co.msg_already');
             $msgType = 'warning';
         } else {
             // Get course semester
@@ -56,12 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $student) {
                 oci_bind_by_name($ins, ':tref', $transcriptRef);
 
                 if (@oci_execute($ins)) {
-                    $msg     = "Successfully registered for course $code.";
+                    $msg     = tf('co.msg_ok_fmt', $code);
                     $msgType = 'success';
                     logAction($userId, 'COURSE_ENROLL', "Enrolled in $code (ID: $courseId)");
                 } else {
                     $e = oci_error($ins);
-                    $msg     = 'Registration failed: ' . htmlspecialchars($e['message']);
+                    $msg     = tf('co.msg_fail_fmt', htmlspecialchars($e['message']));
                     $msgType = 'danger';
                 }
             }
@@ -81,15 +81,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $student) {
             oci_bind_by_name($del, ':eid', $eid);
             oci_bind_by_name($del, ':sid', $sid);
             if (oci_execute($del)) {
-                $msg     = 'Course registration dropped successfully.';
+                $msg     = t('co.msg_dropped');
                 $msgType = 'warning';
                 logAction($userId, 'COURSE_DROP', "Dropped enrollment ID: $eid");
             } else {
-                $msg     = 'Failed to drop course.';
+                $msg     = t('co.msg_drop_fail');
                 $msgType = 'danger';
             }
         } else {
-            $msg     = 'Cannot drop a course that has already been graded.';
+            $msg     = t('co.msg_graded');
             $msgType = 'danger';
         }
     }
@@ -121,19 +121,19 @@ if ($student) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Course Registration – FPT Student Portal</title>
+    <title><?= t('co.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📖 Course Catalog & Registration</h2>
-    <p class="text-muted">Explore academic courses, check prerequisites, and manage your semester enrollments.</p>
+    <h2>📖 <?= t('co.heading') ?></h2>
+    <p class="text-muted"><?= t('co.intro') ?></p>
 
     <?php if ($msg): ?>
         <div class="alert alert-<?= htmlspecialchars($msgType) ?>">
@@ -144,26 +144,26 @@ if ($student) {
     <?php if ($student): ?>
     <div class="info-card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div>
-            <strong>Student:</strong> <?= htmlspecialchars($student['FULL_NAME']) ?> (<?= htmlspecialchars($student['MAJOR']) ?>)
+            <strong><?= t('co.student') ?>:</strong> <?= htmlspecialchars($student['FULL_NAME']) ?> (<?= htmlspecialchars($student['MAJOR']) ?>)
         </div>
         <div>
-            Registered Credits: <span class="badge badge-student"><?= $totalEnrolledCredits ?> / 24 Credits Max</span>
+            <?= t('co.reg_credits') ?>: <span class="badge badge-student"><?= tf('co.credits_max_fmt', $totalEnrolledCredits) ?></span>
         </div>
     </div>
     <?php endif; ?>
 
     <div class="info-card">
-        <h3>Available Academic Courses</h3>
+        <h3><?= t('co.available') ?></h3>
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Code</th>
-                    <th>Course Name</th>
-                    <th>Instructor</th>
-                    <th>Credits</th>
-                    <th>Semester</th>
+                    <th><?= t('db.c_code') ?></th>
+                    <th><?= t('db.c_name') ?></th>
+                    <th><?= t('db.c_instructor') ?></th>
+                    <th><?= t('db.c_credits') ?></th>
+                    <th><?= t('db.c_semester') ?></th>
                     <?php if ($role === 'student'): ?>
-                        <th style="text-align:center;">Action / Status</th>
+                        <th style="text-align:center;"><?= t('co.c_action') ?></th>
                     <?php endif; ?>
                 </tr>
             </thead>
@@ -178,26 +178,26 @@ if ($student) {
                     <td><strong><?= htmlspecialchars($c['COURSE_CODE']) ?></strong></td>
                     <td><?= htmlspecialchars($c['COURSE_NAME']) ?></td>
                     <td><?= htmlspecialchars($c['TEACHER_NAME'] ?? 'TBA') ?></td>
-                    <td><span class="badge-inline badge-teacher"><?= (int)$c['CREDITS'] ?> cr</span></td>
-                    <td><?= htmlspecialchars($c['SEMESTER'] ?? 'N/A') ?></td>
+                    <td><span class="badge-inline badge-teacher"><?= (int)$c['CREDITS'] ?> <?= t('db.cr') ?></span></td>
+                    <td><?= htmlspecialchars($c['SEMESTER'] ?? t('p.na')) ?></td>
                     <?php if ($role === 'student'): ?>
                     <td style="text-align:center;">
                         <?php if ($isEnrolled): ?>
-                            <span class="badge badge-student" style="margin-right:6px;">Enrolled</span>
+                            <span class="badge badge-student" style="margin-right:6px;"><?= t('co.enrolled') ?></span>
                             <?php if ($enrollment['SCORE'] === null): ?>
-                                <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to drop this course?');">
+                                <form method="POST" style="display:inline;" onsubmit="return confirm('<?= t('co.confirm_drop') ?>');">
                                     <input type="hidden" name="action" value="drop">
                                     <input type="hidden" name="enrollment_id" value="<?= (int)$enrollment['ENROLLMENT_ID'] ?>">
-                                    <button type="submit" class="btn btn-warning" style="padding:3px 8px;font-size:0.75rem;">Drop</button>
+                                    <button type="submit" class="btn btn-warning" style="padding:3px 8px;font-size:0.75rem;"><?= t('co.drop') ?></button>
                                 </form>
                             <?php else: ?>
-                                <small class="text-muted">(Graded)</small>
+                                <small class="text-muted"><?= t('co.graded') ?></small>
                             <?php endif; ?>
                         <?php else: ?>
                             <form method="POST" style="display:inline;">
                                 <input type="hidden" name="action" value="enroll">
                                 <input type="hidden" name="course_id" value="<?= $cid ?>">
-                                <button type="submit" class="btn btn-primary" style="padding:4px 12px;font-size:0.8rem;">+ Enroll</button>
+                                <button type="submit" class="btn btn-primary" style="padding:4px 12px;font-size:0.8rem;"><?= t('co.enroll') ?></button>
                             </form>
                         <?php endif; ?>
                     </td>
@@ -210,11 +210,11 @@ if ($student) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ Academic Registration Regulations</summary>
+            <summary>ℹ️ <?= t('co.regs') ?></summary>
             <ul>
-                <li>Maximum registration limit is 24 credits per semester.</li>
-                <li>Courses can only be dropped before midterm grading is completed.</li>
-                <li>For prerequisite overrides, contact the Academic Affairs Department.</li>
+                <li><?= t('co.reg1') ?></li>
+                <li><?= t('co.reg2') ?></li>
+                <li><?= t('co.reg3') ?></li>
             </ul>
         </details>
     </div>
