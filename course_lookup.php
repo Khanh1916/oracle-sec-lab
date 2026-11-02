@@ -36,39 +36,39 @@ if (isset($_GET['code'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Course Info – FPT Student Portal</title>
+    <title><?= t('cl.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📘 Course Information Lookup</h2>
-    <p class="text-muted">Look up an official course name by its course code (e.g. <code>DBS401</code>).</p>
+    <h2>📘 <?= t('cl.heading') ?></h2>
+    <p class="text-muted"><?= t('cl.intro') ?></p>
 
     <form method="GET" action="">
         <div class="search-bar">
             <input type="text" name="code"
                    value="<?= htmlspecialchars($code) ?>"
-                   placeholder="Enter course code..."
+                   placeholder="<?= htmlspecialchars(t('cl.placeholder')) ?>"
                    class="search-input">
-            <button type="submit" class="btn btn-primary">Look up</button>
+            <button type="submit" class="btn btn-primary"><?= t('cl.btn') ?></button>
         </div>
     </form>
 
     <?php if ($searched): ?>
         <div class="results-section">
-            <h3>Result for "<em><?= htmlspecialchars(substr($code, 0, 80)) ?></em>"</h3>
+            <h3><?= tf('cl.result_fmt', '<em>' . htmlspecialchars(substr($code, 0, 80)) . '</em>') ?></h3>
             <div class="info-card">
                 <table class="data-table">
                     <tbody>
                         <tr>
-                            <th style="width:160px;">Course Name</th>
-                            <td><?= htmlspecialchars($info ?? 'No course found for that code.') ?></td>
+                            <th style="width:160px;"><?= t('db.c_name') ?></th>
+                            <td><?= htmlspecialchars($info ?? t('cl.not_found')) ?></td>
                         </tr>
                     </tbody>
                 </table>
@@ -78,10 +78,10 @@ if (isset($_GET['code'])) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ Lookup Tips</summary>
+            <summary>ℹ️ <?= t('cl.tips') ?></summary>
             <ul>
-                <li>Course codes are short identifiers such as <code>DBS401</code> or <code>NET201</code>.</li>
-                <li>The lookup is backed by an Oracle stored function.</li>
+                <li><?= t('cl.tip1') ?></li>
+                <li><?= t('cl.tip2') ?></li>
             </ul>
         </details>
     </div>

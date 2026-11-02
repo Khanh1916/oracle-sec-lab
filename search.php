@@ -25,9 +25,9 @@ if (isset($_GET['q'])) {
     }
 
     if ($blocked) {
-        $errMsg = 'Input contains blocked keywords.';
+        $errMsg = t('se.err_blocked');
     } elseif (strlen($keyword) > 200) {
-        $errMsg = 'Search keyword too long.';
+        $errMsg = t('se.err_long');
     } else {
         $conn = getDbConnection();
 
@@ -38,7 +38,7 @@ if (isset($_GET['q'])) {
         $execResult = @oci_execute($stmt);
 
         if (!$execResult) {
-            $errMsg = 'Search failed. Please check your input.';
+            $errMsg = t('se.err_fail');
         } else {
             while ($row = oci_fetch_assoc($stmt)) {
                 $results[] = $row;
@@ -53,27 +53,27 @@ if (isset($_GET['q'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Student Search – FPT Student Portal</title>
+    <title><?= t('se.title') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
 </head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>🔍 Student Search</h2>
-    <p class="text-muted">Search students by name or major. Results limited to 5 records.</p>
+    <h2>🔍 <?= t('se.title') ?></h2>
+    <p class="text-muted"><?= t('se.intro') ?></p>
 
     <form method="GET" action="">
         <div class="search-bar">
             <input type="text" name="q"
                    value="<?= htmlspecialchars($keyword) ?>"
-                   placeholder="Enter student name or major..."
+                   placeholder="<?= htmlspecialchars(t('se.placeholder')) ?>"
                    class="search-input">
-            <button type="submit" class="btn btn-primary">Search</button>
+            <button type="submit" class="btn btn-primary"><?= t('se.btn') ?></button>
         </div>
     </form>
 
@@ -83,17 +83,17 @@ if (isset($_GET['q'])) {
 
     <?php if ($searched && !$errMsg): ?>
         <div class="results-section">
-            <h3>Results <?php if ($keyword): ?>for "<em><?= htmlspecialchars(substr($keyword,0,50)) ?></em>"<?php endif; ?></h3>
+            <h3><?= t('se.results') ?> <?php if ($keyword): ?><?= t('se.for') ?> "<em><?= htmlspecialchars(substr($keyword,0,50)) ?></em>"<?php endif; ?></h3>
 
             <?php if (count($results) === 0): ?>
-                <p class="no-results">No students found matching your search.</p>
+                <p class="no-results"><?= t('se.none') ?></p>
             <?php else: ?>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Student ID</th>
-                        <th>Full Name</th>
-                        <th>Major</th>
+                        <th><?= t('db.f_sid') ?></th>
+                        <th><?= t('db.f_fullname') ?></th>
+                        <th><?= t('db.f_major') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -112,11 +112,11 @@ if (isset($_GET['q'])) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ Search Tips</summary>
+            <summary>ℹ️ <?= t('se.tips') ?></summary>
             <ul>
-                <li>Try searching by major: <code>Software Engineering</code></li>
-                <li>Try partial name: <code>Nguyen</code></li>
-                <li>Advanced operators may be supported for special queries.</li>
+                <li><?= t('se.tip1') ?></li>
+                <li><?= t('se.tip2') ?></li>
+                <li><?= t('se.tip3') ?></li>
             </ul>
         </details>
     </div>
