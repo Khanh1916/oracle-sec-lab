@@ -455,3 +455,8 @@ a:hover { text-decoration: underline; }
 :root[data-theme="dark"] .topbar .nav-theme:hover,
 :root[data-theme="dark"] .topbar .nav-campus > summary:hover .ctl-chip,
 :root[data-theme="dark"] .topbar .nav-lang > summary:hover .ctl-chip { background: rgba(255,255,255,0.16); }
+
+/* dark-mode fixes for tuition summary boxes + invoice total row (hard-coded light surfaces) */
+:root[data-theme="dark"] .summary-item { background: #171c28; }
+:root[data-theme="dark"] .data-table tfoot tr { background: #171c28 !important; }
+:root[data-theme="dark"] .summary-item .summary-val { color: var(--secondary); }
