@@ -1,41 +1,184 @@
 <?php
 require_once __DIR__ . '/config.php';
-if (empty($_SESSION['user_id'])) { header('Location:'.APP_BASE.'/login.php'); exit; }
+if (empty($_SESSION['user_id'])) { header('Location: ' . APP_BASE . '/login.php'); exit; }
 
 $conn   = getDbConnection();
-$userId = $_SESSION['user_id'];
-$sql    = "SELECT u.user_id, u.username, u.role, u.status, u.created_at,
-                  s.full_name, s.email, s.major, s.gpa, s.phone, s.address
-           FROM USERS u LEFT JOIN STUDENTS s ON s.user_id = u.user_id
-           WHERE u.user_id = " . $userId;
+$userId = (int)$_SESSION['user_id'];
+$role   = $_SESSION['role'];
+
+// ---- Handle updates (Post/Redirect/Get) ------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $flash  = ['type' => 'danger', 'msg' => 'Unknown action.'];
+
+    if ($action === 'update_contact' && $role === 'student') {
+        $email   = trim($_POST['email'] ?? '');
+        $phone   = trim($_POST['phone'] ?? '');
+        $address = trim($_POST['address'] ?? '');
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $flash = ['type' => 'danger', 'msg' => 'Please enter a valid email address.'];
+        } else {
+            $sql  = "UPDATE STUDENTS SET email = :em, phone = :ph, address = :ad WHERE user_id = :p_uid";
+            $stmt = oci_parse($conn, $sql);
+            oci_bind_by_name($stmt, ':em',  $email);
+            oci_bind_by_name($stmt, ':ph',  $phone);
+            oci_bind_by_name($stmt, ':ad',  $address);
+            oci_bind_by_name($stmt, ':p_uid', $userId);
+            oci_execute($stmt);
+            logAction($userId, 'PROFILE_UPDATE', 'contact details');
+            $flash = ['type' => 'success', 'msg' => 'Contact information updated.'];
+        }
+    } elseif ($action === 'change_password') {
+        $current = (string)($_POST['current_password'] ?? '');
+        $new     = (string)($_POST['new_password'] ?? '');
+        $confirm = (string)($_POST['confirm_password'] ?? '');
+
+        $sql  = "SELECT password_hash FROM USERS WHERE user_id = :p_uid";
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':p_uid', $userId);
+        oci_execute($stmt);
+        $row  = oci_fetch_assoc($stmt);
+
+        if (!$row || !password_verify($current, $row['PASSWORD_HASH'])) {
+            $flash = ['type' => 'danger', 'msg' => 'Current password is incorrect.'];
+        } elseif (strlen($new) < 8) {
+            $flash = ['type' => 'danger', 'msg' => 'New password must be at least 8 characters.'];
+        } elseif ($new !== $confirm) {
+            $flash = ['type' => 'danger', 'msg' => 'New password and confirmation do not match.'];
+        } else {
+            $hash = password_hash($new, PASSWORD_BCRYPT, ['cost' => 12]);
+            $sql  = "UPDATE USERS SET password_hash = :h WHERE user_id = :p_uid";
+            $stmt = oci_parse($conn, $sql);
+            oci_bind_by_name($stmt, ':h',   $hash);
+            oci_bind_by_name($stmt, ':p_uid', $userId);
+            oci_execute($stmt);
+            logAction($userId, 'PASSWORD_CHANGE', '');
+            $flash = ['type' => 'success', 'msg' => 'Password changed successfully.'];
+        }
+    }
+
+    $_SESSION['profile_flash'] = $flash;
+    header('Location: ' . APP_BASE . '/profile.php');
+    exit;
+}
+
+$flash = $_SESSION['profile_flash'] ?? null;
+unset($_SESSION['profile_flash']);
+
+// ---- Load profile ----------------------------------------------------------
+$sql = "SELECT u.user_id, u.username, u.role, u.status,
+               TO_CHAR(u.created_at, 'YYYY-MM-DD') AS member_since,
+               s.student_id, s.full_name, s.email, s.major, s.gpa, s.phone, s.address, s.credits
+        FROM USERS u LEFT JOIN STUDENTS s ON s.user_id = u.user_id
+        WHERE u.user_id = :p_uid";
 $stmt = oci_parse($conn, $sql);
-// oci_bind_by_name($stmt, ':uid', $userId);
+oci_bind_by_name($stmt, ':p_uid', $userId);
 oci_execute($stmt);
-$profile = oci_fetch_assoc($stmt);
+$p = oci_fetch_assoc($stmt);
+
+$displayName = $p['FULL_NAME'] ?? $p['USERNAME'];
+$clean = preg_replace('/[^A-Za-z0-9 ]/', '', $displayName);
+$parts = preg_split('/\s+/', trim($clean));
+$initials = strtoupper(substr($parts[0] ?? 'U', 0, 1) . (count($parts) > 1 ? substr(end($parts), 0, 1) : ''));
+if ($initials === '') { $initials = 'U'; }
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg"><title>Profile – FPT Student Portal</title>
-<link rel="stylesheet" href="<?= APP_BASE ?>/style.css"></head>
+    <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
+    <title>My Profile – FPT Student Portal</title>
+    <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
+</head>
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
     <h2>👤 My Profile</h2>
-    <div class="info-card">
-        <table class="info-table">
-            <tr><th>Username</th><td><?= htmlspecialchars($profile['USERNAME']) ?></td></tr>
-            <tr><th>Role</th><td><span class="badge badge-<?= $profile['ROLE'] ?>"><?= htmlspecialchars($profile['ROLE']) ?></span></td></tr>
-            <tr><th>Status</th><td><?= htmlspecialchars($profile['STATUS']) ?></td></tr>
-            <tr><th>Full Name</th><td><?= htmlspecialchars($profile['FULL_NAME'] ?? 'N/A') ?></td></tr>
-            <tr><th>Email</th><td><?= htmlspecialchars($profile['EMAIL'] ?? 'N/A') ?></td></tr>
-            <tr><th>Major</th><td><?= htmlspecialchars($profile['MAJOR'] ?? 'N/A') ?></td></tr>
-            <tr><th>GPA</th><td><?= htmlspecialchars($profile['GPA'] ?? 'N/A') ?></td></tr>
-            <tr><th>Phone</th><td><?= htmlspecialchars($profile['PHONE'] ?? 'N/A') ?></td></tr>
-            <tr><th>Address</th><td><?= htmlspecialchars($profile['ADDRESS'] ?? 'N/A') ?></td></tr>
-            <tr><th>Member Since</th><td><?= htmlspecialchars($profile['CREATED_AT']) ?></td></tr>
-        </table>
+
+    <?php if ($flash): ?>
+        <div class="alert alert-<?= htmlspecialchars($flash['type']) ?>"><?= htmlspecialchars($flash['msg']) ?></div>
+    <?php endif; ?>
+
+    <div class="profile-grid">
+        <!-- Identity card -->
+        <aside class="info-card profile-side">
+            <div class="profile-avatar"><?= htmlspecialchars($initials) ?></div>
+            <h3 class="profile-name"><?= htmlspecialchars($displayName) ?></h3>
+            <div class="profile-role">
+                <span class="badge badge-<?= $role ?>"><?= strtoupper($role) ?></span>
+            </div>
+            <ul class="profile-facts">
+                <li><span>Username</span><strong><?= htmlspecialchars($p['USERNAME']) ?></strong></li>
+                <?php if (!empty($p['STUDENT_ID'])): ?>
+                <li><span>Student ID</span><strong>SID-<?= str_pad((string)$p['STUDENT_ID'], 3, '0', STR_PAD_LEFT) ?></strong></li>
+                <?php endif; ?>
+                <li><span>Status</span><strong><?= htmlspecialchars($p['STATUS']) ?></strong></li>
+                <li><span>Member since</span><strong><?= htmlspecialchars($p['MEMBER_SINCE']) ?></strong></li>
+            </ul>
+        </aside>
+
+        <!-- Detail + forms -->
+        <div class="profile-main">
+            <div class="info-card">
+                <h3>📋 Account &amp; Academic Information</h3>
+                <table class="info-table">
+                    <tr><th>Full Name</th><td><?= htmlspecialchars($p['FULL_NAME'] ?? 'N/A') ?></td></tr>
+                    <tr><th>Email</th><td><?= htmlspecialchars($p['EMAIL'] ?? 'N/A') ?></td></tr>
+                    <tr><th>Academic Major</th><td><?= htmlspecialchars($p['MAJOR'] ?? 'N/A') ?></td></tr>
+                    <?php if ($p['GPA'] !== null): ?>
+                    <tr><th>Cumulative GPA</th><td><span class="badge badge-student"><?= number_format((float)$p['GPA'], 2) ?> / 4.00</span></td></tr>
+                    <?php endif; ?>
+                    <?php if ($p['CREDITS'] !== null): ?>
+                    <tr><th>Material Credits</th><td><?= number_format((int)$p['CREDITS']) ?> credits</td></tr>
+                    <?php endif; ?>
+                    <tr><th>Phone</th><td><?= htmlspecialchars($p['PHONE'] ?? 'N/A') ?></td></tr>
+                    <tr><th>Address</th><td><?= htmlspecialchars($p['ADDRESS'] ?? 'N/A') ?></td></tr>
+                </table>
+            </div>
+
+            <?php if ($role === 'student'): ?>
+            <div class="info-card">
+                <h3>✏️ Edit Contact Information</h3>
+                <form method="POST" action="">
+                    <input type="hidden" name="action" value="update_contact">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($p['EMAIL'] ?? '') ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" id="phone" name="phone" value="<?= htmlspecialchars($p['PHONE'] ?? '') ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address" value="<?= htmlspecialchars($p['ADDRESS'] ?? '') ?>">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+            <?php endif; ?>
+
+            <div class="info-card">
+                <h3>🔒 Change Password</h3>
+                <form method="POST" action="" autocomplete="off">
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" required autocomplete="current-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">New Password <small class="text-muted">(min. 8 characters)</small></label>
+                        <input type="password" id="new_password" name="new_password" required autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 <?php include __DIR__ . '/inc_footer.php'; ?>

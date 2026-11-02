@@ -1,5 +1,7 @@
 -- Reset existing database records for clean seeding
 DELETE FROM PLSQL_VAULT;
+DELETE FROM NOTIFICATION_READS;
+DELETE FROM NOTIFICATIONS;
 DELETE FROM FLAG_ARCHIVE;
 DELETE FROM SYSTEM_HINTS;
 DELETE FROM FAKE_FLAGS;
@@ -249,6 +251,42 @@ INSERT INTO PLSQL_VAULT (label, secret_flag) VALUES
   ('CHALLENGE_4', 'DBS401{PL5QL_1nj3ct10n_D3f1n3r}');
 INSERT INTO PLSQL_VAULT (label, secret_flag) VALUES
   ('DECOY', 'DBS401{FAKE_plsql_not_this_row}');
+
+-- ============================================================
+-- NOTIFICATIONS  (portal announcements - cosmetic, no flags)
+-- ============================================================
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('notice', 'Final Defense Schedule for DBS401 (Database Security) Released',
+   'All project groups must submit their final documentation, demonstration environment, and slide deck by Friday. Presentations take place in Building Alpha, Room AL-204.',
+   'all', SYSTIMESTAMP - NUMTODSINTERVAL(2, 'HOUR'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('academic', 'Summer 2024 Course Add/Drop Period Extended',
+   'The Office of Academic Affairs has extended the course registration window by 48 hours. Adjust your enrollments from the Course Catalog module.',
+   'all', SYSTIMESTAMP - NUMTODSINTERVAL(8, 'HOUR'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('exam', 'Mid-term Examination Timetable Published',
+   'The mid-term examination timetable for Summer 2024 is now available. Check your seat number and room assignment before the first exam day.',
+   'student', SYSTIMESTAMP - NUMTODSINTERVAL(1, 'DAY'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('finance', 'Tuition Payment Reminder - Installment 2',
+   'Installment 2 of your Summer 2024 tuition is due by the end of this month. Settle outstanding balances via the Tuition and Fees module to avoid a late fee.',
+   'student', SYSTIMESTAMP - NUMTODSINTERVAL(2, 'DAY'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('notice', 'Grade Submission Window Opens for Summer 2024',
+   'Faculty may now enter and finalize grades for assigned course rosters. The submission window closes two weeks after the last examination.',
+   'teacher', SYSTIMESTAMP - NUMTODSINTERVAL(3, 'DAY'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('system', 'Oracle Database Maintenance Window - Sunday 02:00-04:00',
+   'Routine database backup and index optimization will occur this Sunday. Portal services may experience brief latency during this interval.',
+   'all', SYSTIMESTAMP - NUMTODSINTERVAL(4, 'DAY'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('system', 'New Portal Features: Notification Center and Full Profile',
+   'You can now manage all campus announcements from the Notification Center and update your contact details and password from My Profile.',
+   'all', SYSTIMESTAMP - NUMTODSINTERVAL(5, 'DAY'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('notice', 'Library Extended Opening Hours During Examination Period',
+   'The campus library will remain open until 23:00 on weekdays throughout the examination period to support student revision.',
+   'all', SYSTIMESTAMP - NUMTODSINTERVAL(6, 'DAY'));
 
 COMMIT;
 /

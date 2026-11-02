@@ -194,3 +194,45 @@ a:hover { text-decoration: underline; }
     .footer-inner { grid-template-columns: 1fr 1fr; gap: 22px; }
     .container { margin: 20px auto; }
 }
+
+/* ======================================================================
+   Notification Center + full Profile (cosmetic feature pages)
+   ====================================================================== */
+.alert-success { background: #effbf3; border-left: 4px solid var(--success); color: var(--success); }
+
+/* extra category tags (shared by nav bell, dashboard, notifications) */
+.tag-academic { background: #ede9fe; color: #6d28d9; }
+.tag-finance  { background: #dcfce7; color: #15803d; }
+.notif-badge-new { display: inline-block; background: var(--primary); color: #fff; font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 99px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.5px; }
+.nav-pop-item.np-unread { background: #fff7ed; }
+.nav-pop-item.np-unread span:last-child { font-weight: 600; }
+
+/* Notification list rows */
+.notif-row { display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+.notif-row:last-child { border-bottom: none; }
+.notif-unread { background: #fff7ed; }
+.notif-dot { width: 9px; height: 9px; border-radius: 50%; background: transparent; margin-top: 6px; flex-shrink: 0; }
+.notif-unread .notif-dot { background: var(--primary); }
+.notif-main { flex: 1; min-width: 0; }
+.notif-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.notif-title { font-weight: 700; color: var(--secondary); font-size: 0.95rem; }
+.notif-body { font-size: 0.85rem; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+.notif-meta { font-size: 0.72rem; color: var(--muted); margin-top: 8px; }
+.notif-action { margin: 0; flex-shrink: 0; }
+
+/* Profile two-column layout */
+.profile-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+.profile-side { text-align: center; }
+.profile-avatar { width: 84px; height: 84px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 800; font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 4px auto 14px; letter-spacing: 1px; }
+.profile-name { font-size: 1.15rem; color: var(--secondary); margin-bottom: 8px; }
+.profile-role { margin-bottom: 16px; }
+.profile-facts { list-style: none; text-align: left; border-top: 1px solid var(--border); }
+.profile-facts li { display: flex; justify-content: space-between; gap: 10px; padding: 9px 2px; border-bottom: 1px solid #f3f4f6; font-size: 0.85rem; }
+.profile-facts li span { color: var(--muted); }
+.profile-main .info-card { margin-bottom: 20px; }
+.profile-main .info-card:last-child { margin-bottom: 0; }
+
+@media (max-width: 768px) {
+    .profile-grid { grid-template-columns: 1fr; }
+    .notif-row { padding: 14px 16px; }
+}

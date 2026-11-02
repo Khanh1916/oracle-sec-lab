@@ -81,7 +81,8 @@ oracle-sec-lab/
 ├── tuition.php                 # Tuition fee billing, e-Invoices & virtual accounts
 ├── search.php                  # [VULN 1] Oracle SQL Injection (UNION-based)
 ├── course_lookup.php           # [VULN 4] Oracle PL/SQL Injection (EXECUTE IMMEDIATE)
-├── profile.php                 # User & student profile viewer
+├── profile.php                 # Full profile: details, edit contact & change password
+├── notifications.php           # Notification Center (read/unread announcements)
 ├── store.php                   # [VULN 2] Business Logic Flaw (Negative Quantity)
 ├── transcript.php              # Official academic transcript record viewer
 ├── audit.php                   # Comprehensive security audit trail & event logger

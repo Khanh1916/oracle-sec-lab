@@ -6,6 +6,18 @@ $username = $_SESSION['username'] ?? '';
 // Avatar initials from the username (purely cosmetic).
 $clean    = preg_replace('/[^A-Za-z0-9]/', '', $username);
 $initials = strtoupper(substr($clean !== '' ? $clean : 'U', 0, 2));
+
+// Notification Center feed for the bell (cosmetic; never fatal).
+$navUnread = 0;
+$navNotifs = [];
+try {
+    $navConn   = getDbConnection();
+    $navUserId = (int)($_SESSION['user_id'] ?? 0);
+    $navUnread = countUnreadNotifications($navConn, $navUserId, $role);
+    $navNotifs = getUserNotifications($navConn, $navUserId, $role, 4);
+} catch (Throwable $e) {
+    // Notifications are optional chrome; swallow errors so the navbar always renders.
+}
 ?>
 <nav class="navbar">
     <div class="navbar-brand">
@@ -36,22 +48,22 @@ $initials = strtoupper(substr($clean !== '' ? $clean : 'U', 0, 2));
 
         <!-- Notification bell -->
         <details class="nav-pop nav-bell">
-            <summary aria-label="Notifications">🔔<span class="nav-count">3</span></summary>
+            <summary aria-label="Notifications">
+                🔔<?php if ($navUnread > 0): ?><span class="nav-count"><?= $navUnread > 9 ? '9+' : $navUnread ?></span><?php endif; ?>
+            </summary>
             <div class="nav-pop-panel">
-                <div class="nav-pop-head">Notifications</div>
-                <a class="nav-pop-item np-notif" href="<?= APP_BASE ?>/dashboard.php">
-                    <span class="np-tag tag-notice">Notice</span>
-                    <span>Final Defense Schedule for DBS401 released</span>
-                </a>
-                <a class="nav-pop-item np-notif" href="<?= APP_BASE ?>/dashboard.php">
-                    <span class="np-tag tag-exam">Academic</span>
-                    <span>Course Add/Drop period extended 48h</span>
-                </a>
-                <a class="nav-pop-item np-notif" href="<?= APP_BASE ?>/dashboard.php">
-                    <span class="np-tag tag-system">IT</span>
-                    <span>Database maintenance window this Sunday</span>
-                </a>
-                <a class="nav-pop-all" href="<?= APP_BASE ?>/dashboard.php">View all announcements &rarr;</a>
+                <div class="nav-pop-head">Notifications<?php if ($navUnread > 0): ?> · <?= $navUnread ?> new<?php endif; ?></div>
+                <?php if (!$navNotifs): ?>
+                    <div class="nav-pop-item" style="color:var(--muted);">No notifications.</div>
+                <?php else: foreach ($navNotifs as $n):
+                    [$tagLabel, $tagClass] = notifCategoryMeta($n['CATEGORY']);
+                ?>
+                    <a class="nav-pop-item np-notif<?= (int)$n['IS_READ'] ? '' : ' np-unread' ?>" href="<?= APP_BASE ?>/notifications.php">
+                        <span class="np-tag <?= $tagClass ?>"><?= $tagLabel ?></span>
+                        <span><?= htmlspecialchars(mb_strimwidth($n['TITLE'], 0, 54, '…')) ?></span>
+                    </a>
+                <?php endforeach; endif; ?>
+                <a class="nav-pop-all" href="<?= APP_BASE ?>/notifications.php">View all notifications &rarr;</a>
             </div>
         </details>
 
@@ -69,6 +81,7 @@ $initials = strtoupper(substr($clean !== '' ? $clean : 'U', 0, 2));
                     </div>
                 </div>
                 <a class="nav-pop-item" href="<?= APP_BASE ?>/profile.php">👤 My Profile</a>
+                <a class="nav-pop-item" href="<?= APP_BASE ?>/notifications.php">🔔 Notifications</a>
                 <?php if ($role === 'admin'): ?>
                     <a class="nav-pop-item" href="<?= APP_BASE ?>/admin.php">⚙️ Admin Panel</a>
                 <?php endif; ?>

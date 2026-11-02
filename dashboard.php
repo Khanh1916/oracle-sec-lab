@@ -337,30 +337,26 @@ if ($role === 'teacher') {
     </div>
     <?php endif; ?>
 
-    <!-- Campus Bulletin / Notice Board -->
+    <!-- Campus Bulletin / Notice Board (from the Notification Center) -->
     <div class="info-card">
-        <h3>📢 Campus Announcements & Academic Notices</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0;">📢 Campus Announcements &amp; Academic Notices</h3>
+            <a href="<?= APP_BASE ?>/notifications.php" class="btn btn-secondary" style="padding:4px 12px; font-size:0.8rem;">View all &rarr;</a>
+        </div>
+        <?php $dashNotifs = getUserNotifications($conn, (int)$userId, $role, 4); ?>
+        <?php if (!$dashNotifs): ?>
+            <p class="no-results">No announcements right now.</p>
+        <?php else: foreach ($dashNotifs as $dn):
+            [$dnLabel, $dnClass] = notifCategoryMeta($dn['CATEGORY']); ?>
         <div class="news-item">
-            <span class="news-tag tag-notice">Notice</span>
-            <strong>Final Defense Schedule for DBS401 (Database Security) Released</strong>
+            <span class="news-tag <?= $dnClass ?>"><?= $dnLabel ?></span>
+            <strong><?= htmlspecialchars($dn['TITLE']) ?></strong>
+            <?php if (!(int)$dn['IS_READ']): ?><span class="notif-badge-new">NEW</span><?php endif; ?>
             <p style="font-size:0.85rem; color:var(--muted); margin-top:4px;">
-                All project groups must submit their final documentation, demonstration environment, and slide deck by Friday. Presentations will take place in Building Alpha Room AL-204.
+                <?= htmlspecialchars($dn['BODY']) ?>
             </p>
         </div>
-        <div class="news-item">
-            <span class="news-tag tag-exam">Academic</span>
-            <strong>Semester Summer 2024 Course Add/Drop Period Extension</strong>
-            <p style="font-size:0.85rem; color:var(--muted); margin-top:4px;">
-                The Office of Academic Affairs has extended the course registration window by 48 hours. Students can adjust course enrollments directly via the Course Catalog module.
-            </p>
-        </div>
-        <div class="news-item">
-            <span class="news-tag tag-system">IT System</span>
-            <strong>Oracle XE 21c Database Maintenance Window</strong>
-            <p style="font-size:0.85rem; color:var(--muted); margin-top:4px;">
-                Routine database backup and index optimization will occur this Sunday from 02:00 AM to 04:00 AM. Portal services may experience brief latency during this interval.
-            </p>
-        </div>
+        <?php endforeach; endif; ?>
     </div>
 </div>
 <?php include __DIR__ . '/inc_footer.php'; ?>

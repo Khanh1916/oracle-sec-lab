@@ -154,6 +154,26 @@ CREATE TABLE PLSQL_VAULT (
 );
 
 -- ============================================================
+-- NOTIFICATIONS  (portal announcements + per-user read state)
+-- Cosmetic portal feature - NOT part of any challenge, holds no flags.
+-- ============================================================
+CREATE TABLE NOTIFICATIONS (
+    notification_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    category        VARCHAR2(20)  DEFAULT 'notice',
+    title           VARCHAR2(200) NOT NULL,
+    body            VARCHAR2(1000),
+    audience        VARCHAR2(20)  DEFAULT 'all',   -- all | student | teacher | admin
+    created_at      TIMESTAMP DEFAULT SYSTIMESTAMP
+);
+
+CREATE TABLE NOTIFICATION_READS (
+    user_id         NUMBER NOT NULL,
+    notification_id NUMBER NOT NULL,
+    read_at         TIMESTAMP DEFAULT SYSTIMESTAMP,
+    CONSTRAINT pk_notif_read PRIMARY KEY (user_id, notification_id)
+);
+
+-- ============================================================
 -- Grant permissions
 -- ============================================================
 GRANT SELECT, INSERT, UPDATE ON USERS          TO PUBLIC;

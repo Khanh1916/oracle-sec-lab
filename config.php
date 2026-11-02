@@ -58,7 +58,7 @@ function logAction(int|null $userId, string $action, string $metaNote = ''): voi
         $sql  = "INSERT INTO AUDIT_LOGS (user_id, action, ip_address, user_agent, metadata_note)
                  VALUES (" . ($userId ?? 'NULL') . ", :act, :ip, :ua, :meta)";
         $stmt = oci_parse($conn, $sql);
-        //oci_bind_by_name($stmt, ':uid',  $userId);
+        //oci_bind_by_name($stmt, ':b_uid',  $userId);
         oci_bind_by_name($stmt, ':act',  $action);
         oci_bind_by_name($stmt, ':ip',   $ip);
         oci_bind_by_name($stmt, ':ua',   $ua);
@@ -67,6 +67,79 @@ function logAction(int|null $userId, string $action, string $metaNote = ''): voi
     } catch (Exception $e) {
         error_log('[DBS401] logAction failed: ' . $e->getMessage());
     }
+}
+
+/**
+ * Notification Center helpers (cosmetic feature; every query is parameterized).
+ */
+function notifCategoryMeta(string $cat): array {
+    switch (strtolower($cat)) {
+        case 'academic': return ['Academic',  'tag-academic'];
+        case 'exam':     return ['Exam',      'tag-exam'];
+        case 'finance':  return ['Finance',   'tag-finance'];
+        case 'system':   return ['IT System', 'tag-system'];
+        default:         return ['Notice',    'tag-notice'];
+    }
+}
+
+function getUserNotifications($conn, int $userId, string $role, int $limit = 0): array {
+    $sql = "SELECT n.notification_id, n.category, n.title, n.body,
+                   TO_CHAR(n.created_at, 'YYYY-MM-DD HH24:MI') AS created_disp,
+                   CASE WHEN r.user_id IS NULL THEN 0 ELSE 1 END AS is_read
+            FROM NOTIFICATIONS n
+            LEFT JOIN NOTIFICATION_READS r
+                   ON r.notification_id = n.notification_id AND r.user_id = :b_uid
+            WHERE n.audience IN ('all', :b_role)
+            ORDER BY n.created_at DESC, n.notification_id DESC";
+    $stmt = oci_parse($conn, $sql);
+    oci_bind_by_name($stmt, ':b_uid',  $userId);
+    oci_bind_by_name($stmt, ':b_role', $role);
+    oci_execute($stmt);
+    $rows = [];
+    while ($r = oci_fetch_assoc($stmt)) {
+        $rows[] = $r;
+        if ($limit > 0 && count($rows) >= $limit) break;
+    }
+    return $rows;
+}
+
+function countUnreadNotifications($conn, int $userId, string $role): int {
+    $sql = "SELECT COUNT(*) AS c FROM NOTIFICATIONS n
+            WHERE n.audience IN ('all', :b_role)
+              AND NOT EXISTS (
+                  SELECT 1 FROM NOTIFICATION_READS r
+                  WHERE r.notification_id = n.notification_id AND r.user_id = :b_uid)";
+    $stmt = oci_parse($conn, $sql);
+    oci_bind_by_name($stmt, ':b_uid',  $userId);
+    oci_bind_by_name($stmt, ':b_role', $role);
+    oci_execute($stmt);
+    $row = oci_fetch_assoc($stmt);
+    return (int)($row['C'] ?? 0);
+}
+
+function markNotificationRead($conn, int $userId, int $notifId): void {
+    $sql = "MERGE INTO NOTIFICATION_READS t
+            USING (SELECT :b_uid AS user_id, :nid AS notification_id FROM DUAL) s
+            ON (t.user_id = s.user_id AND t.notification_id = s.notification_id)
+            WHEN NOT MATCHED THEN
+                INSERT (user_id, notification_id) VALUES (s.user_id, s.notification_id)";
+    $stmt = oci_parse($conn, $sql);
+    oci_bind_by_name($stmt, ':b_uid', $userId);
+    oci_bind_by_name($stmt, ':nid', $notifId);
+    oci_execute($stmt);
+}
+
+function markAllNotificationsRead($conn, int $userId, string $role): void {
+    $sql = "INSERT INTO NOTIFICATION_READS (user_id, notification_id)
+            SELECT :b_uid, n.notification_id FROM NOTIFICATIONS n
+            WHERE n.audience IN ('all', :b_role)
+              AND NOT EXISTS (
+                  SELECT 1 FROM NOTIFICATION_READS r
+                  WHERE r.notification_id = n.notification_id AND r.user_id = :b_uid)";
+    $stmt = oci_parse($conn, $sql);
+    oci_bind_by_name($stmt, ':b_uid',  $userId);
+    oci_bind_by_name($stmt, ':b_role', $role);
+    oci_execute($stmt);
 }
 
 // Start session
