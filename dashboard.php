@@ -47,12 +47,12 @@ if ($role === 'teacher') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($GLOBALS['PORTAL_LANG']) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="<?= APP_BASE ?>/favicon.svg">
-    <title>Dashboard – FPT Student Portal</title>
+    <title><?= t('nav.dashboard') ?> – FPT Student Portal</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/style.css">
     <style>
         .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
@@ -92,10 +92,10 @@ if ($role === 'teacher') {
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
-        <h2>Welcome back, <?= htmlspecialchars($studentRow['FULL_NAME'] ?? $username) ?>
+        <h2><?= tf('db.welcome_fmt', htmlspecialchars($studentRow['FULL_NAME'] ?? $username)) ?>
             <span class="badge badge-<?= $role ?>"><?= strtoupper($role) ?></span>
         </h2>
-        <span class="text-muted" style="font-size:0.85rem;">Semester: <strong>Summer 2024 (2024-S1)</strong></span>
+        <span class="text-muted" style="font-size:0.85rem;"><?= t('sem.label') ?>: <strong><?= t('sem.value') ?></strong></span>
     </div>
 
     <!-- At-a-glance KPIs -->
@@ -104,26 +104,26 @@ if ($role === 'teacher') {
         <div class="kpi-card">
             <span class="kpi-icon">🎯</span>
             <span class="kpi-value"><?= number_format((float)$studentRow['GPA'], 2) ?></span>
-            <span class="kpi-label">Cumulative GPA</span>
-            <span class="kpi-sub">out of 4.00</span>
+            <span class="kpi-label"><?= t('db.gpa') ?></span>
+            <span class="kpi-sub"><?= t('db.gpa_sub') ?></span>
         </div>
         <div class="kpi-card">
             <span class="kpi-icon">📚</span>
             <span class="kpi-value"><?= count($enrollments) ?></span>
-            <span class="kpi-label">Enrolled Courses</span>
-            <span class="kpi-sub">this semester</span>
+            <span class="kpi-label"><?= t('db.enrolled') ?></span>
+            <span class="kpi-sub"><?= t('db.enrolled_sub') ?></span>
         </div>
         <div class="kpi-card">
             <span class="kpi-icon">🎓</span>
             <span class="kpi-value"><?= (int)$totalCredits ?></span>
-            <span class="kpi-label">Credit Load</span>
-            <span class="kpi-sub">credits enrolled</span>
+            <span class="kpi-label"><?= t('db.credit_load') ?></span>
+            <span class="kpi-sub"><?= t('db.credit_load_sub') ?></span>
         </div>
         <div class="kpi-card">
             <span class="kpi-icon">💳</span>
             <span class="kpi-value"><?= number_format((int)$studentRow['CREDITS']) ?></span>
-            <span class="kpi-label">Material Credits</span>
-            <span class="kpi-sub">store balance</span>
+            <span class="kpi-label"><?= t('db.material') ?></span>
+            <span class="kpi-sub"><?= t('db.material_sub') ?></span>
         </div>
     </div>
     <?php elseif ($role === 'teacher'): $tCredits = 0; foreach ($teacherCourses as $tc) { $tCredits += (int)$tc['CREDITS']; } ?>
@@ -131,14 +131,14 @@ if ($role === 'teacher') {
         <div class="kpi-card">
             <span class="kpi-icon">📖</span>
             <span class="kpi-value"><?= count($teacherCourses) ?></span>
-            <span class="kpi-label">Assigned Courses</span>
-            <span class="kpi-sub">current catalog</span>
+            <span class="kpi-label"><?= t('db.assigned') ?></span>
+            <span class="kpi-sub"><?= t('db.assigned_sub') ?></span>
         </div>
         <div class="kpi-card">
             <span class="kpi-icon">🎓</span>
             <span class="kpi-value"><?= (int)$tCredits ?></span>
-            <span class="kpi-label">Teaching Credits</span>
-            <span class="kpi-sub">total load</span>
+            <span class="kpi-label"><?= t('db.teaching') ?></span>
+            <span class="kpi-sub"><?= t('db.teaching_sub') ?></span>
         </div>
     </div>
     <?php endif; ?>
@@ -148,95 +148,95 @@ if ($role === 'teacher') {
         <?php if ($role === 'student'): ?>
             <a href="<?= APP_BASE ?>/courses.php" class="portal-btn">
                 <span class="icon">📖</span>
-                <span class="label">Course Catalog</span>
-                <span class="sub">Register & Drop Courses</span>
+                <span class="label"><?= t('db.svc_catalog') ?></span>
+                <span class="sub"><?= t('db.svc_catalog_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/schedule.php" class="portal-btn">
                 <span class="icon">📅</span>
-                <span class="label">Class Timetable</span>
-                <span class="sub">Weekly Lecture Schedule</span>
+                <span class="label"><?= t('db.svc_timetable') ?></span>
+                <span class="sub"><?= t('db.svc_timetable_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/exams.php" class="portal-btn">
                 <span class="icon">📝</span>
-                <span class="label">Exam Schedule</span>
-                <span class="sub">Dates, Rooms & Seats</span>
+                <span class="label"><?= t('db.svc_exams') ?></span>
+                <span class="sub"><?= t('db.svc_exams_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/attendance.php" class="portal-btn">
                 <span class="icon">✅</span>
-                <span class="label">Attendance</span>
-                <span class="sub">Class Attendance Record</span>
+                <span class="label"><?= t('db.svc_attendance') ?></span>
+                <span class="sub"><?= t('db.svc_attendance_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/transcript.php" class="portal-btn">
                 <span class="icon">📄</span>
-                <span class="label">Grade Transcript</span>
-                <span class="sub">View Exam Scores & GPA</span>
+                <span class="label"><?= t('db.svc_transcript') ?></span>
+                <span class="sub"><?= t('db.svc_transcript_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/tuition.php" class="portal-btn">
                 <span class="icon">💳</span>
-                <span class="label">Tuition Fees</span>
-                <span class="sub">Billing & Financial Status</span>
+                <span class="label"><?= t('db.svc_tuition') ?></span>
+                <span class="sub"><?= t('db.svc_tuition_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/store.php" class="portal-btn">
                 <span class="icon">📚</span>
-                <span class="label">Material Store</span>
-                <span class="sub">Buy Guides & Materials</span>
+                <span class="label"><?= t('db.svc_store') ?></span>
+                <span class="sub"><?= t('db.svc_store_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/search.php" class="portal-btn">
                 <span class="icon">🔍</span>
-                <span class="label">Directory Search</span>
-                <span class="sub">Lookup Peers & Majors</span>
+                <span class="label"><?= t('db.svc_search') ?></span>
+                <span class="sub"><?= t('db.svc_search_sub') ?></span>
             </a>
         <?php elseif ($role === 'teacher'): ?>
             <a href="<?= APP_BASE ?>/grades.php" class="portal-btn">
                 <span class="icon">📝</span>
-                <span class="label">Faculty Grading</span>
-                <span class="sub">Score Class Rosters</span>
+                <span class="label"><?= t('db.svc_grading') ?></span>
+                <span class="sub"><?= t('db.svc_grading_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/courses.php" class="portal-btn">
                 <span class="icon">📖</span>
-                <span class="label">Course Catalog</span>
-                <span class="sub">View All Departments</span>
+                <span class="label"><?= t('db.svc_catalog') ?></span>
+                <span class="sub"><?= t('db.svc_catalog_t_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/schedule.php" class="portal-btn">
                 <span class="icon">📅</span>
-                <span class="label">Teaching Schedule</span>
-                <span class="sub">Assigned Lecture Slots</span>
+                <span class="label"><?= t('db.svc_tsched') ?></span>
+                <span class="sub"><?= t('db.svc_tsched_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/exams.php" class="portal-btn">
                 <span class="icon">📝</span>
-                <span class="label">Exam Schedule</span>
-                <span class="sub">Examination Calendar</span>
+                <span class="label"><?= t('db.svc_exams') ?></span>
+                <span class="sub"><?= t('db.svc_exams_t_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/attendance.php" class="portal-btn">
                 <span class="icon">✅</span>
-                <span class="label">Attendance</span>
-                <span class="sub">Attendance by Course</span>
+                <span class="label"><?= t('db.svc_attendance') ?></span>
+                <span class="sub"><?= t('db.svc_attendance_t_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/search.php" class="portal-btn">
                 <span class="icon">🔍</span>
-                <span class="label">Student Directory</span>
-                <span class="sub">Search Student Records</span>
+                <span class="label"><?= t('db.svc_sdir') ?></span>
+                <span class="sub"><?= t('db.svc_sdir_sub') ?></span>
             </a>
         <?php elseif ($role === 'admin'): ?>
             <a href="<?= APP_BASE ?>/admin.php" class="portal-btn">
                 <span class="icon">⚙️</span>
-                <span class="label">Admin Panel</span>
-                <span class="sub">User Management & Updates</span>
+                <span class="label"><?= t('db.svc_admin') ?></span>
+                <span class="sub"><?= t('db.svc_admin_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/audit.php" class="portal-btn">
                 <span class="icon">📋</span>
-                <span class="label">Audit Logs</span>
-                <span class="sub">Security & Action Trail</span>
+                <span class="label"><?= t('db.svc_audit') ?></span>
+                <span class="sub"><?= t('db.svc_audit_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/courses.php" class="portal-btn">
                 <span class="icon">📖</span>
-                <span class="label">Curriculum</span>
-                <span class="sub">Course Management</span>
+                <span class="label"><?= t('db.svc_curric') ?></span>
+                <span class="sub"><?= t('db.svc_curric_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/search.php" class="portal-btn">
                 <span class="icon">🔍</span>
-                <span class="label">Student Search</span>
-                <span class="sub">Student Directory</span>
+                <span class="label"><?= t('db.svc_ssearch') ?></span>
+                <span class="sub"><?= t('db.svc_ssearch_sub') ?></span>
             </a>
         <?php endif; ?>
     </div>
@@ -244,40 +244,40 @@ if ($role === 'teacher') {
     <!-- Student Information Overview -->
     <?php if ($studentRow): ?>
     <div class="info-card">
-        <h3>📋 Student Academic Profile</h3>
+        <h3>📋 <?= t('db.profile_title') ?></h3>
         <table class="info-table">
-            <tr><th>Full Name</th><td><strong><?= htmlspecialchars($studentRow['FULL_NAME']) ?></strong></td></tr>
-            <tr><th>Student ID</th><td><code>SID-<?= str_pad((string)$studentRow['STUDENT_ID'], 3, '0', STR_PAD_LEFT) ?></code></td></tr>
-            <tr><th>Email</th><td><?= htmlspecialchars($studentRow['EMAIL']) ?></td></tr>
-            <tr><th>Academic Major</th><td><?= htmlspecialchars($studentRow['MAJOR']) ?></td></tr>
-            <tr><th>Cumulative GPA</th><td><span class="badge badge-student"><?= number_format((float)$studentRow['GPA'], 2) ?> / 4.00</span></td></tr>
-            <tr><th>Course Material Credits</th><td><strong><?= number_format((int)$studentRow['CREDITS']) ?> credits</strong> (<a href="<?= APP_BASE ?>/store.php">Visit Store</a>)</td></tr>
+            <tr><th><?= t('db.f_fullname') ?></th><td><strong><?= htmlspecialchars($studentRow['FULL_NAME']) ?></strong></td></tr>
+            <tr><th><?= t('db.f_sid') ?></th><td><code>SID-<?= str_pad((string)$studentRow['STUDENT_ID'], 3, '0', STR_PAD_LEFT) ?></code></td></tr>
+            <tr><th><?= t('db.f_email') ?></th><td><?= htmlspecialchars($studentRow['EMAIL']) ?></td></tr>
+            <tr><th><?= t('db.f_major') ?></th><td><?= htmlspecialchars($studentRow['MAJOR']) ?></td></tr>
+            <tr><th><?= t('db.gpa') ?></th><td><span class="badge badge-student"><?= number_format((float)$studentRow['GPA'], 2) ?> / 4.00</span></td></tr>
+            <tr><th><?= t('db.f_material') ?></th><td><strong><?= number_format((int)$studentRow['CREDITS']) ?> <?= t('db.credits') ?></strong> (<a href="<?= APP_BASE ?>/store.php"><?= t('db.visit_store') ?></a>)</td></tr>
         </table>
     </div>
 
     <div class="info-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3>📚 Active Semester Enrollments</h3>
-            <a href="<?= APP_BASE ?>/courses.php" class="btn btn-primary" style="padding:4px 12px; font-size:0.8rem;">+ Add / Drop Course</a>
+            <h3>📚 <?= t('db.enroll_title') ?></h3>
+            <a href="<?= APP_BASE ?>/courses.php" class="btn btn-primary" style="padding:4px 12px; font-size:0.8rem;"><?= t('db.add_drop') ?></a>
         </div>
         <?php if ($enrollments): ?>
         <table class="data-table">
             <thead><tr>
-                <th>Code</th><th>Course Name</th><th>Credits</th><th>Instructor</th><th>Semester</th><th>Score</th><th>Transcript</th>
+                <th><?= t('db.c_code') ?></th><th><?= t('db.c_name') ?></th><th><?= t('db.c_credits') ?></th><th><?= t('db.c_instructor') ?></th><th><?= t('db.c_semester') ?></th><th><?= t('db.c_score') ?></th><th><?= t('db.c_transcript') ?></th>
             </tr></thead>
             <tbody>
             <?php foreach ($enrollments as $e): ?>
             <tr>
                 <td><strong><?= htmlspecialchars($e['COURSE_CODE']) ?></strong></td>
                 <td><?= htmlspecialchars($e['COURSE_NAME']) ?></td>
-                <td><?= (int)$e['CREDITS'] ?> cr</td>
+                <td><?= (int)$e['CREDITS'] ?> <?= t('db.cr') ?></td>
                 <td><small><?= htmlspecialchars($e['TEACHER_NAME'] ?? 'TBA') ?></small></td>
                 <td><?= htmlspecialchars($e['SEMESTER']) ?></td>
                 <td>
                     <?php if ($e['SCORE'] !== null): ?>
                         <strong><?= number_format((float)$e['SCORE'], 1) ?></strong>
                     <?php else: ?>
-                        <span class="text-muted">In Progress</span>
+                        <span class="text-muted"><?= t('db.in_progress') ?></span>
                     <?php endif; ?>
                 </td>
                 <td>
@@ -290,7 +290,7 @@ if ($role === 'teacher') {
             </tbody>
         </table>
         <?php else: ?>
-        <p class="no-results">No course enrollments found for the current semester. <a href="<?= APP_BASE ?>/courses.php">Register now &rarr;</a></p>
+        <p class="no-results"><?= t('db.no_enroll') ?> <a href="<?= APP_BASE ?>/courses.php"><?= t('db.register_now') ?> &rarr;</a></p>
         <?php endif; ?>
     </div>
     <?php endif; ?>
@@ -299,13 +299,13 @@ if ($role === 'teacher') {
     <?php if ($role === 'teacher'): ?>
     <div class="info-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3>👨‍🏫 Assigned Academic Courses</h3>
-            <a href="<?= APP_BASE ?>/grades.php" class="btn btn-primary" style="padding:4px 12px; font-size:0.8rem;">Go to Grading &rarr;</a>
+            <h3>👨‍🏫 <?= t('db.teacher_courses') ?></h3>
+            <a href="<?= APP_BASE ?>/grades.php" class="btn btn-primary" style="padding:4px 12px; font-size:0.8rem;"><?= t('db.go_grading') ?> &rarr;</a>
         </div>
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Code</th><th>Course Title</th><th>Credits</th><th>Semester</th><th>Lead Instructor</th><th>Action</th>
+                    <th><?= t('db.c_code') ?></th><th><?= t('db.c_title') ?></th><th><?= t('db.c_credits') ?></th><th><?= t('db.c_semester') ?></th><th><?= t('db.c_lead') ?></th><th><?= t('db.c_action') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -313,12 +313,12 @@ if ($role === 'teacher') {
                 <tr>
                     <td><strong><?= htmlspecialchars($tc['COURSE_CODE']) ?></strong></td>
                     <td><?= htmlspecialchars($tc['COURSE_NAME']) ?></td>
-                    <td><?= (int)$tc['CREDITS'] ?> cr</td>
+                    <td><?= (int)$tc['CREDITS'] ?> <?= t('db.cr') ?></td>
                     <td><?= htmlspecialchars($tc['SEMESTER'] ?? 'N/A') ?></td>
                     <td><?= htmlspecialchars($tc['TEACHER_NAME'] ?? 'TBA') ?></td>
                     <td>
                         <a href="<?= APP_BASE ?>/grades.php?course_id=<?= (int)$tc['COURSE_ID'] ?>" class="btn btn-secondary" style="padding:3px 10px; font-size:0.75rem;">
-                            Grade Roster
+                            <?= t('db.grade_roster') ?>
                         </a>
                     </td>
                 </tr>
@@ -331,7 +331,7 @@ if ($role === 'teacher') {
     <!-- Academic Performance chart (student) -->
     <?php if ($studentRow && $enrollments): ?>
     <div class="info-card">
-        <h3>📊 Academic Performance — Course Scores</h3>
+        <h3>📊 <?= t('db.chart_title') ?></h3>
         <div class="score-chart">
             <?php foreach ($enrollments as $e):
                 $sc  = $e['SCORE'];
@@ -352,7 +352,7 @@ if ($role === 'teacher') {
             <span><i class="dot ok"></i> 6.5–7.9</span>
             <span><i class="dot warn"></i> 5.0–6.4</span>
             <span><i class="dot bad"></i> &lt; 5.0</span>
-            <span><i class="dot pending"></i> In progress</span>
+            <span><i class="dot pending"></i> <?= t('db.chart_inprog') ?></span>
         </div>
     </div>
     <?php endif; ?>
@@ -360,18 +360,18 @@ if ($role === 'teacher') {
     <!-- Campus Bulletin / Notice Board (from the Notification Center) -->
     <div class="info-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3 style="margin:0;">📢 Campus Announcements &amp; Academic Notices</h3>
-            <a href="<?= APP_BASE ?>/notifications.php" class="btn btn-secondary" style="padding:4px 12px; font-size:0.8rem;">View all &rarr;</a>
+            <h3 style="margin:0;">📢 <?= t('db.news_title') ?></h3>
+            <a href="<?= APP_BASE ?>/notifications.php" class="btn btn-secondary" style="padding:4px 12px; font-size:0.8rem;"><?= t('db.view_all') ?> &rarr;</a>
         </div>
         <?php $dashNotifs = getUserNotifications($conn, (int)$userId, $role, 4); ?>
         <?php if (!$dashNotifs): ?>
-            <p class="no-results">No announcements right now.</p>
+            <p class="no-results"><?= t('db.no_news') ?></p>
         <?php else: foreach ($dashNotifs as $dn):
             [$dnLabel, $dnClass] = notifCategoryMeta($dn['CATEGORY']); ?>
         <div class="news-item">
             <span class="news-tag <?= $dnClass ?>"><?= $dnLabel ?></span>
             <strong><?= htmlspecialchars($dn['TITLE']) ?></strong>
-            <?php if (!(int)$dn['IS_READ']): ?><span class="notif-badge-new">NEW</span><?php endif; ?>
+            <?php if (!(int)$dn['IS_READ']): ?><span class="notif-badge-new"><?= t('db.new') ?></span><?php endif; ?>
             <p style="font-size:0.85rem; color:var(--muted); margin-top:4px;">
                 <?= htmlspecialchars($dn['BODY']) ?>
             </p>

@@ -127,7 +127,7 @@ function tval(string $prefix, string $value): string {
                 <tr class="<?= $isUp ? 'exam-upcoming' : 'exam-done' ?>">
                     <td>
                         <strong><?= htmlspecialchars($e['EXAM_DAY']) ?></strong>
-                        <div class="exam-dow"><?= htmlspecialchars(trim($e['EXAM_DOW'])) ?></div>
+                        <div class="exam-dow"><?= htmlspecialchars(dowLabel($e['EXAM_DAY'])) ?></div>
                     </td>
                     <td>
                         <?= htmlspecialchars($e['START_TIME']) ?>

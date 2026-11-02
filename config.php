@@ -176,6 +176,13 @@ function tf(string $key, ...$args): string {
     return vsprintf(t($key), $args);
 }
 
+/** Localized weekday label for a 'YYYY-MM-DD' date (falls back to the raw input). */
+function dowLabel(string $ymd): string {
+    $ts = strtotime($ymd);
+    if ($ts === false) return $ymd;
+    return t('dow.' . date('N', $ts)); // date('N'): 1=Mon .. 7=Sun
+}
+
 // Start session
 session_name(SESSION_NAME);
 session_set_cookie_params([

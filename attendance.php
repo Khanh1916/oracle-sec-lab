@@ -172,7 +172,7 @@ $overallPct = $overall['total'] > 0 ? (int)round(100 * $overall['attended'] / $o
                             [$label, $cls] = attStatusMeta($s['STATUS']); ?>
                         <tr>
                             <td><?= htmlspecialchars($s['SESSION_DAY']) ?></td>
-                            <td><?= htmlspecialchars(trim($s['SESSION_DOW'])) ?></td>
+                            <td><?= htmlspecialchars(dowLabel($s['SESSION_DAY'])) ?></td>
                             <td><strong><?= htmlspecialchars($s['COURSE_CODE']) ?></strong></td>
                             <td><?= htmlspecialchars($s['SLOT']) ?></td>
                             <td><span class="att-pill <?= $cls ?>"><?= $label ?></span></td>
