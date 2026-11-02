@@ -17,12 +17,12 @@
 │                      WEB SERVER LAYER                           │
 │               Apache 2.4 (Ubuntu 22.04)                         │
 │   Alias: /dbs401-oracle-app → /var/www/html/dbs401-oracle-app   │
-│   mod_php8.1, mod_rewrite, .htaccess                            │
+│   mod_php8.3, mod_rewrite, .htaccess                            │
 └────────────────────────────┬────────────────────────────────────┘
                              │ PHP file execution
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    APPLICATION LAYER (PHP 8.1)                  │
+│                    APPLICATION LAYER (PHP 8.3)                  │
 │                                                                 │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐     │
 │  │config.php│  │login.php │  │search.php│  │store.php     │     │

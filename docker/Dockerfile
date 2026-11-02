@@ -1,11 +1,11 @@
 # =============================================================
-# OracleSecLab - Web container (PHP 8.1 + Apache + OCI8)
+# OracleSecLab - Web container (PHP 8.3 + Apache + OCI8)
 # Also hosts the baseline "partner" manifest server on port 8081
 # so Challenge 3 (Supply Chain) works exactly as on the VM setup.
 # =============================================================
 # Pinned to Debian 12 (bookworm): Debian 13 renamed libaio1 -> libaio1t64,
 # which breaks Oracle Instant Client's dependency on libaio.so.1.
-FROM php:8.1-apache-bookworm
+FROM php:8.3-apache-bookworm
 
 # Links the GHCR package to this repository (also set by the CI workflow)
 LABEL org.opencontainers.image.source="https://github.com/Khanh1916/oracle-sec-lab"
@@ -34,9 +34,9 @@ RUN mkdir -p /opt/oracle && cd /opt/oracle \
 ENV PATH="/opt/oracle/instantclient:${PATH}"
 
 # --- PHP OCI8 extension ---------------------------------------
-# PECL oci8 versions track PHP versions: 3.2.1 is the release for PHP 8.1
-# (3.3.x needs PHP 8.2+, 3.4.x needs PHP 8.4).
-RUN echo "instantclient,/opt/oracle/instantclient" | pecl install oci8-3.2.1 \
+# PECL oci8 versions track PHP versions: 3.3.0 supports PHP 8.2/8.3
+# (3.2.1 was for PHP 8.1; 3.4.x needs PHP 8.4).
+RUN echo "instantclient,/opt/oracle/instantclient" | pecl install oci8-3.3.0 \
     && docker-php-ext-enable oci8
 
 # Fail the build if OCI8 can't actually load (e.g. missing libaio) or

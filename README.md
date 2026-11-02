@@ -2,7 +2,7 @@
 ### Enterprise Oracle Database Security & Penetration Testing Practice Lab
 
 <p align="center">
-  <a href="#tech-stack"><img src="https://img.shields.io/badge/PHP-8.1-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.1" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Oracle_DB-XE_21c_%7C_23c_Free-F80000?style=for-the-badge&logoColor=white" alt="Oracle Database" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Apache-2.4-D22128?style=for-the-badge&logo=apache&logoColor=white" alt="Apache 2.4" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Ubuntu-22.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Linux" /></a>
@@ -51,7 +51,7 @@ A realistic academic portal with three intentional, chained vulnerabilities:
 
 | Component | Technology | Description |
 |:---|:---|:---|
-| **Backend Language** | PHP 8.1+ | Server-side scripting runtime with session management |
+| **Backend Language** | PHP 8.3+ | Server-side scripting runtime with session management |
 | **Database Engine** | Oracle Database XE 21c / 23c Free | Enterprise RDBMS running on Pluggable Database (`XEPDB1` / `FREEPDB1`) |
 | **Database Driver** | PHP OCI8 & Oracle Instant Client 21c | Native C-level Oracle Call Interface extension |
 | **Web Server** | Apache 2.4 (`mod_php`, `mod_rewrite`) | HTTP server with directory alias & access control |
@@ -114,7 +114,7 @@ oracle-sec-lab/
 │   ├── DOCKER_GUIDE.md         # Docker Compose deployment & usage guide
 │   └── ORACLE_PAYLOAD_CHEATSHEET.md # Oracle-specific SQL injection reference
 ├── docker/
-│   ├── Dockerfile              # PHP 8.1 + Apache + OCI8 web image (+ partner :8081)
+│   ├── Dockerfile              # PHP 8.3 + Apache + OCI8 web image (+ partner :8081)
 │   ├── entrypoint.sh           # Waits for DB, imports schema/seed, inits passwords
 │   ├── apache-app.conf         # /dbs401-oracle-app alias (mirrors VM setup)
 │   ├── apache-partner.conf     # Partner manifest vhost on port 8081 (Challenge 3)
@@ -213,7 +213,7 @@ The application is structured as a full-featured university portal:
 * **Operating System:** Ubuntu 20.04 / 22.04 / 24.04 LTS
 * **RAM:** Minimum 4GB (Oracle XE requires ~2GB)
 * **Storage:** Minimum 20GB free disk space
-* **Core Components:** Apache2, PHP 8.1+ with OCI8 extension, Oracle Database XE 21c (or Oracle 23c Free), Python 3.
+* **Core Components:** Apache2, PHP 8.3+ with OCI8 extension, Oracle Database XE 21c (or Oracle 23c Free), Python 3.
 
 ### Option A — Docker Compose (recommended, cross-platform)
 The fastest way to run the full lab (Oracle + portal) with **no manual Oracle

@@ -11,7 +11,7 @@
 |:---:|:---|:---:|
 | **1** | [Ubuntu Environment Preparation](#step-1--ubuntu-environment-preparation) | 10 mins |
 | **2** | [Apache2 Web Server Installation](#step-2--apache2-web-server-installation) | 5 mins |
-| **3** | [PHP 8.1 & Extensions Installation](#step-3--php-81--extensions-installation) | 5 mins |
+| **3** | [PHP 8.3 & Extensions Installation](#step-3--php-83--extensions-installation) | 5 mins |
 | **4** | [Oracle Database XE 21c Installation](#step-4--oracle-database-xe-21c-installation) | 30–60 mins |
 | **5** | [Oracle Instant Client & OCI8 Setup](#step-5--oracle-instant-client--oci8-setup) | 20 mins |
 | **6** | [Oracle User Provisioning & Database Import](#step-6--oracle-user-provisioning--database-import) | 10 mins |
@@ -60,26 +60,26 @@ curl -s http://127.0.0.1 | grep -o 'Apache.*HTML'
 
 ---
 
-## STEP 3 – PHP 8.1 & Extensions Installation
+## STEP 3 – PHP 8.3 & Extensions Installation
 
 ```bash
-# Add the Ondrej Sury PHP PPA (ensures PHP 8.1 support on Ubuntu)
+# Add the Ondrej Sury PHP PPA (ensures PHP 8.3 support on Ubuntu)
 sudo apt-get install -y software-properties-common
 sudo add-apt-repository -y ppa:ondrej/php
 sudo apt-get update
 
-# Install PHP 8.1 and required modules for development and OCI8 compilation
+# Install PHP 8.3 and required modules for development and OCI8 compilation
 sudo apt-get install -y \
-    php8.1 \
-    libapache2-mod-php8.1 \
-    php8.1-cli \
-    php8.1-common \
-    php8.1-dev \
+    php8.3 \
+    libapache2-mod-php8.3 \
+    php8.3-cli \
+    php8.3-common \
+    php8.3-dev \
     php-pear \
     build-essential
 
-# Enable PHP 8.1 Apache module
-sudo a2enmod php8.1
+# Enable PHP 8.3 Apache module
+sudo a2enmod php8.3
 sudo systemctl restart apache2
 
 # Verify PHP installation
@@ -87,7 +87,7 @@ php -v
 php -m | grep -i "json\|session\|mbstring"
 ```
 
-✅ **Verification:** `php -v` must report `PHP 8.1.x`.
+✅ **Verification:** `php -v` must report `PHP 8.3.x`.
 
 ---
 

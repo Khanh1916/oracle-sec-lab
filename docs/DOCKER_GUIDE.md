@@ -14,7 +14,7 @@ No manual Oracle XE, Instant Client, or OCI8 installation required.
 | Service | Image / Build | Purpose |
 |:---|:---|:---|
 | `oracle` | `gvenzl/oracle-free:23-slim` | Oracle Database 23c Free. Auto-creates the `dbs401_user` schema in `FREEPDB1`. |
-| `web` | `ghcr.io/khanh1916/oracle-sec-lab-web` (prebuilt by CI) or `docker/Dockerfile` | PHP 8.1 + Apache + OCI8. Serves the portal on `:80` **and** the baseline partner manifest on `:8081`. |
+| `web` | `ghcr.io/khanh1916/oracle-sec-lab-web` (prebuilt by CI) or `docker/Dockerfile` | PHP 8.3 + Apache + OCI8. Serves the portal on `:80` **and** the baseline partner manifest on `:8081`. |
 
 **Nothing about the challenges changes.** The three vulnerabilities, all flags,
 the fragmented encodings, decoy tables, and pre-seeded accounts are identical to

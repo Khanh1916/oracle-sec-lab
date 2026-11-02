@@ -2,7 +2,7 @@
 ### Phòng thực hành bảo mật & kiểm thử xâm nhập cơ sở dữ liệu Oracle
 
 <p align="center">
-  <a href="#công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/PHP-8.1-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.1" /></a>
+  <a href="#công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3" /></a>
   <a href="#công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/Oracle_DB-XE_21c_%7C_23c_Free-F80000?style=for-the-badge&logoColor=white" alt="Oracle Database" /></a>
   <a href="#công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/Apache-2.4-D22128?style=for-the-badge&logo=apache&logoColor=white" alt="Apache 2.4" /></a>
   <a href="#công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3" /></a>
@@ -47,7 +47,7 @@ Một cổng thông tin học vụ sát thực tế với ba lỗ hổng chủ �
 
 | Thành phần | Công nghệ | Mô tả |
 |:---|:---|:---|
-| **Ngôn ngữ backend** | PHP 8.1+ | Môi trường kịch bản phía máy chủ, quản lý phiên |
+| **Ngôn ngữ backend** | PHP 8.3+ | Môi trường kịch bản phía máy chủ, quản lý phiên |
 | **Hệ quản trị CSDL** | Oracle Database XE 21c / 23c Free | RDBMS doanh nghiệp chạy trên Pluggable Database (`XEPDB1` / `FREEPDB1`) |
 | **Trình điều khiển CSDL** | PHP OCI8 & Oracle Instant Client 21c | Tiện ích mở rộng Oracle Call Interface ở tầng C |
 | **Máy chủ web** | Apache 2.4 (`mod_php`, `mod_rewrite`) | Máy chủ HTTP với alias thư mục & kiểm soát truy cập |
