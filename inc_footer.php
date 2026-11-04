@@ -22,9 +22,9 @@ $year = date('Y');
                 </div>
                 <div class="footer-col">
                     <h4><?= t('footer.support') ?></h4>
-                    <a href="#"><?= t('footer.it_helpdesk') ?></a>
-                    <a href="#"><?= t('footer.student_handbook') ?></a>
-                    <a href="#"><?= t('footer.contact_office') ?></a>
+                    <a href="mailto:helpdesk@fpt.edu.vn?subject=IT%20Support%20Request"><?= t('footer.it_helpdesk') ?></a>
+                    <a href="<?= APP_BASE ?>/notifications.php"><?= t('footer.student_handbook') ?></a>
+                    <a href="mailto:student.office@fpt.edu.vn?subject=Student%20Enquiry"><?= t('footer.contact_office') ?></a>
                 </div>
             </div>
             <div class="footer-bottom">

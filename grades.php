@@ -194,7 +194,7 @@ foreach ($courses as $c) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('gr.guidelines') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('gr.guidelines') ?></summary>
             <ul>
                 <li><?= t('gr.g1') ?></li>
                 <li><?= t('gr.g2') ?></li>

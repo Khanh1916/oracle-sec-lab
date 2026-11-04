@@ -91,7 +91,7 @@ if ($ref !== '') {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('tr.fmt_title') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('tr.fmt_title') ?></summary>
             <p>Format: <code>TXN-{ID:3digits}-{Year}-S{Semester}</code></p>
             <p>Example: <code>TXN-001-2024-S1</code></p>
         </details>

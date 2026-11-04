@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy'])) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('st.info') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('st.info') ?></summary>
             <ul>
                 <li><?= t('st.info1') ?></li>
                 <li><?= t('st.info2') ?></li>

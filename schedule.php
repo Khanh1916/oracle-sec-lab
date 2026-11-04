@@ -165,7 +165,7 @@ foreach ($enrolledCourses as $idx => $course) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('sch.policy') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('sch.policy') ?></summary>
             <ul>
                 <li><?= t('sch.pol1') ?></li>
                 <li><?= t('sch.pol2') ?></li>

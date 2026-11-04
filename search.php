@@ -112,7 +112,7 @@ if (isset($_GET['q'])) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('se.tips') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('se.tips') ?></summary>
             <ul>
                 <li><?= t('se.tip1') ?></li>
                 <li><?= t('se.tip2') ?></li>

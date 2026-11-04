@@ -159,7 +159,7 @@ function tval(string $prefix, string $value): string {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('ex.regs') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('ex.regs') ?></summary>
             <ul>
                 <li><?= t('ex.reg1') ?></li>
                 <li><?= t('ex.reg2') ?></li>

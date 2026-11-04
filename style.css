@@ -21,14 +21,21 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body { font-family: 'Roboto', 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-family: 'Roboto', 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* ── Thin violet scrollbars (larp-cap polish) ── */
+* { scrollbar-width: thin; scrollbar-color: rgba(124,58,237,0.45) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.38); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.6); background-clip: padding-box; }
 
 /* ── RemixIcon helpers (larp-cap-style line icons replace the old emoji) ── */
 i[class^="ri-"], i[class*=" ri-"] { vertical-align: -0.125em; font-style: normal; }
 h2 i[class^="ri-"], h3 i[class^="ri-"] { color: var(--primary); margin-right: 8px; }
 .kpi-icon i[class^="ri-"] { font-size: 1.4rem; color: var(--primary); }
 .portal-btn .icon i[class^="ri-"] { font-size: 1.9rem; color: var(--primary); }
-.footer-logo i[class^="ri-"] { color: #fff; margin-right: 2px; }
+.footer-logo i[class^="ri-"] { color: var(--primary); margin-right: 2px; }
 .np-campus-ico i[class^="ri-"] { color: var(--primary); }
 .side-ico i[class^="ri-"] { font-size: 1.12rem; }
 .exam-badge-up i[class^="ri-"], .exam-badge-done i[class^="ri-"] { color: inherit; }
@@ -185,14 +192,14 @@ a:hover { text-decoration: underline; }
 .sc-legend .dot.pending { background: #ced4da; }
 
 /* ── Site footer ── */
-.site-footer { background: var(--nav-bg); color: #cfd3dc; margin-top: 48px; }
+.site-footer { background: var(--card-bg); color: var(--muted); margin-top: 48px; border-top: 1px solid var(--border); }
 .footer-inner { max-width: 960px; margin: 0 auto; padding: 36px 20px 24px; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 28px; }
-.footer-logo { font-weight: 700; color: #fff; font-size: 1.05rem; }
-.footer-tagline { font-size: 0.8rem; color: #9aa0ac; margin-top: 8px; line-height: 1.5; max-width: 320px; }
-.footer-col h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; margin-bottom: 10px; }
-.footer-col a { display: block; color: #aeb4c0; text-decoration: none; font-size: 0.83rem; padding: 3px 0; }
-.footer-col a:hover { color: #c084fc; }
-.footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); max-width: 960px; margin: 0 auto; padding: 14px 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.75rem; color: #8a909c; }
+.footer-logo { font-weight: 700; color: var(--text); font-size: 1.05rem; }
+.footer-tagline { font-size: 0.8rem; color: var(--muted); margin-top: 8px; line-height: 1.5; max-width: 320px; }
+.footer-col h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text); margin-bottom: 10px; }
+.footer-col a { display: block; color: var(--muted); text-decoration: none; font-size: 0.83rem; padding: 3px 0; transition: color .15s; }
+.footer-col a:hover { color: var(--primary); }
+.footer-bottom { border-top: 1px solid var(--border); max-width: 960px; margin: 0 auto; padding: 14px 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.75rem; color: var(--muted); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
@@ -472,3 +479,25 @@ a:hover { text-decoration: underline; }
 :root[data-theme="dark"] .summary-item { background: #15122a; }
 :root[data-theme="dark"] .data-table tfoot tr { background: #15122a !important; }
 :root[data-theme="dark"] .summary-item .summary-val { color: var(--secondary); }
+
+/* ======================================================================
+   Dashboard hero card (larp-cap-style student banner)
+   ====================================================================== */
+.hero-card { display: flex; flex-wrap: wrap; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow); background: var(--card-bg); margin-bottom: 24px; }
+.hero-left { position: relative; flex: 1 1 300px; min-width: 260px; display: flex; align-items: center; gap: 16px; padding: 22px 24px; background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 55%, #a855f7 100%); color: #fff; }
+.hero-left::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 18% 20%, rgba(255,255,255,0.14) 0%, transparent 60%); pointer-events: none; }
+.hero-avatar { position: relative; width: 58px; height: 58px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.32); color: #fff; font-weight: 800; font-size: 1.3rem; letter-spacing: 1px; flex: none; }
+.hero-name { position: relative; font-size: 1.25rem; font-weight: 800; color: #fff; line-height: 1.2; }
+.hero-roll { position: relative; margin-top: 5px; font-size: 0.82rem; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 8px; }
+.hero-roll .badge { background: rgba(255,255,255,0.22); color: #fff; }
+.hero-right { flex: 2 1 420px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px 22px; padding: 22px 24px; align-content: center; }
+.hero-field { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.hero-ico { width: 36px; height: 36px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem; flex: none; }
+.hero-ico.primary { background: rgba(124,58,237,0.13); color: var(--primary); }
+.hero-ico.info    { background: rgba(14,165,233,0.14); color: #0ea5e9; }
+.hero-ico.success { background: rgba(16,185,129,0.14); color: var(--success); }
+.hero-ico.warning { background: rgba(245,158,11,0.16); color: var(--warning); }
+.hero-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--muted); }
+.hero-value { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-top: 1px; }
+.hero-value.hero-ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 640px) { .hero-left, .hero-right { flex-basis: 100%; } }

@@ -142,7 +142,7 @@ $paymentStatus = t('tu.status_paid');
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('tu.regs') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('tu.regs') ?></summary>
             <ul>
                 <li><?= t('tu.reg1') ?></li>
                 <li><?= t('tu.reg2') ?></li>

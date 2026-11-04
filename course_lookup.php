@@ -78,7 +78,7 @@ if (isset($_GET['code'])) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('cl.tips') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('cl.tips') ?></summary>
             <ul>
                 <li><?= t('cl.tip1') ?></li>
                 <li><?= t('cl.tip2') ?></li>

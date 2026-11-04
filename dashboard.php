@@ -91,12 +91,40 @@ if ($role === 'teacher') {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
+    <?php if ($studentRow):
+        $heroInit  = strtoupper(mb_substr(preg_replace('/[^A-Za-z]/', '', $studentRow['FULL_NAME']) ?: 'U', 0, 2));
+        $campusMap = ['HN' => 'Hà Nội', 'HCM' => 'Hồ Chí Minh', 'DN' => 'Đà Nẵng', 'CT' => 'Cần Thơ', 'QN' => 'Quy Nhơn'];
+        $campC     = trim((string)($studentRow['CAMPUS'] ?? 'HN'));
+        $campN     = $campusMap[$campC] ?? $campC;
+    ?>
+    <div class="hero-card">
+        <div class="hero-left">
+            <span class="hero-avatar"><?= htmlspecialchars($heroInit) ?></span>
+            <div>
+                <div class="hero-name"><?= htmlspecialchars($studentRow['FULL_NAME']) ?></div>
+                <div class="hero-roll">SID-<?= str_pad((string)$studentRow['STUDENT_ID'], 3, '0', STR_PAD_LEFT) ?>
+                    <span class="badge badge-<?= $role ?>"><?= strtoupper($role) ?></span></div>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div class="hero-field"><span class="hero-ico primary"><i class="ri-booklet-line"></i></span>
+                <div><div class="hero-label"><?= t('db.f_major') ?></div><div class="hero-value"><?= htmlspecialchars($studentRow['MAJOR']) ?></div></div></div>
+            <div class="hero-field"><span class="hero-ico info"><i class="ri-map-pin-line"></i></span>
+                <div><div class="hero-label"><?= t('ctl.campus') ?></div><div class="hero-value"><?= htmlspecialchars($campN) ?> (<?= htmlspecialchars($campC) ?>)</div></div></div>
+            <div class="hero-field"><span class="hero-ico success"><i class="ri-calendar-line"></i></span>
+                <div><div class="hero-label"><?= t('sem.label') ?></div><div class="hero-value"><?= t('sem.value') ?></div></div></div>
+            <div class="hero-field"><span class="hero-ico warning"><i class="ri-mail-line"></i></span>
+                <div><div class="hero-label"><?= t('db.f_email') ?></div><div class="hero-value hero-ellipsis"><?= htmlspecialchars($studentRow['EMAIL']) ?></div></div></div>
+        </div>
+    </div>
+    <?php else: ?>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
         <h2><?= tf('db.welcome_fmt', htmlspecialchars($studentRow['FULL_NAME'] ?? $username)) ?>
             <span class="badge badge-<?= $role ?>"><?= strtoupper($role) ?></span>
         </h2>
         <span class="text-muted" style="font-size:0.85rem;"><?= t('sem.label') ?>: <strong><?= t('sem.value') ?></strong></span>
     </div>
+    <?php endif; ?>
 
     <!-- At-a-glance KPIs -->
     <?php if ($studentRow): ?>

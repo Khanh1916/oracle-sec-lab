@@ -218,7 +218,7 @@ $overallPct = $overall['total'] > 0 ? (int)round(100 * $overall['attended'] / $o
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('att.policy') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('att.policy') ?></summary>
             <ul>
                 <li><?= tf('att.pol1_fmt', $ATT_THRESHOLD) ?></li>
                 <li><?= t('att.pol2') ?></li>
