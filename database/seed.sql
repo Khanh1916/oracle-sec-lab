@@ -81,6 +81,8 @@ INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hid
   (NULL, 'Pham Thi Ngoc Anh', 'anh.pt2006@fpoly.edu.vn', 'Classical Music', 3.00, '0911111114', 'Ha Noi', 'NORMAL', 10000000);
 INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
   (NULL, 'Bui Khanh Huyen', 'huyen.bk2005@ulis.vnu.edu.vn', 'English Literature', 3.00, '0911111115', 'Nam Dinh', 'NORMAL', 10000000);
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits) VALUES
+  (NULL, 'Nguyen Minh Ngoc', 'ngoc.nm2007@st.vimaru.edu.vn', 'English Language', 3.20, '0911111116', 'Hai Phong', 'NORMAL', 10000015);
 
 -- Decoy student (hidden_marker DECOY prevents appearance in standard searches)
 -- Enrollment internal_note contains FAKE base64 flag to trap IDOR hunters
@@ -362,6 +364,358 @@ INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELEC
 INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 4', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
 INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 4', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
 INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 4', 'absent' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student3') AND c.course_code = 'NET201';
+
+
+-- ============================================================
+-- ENRICHED_DATA_V1 : larp-cap-style academic dataset (cosmetic, no flags)
+--   +12 courses, +18 students, extra enrollments/exams/attendance/news.
+--   Challenge-critical rows (FLAGS/CONFIG_STORE/PLSQL_VAULT/decoys/logins)
+--   are untouched; search uses non-matching terms so SQLi is unaffected.
+-- ============================================================
+
+-- additional COURSES
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('PRF192', 'Programming Fundamentals', 'Dr. Nguyen Thanh Son', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('MAD101', 'Discrete Mathematics', 'Dr. Pham Thi Lan', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('PRO192', 'Object-Oriented Programming', 'MSc. Tran Van Khanh', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('DBI202', 'Introduction to Databases', 'Dr. Le Hoang Minh', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('WED201', 'Web Design', 'MSc. Do Thi Thu', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('LAB211', 'OOP with Java Lab', 'MSc. Nguyen Quoc Dat', 1, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('JPD113', 'Elementary Japanese', 'MSc. Sato Yuki', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('SSL101', 'Academic Skills for University', 'MSc. Vu Mai Anh', 2, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('IOT102', 'Internet of Things', 'Dr. Hoang Van Phuc', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('AIG202', 'Artificial Intelligence', 'Dr. Tran Bich Van', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('MKT205', 'Digital Marketing Foundations', 'MSc. Pham Quoc Bao', 3, '2024-S1');
+INSERT INTO COURSES (course_code, course_name, teacher_name, credits, semester) VALUES
+  ('ENW302', 'Business English Writing', 'MSc. Jane Carter', 3, '2024-S1');
+
+-- additional STUDENTS (demo records, no interactive login)
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Nguyen Hoang Long', 'long.nh2021@fpt.edu.vn', 'Software Engineering', 3.45, '0901100201', 'Ha Noi', 'NORMAL', 165, 'HN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Tran Gia Han', 'han.tg2021@fpt.edu.vn', 'Artificial Intelligence', 3.72, '0901100202', 'Ho Chi Minh', 'NORMAL', 180, 'HCM');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Le Thi Mai Phuong', 'phuong.ltm2022@fpt.edu.vn', 'Information Security', 3.18, '0901100203', 'Da Nang', 'NORMAL', 120, 'DN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Pham Duc Anh', 'anh.pd2021@fpt.edu.vn', 'Software Engineering', 2.88, '0901100204', 'Hai Phong', 'NORMAL', 140, 'HN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Vo Thi Kim Ngan', 'ngan.vtk2022@fpt.edu.vn', 'Digital Marketing', 3.60, '0901100205', 'Can Tho', 'NORMAL', 95, 'CT');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Dang Quoc Bao', 'bao.dq2021@fpt.edu.vn', 'Information Security', 3.05, '0901100206', 'Quy Nhon', 'NORMAL', 155, 'QN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Bui Thanh Tung', 'tung.bt2022@fpt.edu.vn', 'Internet of Things', 2.95, '0901100207', 'Ha Noi', 'NORMAL', 110, 'HN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Nguyen Thi Thu Ha', 'ha.ntt2021@fpt.edu.vn', 'Business Management', 3.33, '0901100208', 'Ho Chi Minh', 'NORMAL', 175, 'HCM');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Hoang Gia Huy', 'huy.hg2023@fpt.edu.vn', 'Graphic Design', 3.50, '0901100209', 'Da Nang', 'NORMAL', 70, 'DN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Tran Minh Quan', 'quan.tm2021@fpt.edu.vn', 'Artificial Intelligence', 3.80, '0901100210', 'Ha Noi', 'NORMAL', 190, 'HN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Pham Thi Yen Nhi', 'nhi.pty2022@fpt.edu.vn', 'Software Engineering', 3.22, '0901100211', 'Hue', 'NORMAL', 130, 'HN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Le Van Thanh', 'thanh.lv2021@fpt.edu.vn', 'Network Engineering', 2.70, '0901100212', 'Ho Chi Minh', 'NORMAL', 145, 'HCM');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Nguyen Ngoc Diep', 'diep.nn2022@fpt.edu.vn', 'International Business', 3.65, '0901100213', 'Can Tho', 'NORMAL', 100, 'CT');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Vu Hoang Nam', 'nam.vh2021@fpt.edu.vn', 'Software Engineering', 3.12, '0901100214', 'Da Nang', 'NORMAL', 160, 'DN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Dinh Thi Quynh', 'quynh.dt2023@fpt.edu.vn', 'Multimedia Communications', 3.40, '0901100215', 'Ha Noi', 'NORMAL', 65, 'HN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Truong Gia Bao', 'bao.tg2021@fpt.edu.vn', 'Data Science', 3.58, '0901100216', 'Ho Chi Minh', 'NORMAL', 185, 'HCM');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Nguyen Thi Lan Anh', 'anh.ntl2022@fpt.edu.vn', 'Japanese Language', 3.27, '0901100217', 'Quy Nhon', 'NORMAL', 115, 'QN');
+INSERT INTO STUDENTS (user_id, full_name, email, major, gpa, phone, address, hidden_marker, credits, campus) VALUES
+  (NULL, 'Pham Hoang Phuc', 'phuc.ph2021@fpt.edu.vn', 'Software Engineering', 2.82, '0901100218', 'Ha Noi', 'NORMAL', 150, 'HN');
+
+-- additional ENROLLMENTS for login students (richer transcripts)
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student1')),
+   (SELECT course_id FROM COURSES WHERE course_code='CSD201'),
+   8.0, '2024-S1', 'TXN-201-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student1')),
+   (SELECT course_id FROM COURSES WHERE course_code='PRN211'),
+   7.3, '2024-S1', 'TXN-202-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student1')),
+   (SELECT course_id FROM COURSES WHERE course_code='MAS291'),
+   6.8, '2024-S1', 'TXN-203-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student1')),
+   (SELECT course_id FROM COURSES WHERE course_code='MLN122'),
+   9.2, '2024-S1', 'TXN-204-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student1')),
+   (SELECT course_id FROM COURSES WHERE course_code='DBI202'),
+   8.7, '2024-S1', 'TXN-205-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student1')),
+   (SELECT course_id FROM COURSES WHERE course_code='PRF192'),
+   9.4, '2024-S1', 'TXN-206-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student2')),
+   (SELECT course_id FROM COURSES WHERE course_code='CSD201'),
+   8.9, '2024-S1', 'TXN-207-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student2')),
+   (SELECT course_id FROM COURSES WHERE course_code='PRO192'),
+   8.1, '2024-S1', 'TXN-208-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student2')),
+   (SELECT course_id FROM COURSES WHERE course_code='MAD101'),
+   7.6, '2024-S1', 'TXN-209-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student3')),
+   (SELECT course_id FROM COURSES WHERE course_code='AIG202'),
+   8.4, '2024-S1', 'TXN-210-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student3')),
+   (SELECT course_id FROM COURSES WHERE course_code='IOT102'),
+   7.9, '2024-S1', 'TXN-211-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE user_id=(SELECT user_id FROM USERS WHERE username='student3')),
+   (SELECT course_id FROM COURSES WHERE course_code='PRF192'),
+   8.0, '2024-S1', 'TXN-212-2024-S1', 'Normal enrollment.', NULL);
+
+-- additional ENROLLMENTS for new students
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Nguyen Hoang Long'),
+   (SELECT course_id FROM COURSES WHERE course_code='PRF192'),
+   5.5, '2024-S1', 'TXN-213-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Nguyen Hoang Long'),
+   (SELECT course_id FROM COURSES WHERE course_code='MAD101'),
+   5.8, '2024-S1', 'TXN-214-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Tran Gia Han'),
+   (SELECT course_id FROM COURSES WHERE course_code='PRO192'),
+   6.2, '2024-S1', 'TXN-215-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Tran Gia Han'),
+   (SELECT course_id FROM COURSES WHERE course_code='DBI202'),
+   6.5, '2024-S1', 'TXN-216-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Le Thi Mai Phuong'),
+   (SELECT course_id FROM COURSES WHERE course_code='CSD201'),
+   6.9, '2024-S1', 'TXN-217-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Le Thi Mai Phuong'),
+   (SELECT course_id FROM COURSES WHERE course_code='WED201'),
+   7.2, '2024-S1', 'TXN-218-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Pham Duc Anh'),
+   (SELECT course_id FROM COURSES WHERE course_code='AIG202'),
+   7.6, '2024-S1', 'TXN-219-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Pham Duc Anh'),
+   (SELECT course_id FROM COURSES WHERE course_code='IOT102'),
+   7.9, '2024-S1', 'TXN-220-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Vo Thi Kim Ngan'),
+   (SELECT course_id FROM COURSES WHERE course_code='MKT205'),
+   8.3, '2024-S1', 'TXN-221-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Vo Thi Kim Ngan'),
+   (SELECT course_id FROM COURSES WHERE course_code='SSL101'),
+   8.6, '2024-S1', 'TXN-222-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Dang Quoc Bao'),
+   (SELECT course_id FROM COURSES WHERE course_code='JPD113'),
+   9.0, '2024-S1', 'TXN-223-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Dang Quoc Bao'),
+   (SELECT course_id FROM COURSES WHERE course_code='ENW302'),
+   9.3, '2024-S1', 'TXN-224-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Bui Thanh Tung'),
+   (SELECT course_id FROM COURSES WHERE course_code='DBS401'),
+   9.7, '2024-S1', 'TXN-225-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Bui Thanh Tung'),
+   (SELECT course_id FROM COURSES WHERE course_code='NET201'),
+   5.5, '2024-S1', 'TXN-226-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Nguyen Thi Thu Ha'),
+   (SELECT course_id FROM COURSES WHERE course_code='PRF192'),
+   5.9, '2024-S1', 'TXN-227-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Nguyen Thi Thu Ha'),
+   (SELECT course_id FROM COURSES WHERE course_code='MAD101'),
+   6.2, '2024-S1', 'TXN-228-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Hoang Gia Huy'),
+   (SELECT course_id FROM COURSES WHERE course_code='PRO192'),
+   6.6, '2024-S1', 'TXN-229-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Hoang Gia Huy'),
+   (SELECT course_id FROM COURSES WHERE course_code='DBI202'),
+   6.9, '2024-S1', 'TXN-230-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Tran Minh Quan'),
+   (SELECT course_id FROM COURSES WHERE course_code='CSD201'),
+   7.3, '2024-S1', 'TXN-231-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Tran Minh Quan'),
+   (SELECT course_id FROM COURSES WHERE course_code='WED201'),
+   7.6, '2024-S1', 'TXN-232-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Pham Thi Yen Nhi'),
+   (SELECT course_id FROM COURSES WHERE course_code='AIG202'),
+   8.0, '2024-S1', 'TXN-233-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Pham Thi Yen Nhi'),
+   (SELECT course_id FROM COURSES WHERE course_code='IOT102'),
+   8.3, '2024-S1', 'TXN-234-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Le Van Thanh'),
+   (SELECT course_id FROM COURSES WHERE course_code='MKT205'),
+   8.7, '2024-S1', 'TXN-235-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Le Van Thanh'),
+   (SELECT course_id FROM COURSES WHERE course_code='SSL101'),
+   9.0, '2024-S1', 'TXN-236-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Nguyen Ngoc Diep'),
+   (SELECT course_id FROM COURSES WHERE course_code='JPD113'),
+   9.4, '2024-S1', 'TXN-237-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Nguyen Ngoc Diep'),
+   (SELECT course_id FROM COURSES WHERE course_code='ENW302'),
+   9.7, '2024-S1', 'TXN-238-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Vu Hoang Nam'),
+   (SELECT course_id FROM COURSES WHERE course_code='DBS401'),
+   5.6, '2024-S1', 'TXN-239-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Vu Hoang Nam'),
+   (SELECT course_id FROM COURSES WHERE course_code='NET201'),
+   5.9, '2024-S1', 'TXN-240-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Dinh Thi Quynh'),
+   (SELECT course_id FROM COURSES WHERE course_code='PRF192'),
+   6.3, '2024-S1', 'TXN-241-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Dinh Thi Quynh'),
+   (SELECT course_id FROM COURSES WHERE course_code='MAD101'),
+   6.6, '2024-S1', 'TXN-242-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Truong Gia Bao'),
+   (SELECT course_id FROM COURSES WHERE course_code='PRO192'),
+   7.0, '2024-S1', 'TXN-243-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Truong Gia Bao'),
+   (SELECT course_id FROM COURSES WHERE course_code='DBI202'),
+   7.3, '2024-S1', 'TXN-244-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Nguyen Thi Lan Anh'),
+   (SELECT course_id FROM COURSES WHERE course_code='CSD201'),
+   7.7, '2024-S1', 'TXN-245-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Nguyen Thi Lan Anh'),
+   (SELECT course_id FROM COURSES WHERE course_code='WED201'),
+   8.0, '2024-S1', 'TXN-246-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Pham Hoang Phuc'),
+   (SELECT course_id FROM COURSES WHERE course_code='AIG202'),
+   8.4, '2024-S1', 'TXN-247-2024-S1', 'Normal enrollment.', NULL);
+INSERT INTO ENROLLMENTS (student_id, course_id, score, semester, transcript_ref, internal_note, admin_ref_id) VALUES
+  ((SELECT student_id FROM STUDENTS WHERE full_name='Pham Hoang Phuc'),
+   (SELECT course_id FROM COURSES WHERE course_code='IOT102'),
+   8.7, '2024-S1', 'TXN-248-2024-S1', 'Normal enrollment.', NULL);
+
+-- additional EXAMS for new courses
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 13, '07:30', 60, 'LAB-401', 'On computer' FROM COURSES WHERE course_code = 'PRF192';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 6, '10:00', 90, 'AL-204', 'On paper' FROM COURSES WHERE course_code = 'PRF192';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 12, '10:00', 60, 'CS-202', 'On computer' FROM COURSES WHERE course_code = 'MAD101';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 7, '12:50', 90, 'BE-302', 'On paper' FROM COURSES WHERE course_code = 'MAD101';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 11, '12:50', 60, 'AL-204', 'On computer' FROM COURSES WHERE course_code = 'PRO192';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 8, '15:20', 90, 'NV-205', 'On paper' FROM COURSES WHERE course_code = 'PRO192';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 10, '15:20', 60, 'BE-302', 'On computer' FROM COURSES WHERE course_code = 'DBI202';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 9, '07:30', 90, 'DE-101', 'On paper' FROM COURSES WHERE course_code = 'DBI202';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 9, '07:30', 60, 'NV-205', 'On computer' FROM COURSES WHERE course_code = 'WED201';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 10, '10:00', 90, 'LAB-401', 'On paper' FROM COURSES WHERE course_code = 'WED201';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 8, '10:00', 60, 'DE-101', 'On computer' FROM COURSES WHERE course_code = 'LAB211';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 11, '12:50', 90, 'CS-202', 'On paper' FROM COURSES WHERE course_code = 'LAB211';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 7, '12:50', 60, 'LAB-401', 'On computer' FROM COURSES WHERE course_code = 'JPD113';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 12, '15:20', 90, 'AL-204', 'On paper' FROM COURSES WHERE course_code = 'JPD113';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 6, '15:20', 60, 'CS-202', 'On computer' FROM COURSES WHERE course_code = 'SSL101';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 13, '07:30', 90, 'BE-302', 'On paper' FROM COURSES WHERE course_code = 'SSL101';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 5, '07:30', 60, 'AL-204', 'On computer' FROM COURSES WHERE course_code = 'IOT102';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 14, '10:00', 90, 'NV-205', 'On paper' FROM COURSES WHERE course_code = 'IOT102';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 13, '10:00', 60, 'BE-302', 'On computer' FROM COURSES WHERE course_code = 'AIG202';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 15, '12:50', 90, 'DE-101', 'On paper' FROM COURSES WHERE course_code = 'AIG202';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 12, '12:50', 60, 'NV-205', 'On computer' FROM COURSES WHERE course_code = 'MKT205';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 16, '15:20', 90, 'LAB-401', 'On paper' FROM COURSES WHERE course_code = 'MKT205';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Progress Test', TRUNC(SYSDATE) - 11, '15:20', 60, 'DE-101', 'On computer' FROM COURSES WHERE course_code = 'ENW302';
+INSERT INTO EXAMS (course_id, exam_type, exam_date, start_time, duration_min, room, exam_form)
+  SELECT course_id, 'Final Exam', TRUNC(SYSDATE) + 17, '07:30', 90, 'CS-202', 'On paper' FROM COURSES WHERE course_code = 'ENW302';
+
+-- additional ATTENDANCE for student1 new courses (6 weekly sessions)
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 42, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'CSD201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 35, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'CSD201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 28, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'CSD201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 1', 'late' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'CSD201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'CSD201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 1', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'CSD201';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 42, 'Slot 5', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'MLN122';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 35, 'Slot 5', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'MLN122';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 28, 'Slot 5', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'MLN122';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 5', 'late' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'MLN122';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 5', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'MLN122';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 5', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'MLN122';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 42, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBI202';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 35, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBI202';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 28, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBI202';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 21, 'Slot 2', 'late' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBI202';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 14, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBI202';
+INSERT INTO ATTENDANCE (student_id, course_id, session_date, slot, status) SELECT s.student_id, c.course_id, TRUNC(SYSDATE) - 7, 'Slot 2', 'present' FROM STUDENTS s, COURSES c WHERE s.user_id = (SELECT user_id FROM USERS WHERE username = 'student1') AND c.course_code = 'DBI202';
+
+-- additional NOTIFICATIONS (campus news)
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('academic', 'Scholarship Applications Open for Fall 2024', 'The Academic Excellence Scholarship is now accepting applications. Students with a GPA above 3.2 may apply through the Student Services portal before the end of the month.', 'student', SYSTIMESTAMP - NUMTODSINTERVAL(12, 'HOUR'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('notice', 'Spring Career Fair - 40+ Partner Companies', 'The annual Career Fair returns to Building Alpha with recruiters from leading technology and finance firms. Bring printed CVs and student ID for entry.', 'all', SYSTIMESTAMP - NUMTODSINTERVAL(30, 'HOUR'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('exam', 'Final Exam Seating Arrangements Published', 'Seat numbers and room assignments for the Summer 2024 final examinations are now available. Please arrive 15 minutes before your scheduled start time.', 'student', SYSTIMESTAMP - NUMTODSINTERVAL(36, 'HOUR'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('system', 'Single Sign-On Upgrade This Weekend', 'The identity service will be upgraded on Saturday night. You may be asked to sign in again on Monday. No action is required beforehand.', 'all', SYSTIMESTAMP - NUMTODSINTERVAL(50, 'HOUR'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('academic', 'English Placement Test for New Intake', 'Newly admitted students must complete the English placement test before course registration. Check your email for your assigned time slot.', 'student', SYSTIMESTAMP - NUMTODSINTERVAL(62, 'HOUR'));
+INSERT INTO NOTIFICATIONS (category, title, body, audience, created_at) VALUES
+  ('notice', 'Student Club Recruitment Week', 'Over 20 student clubs from the Coding Club to the Music Society are recruiting new members this week at the main hall.', 'all', SYSTIMESTAMP - NUMTODSINTERVAL(74, 'HOUR'));
 
 COMMIT;
 /
