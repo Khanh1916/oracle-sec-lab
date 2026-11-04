@@ -53,7 +53,7 @@ if ($ref !== '') {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📄 <?= t('tr.title') ?></h2>
+    <h2><i class="ri-file-text-line"></i> <?= t('tr.title') ?></h2>
     <form method="GET" action="">
         <div class="search-bar">
             <input type="text" name="ref" value="<?= htmlspecialchars($ref) ?>"

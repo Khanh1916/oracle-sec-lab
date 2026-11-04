@@ -47,7 +47,7 @@ if (isset($_GET['code'])) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📘 <?= t('cl.heading') ?></h2>
+    <h2><i class="ri-book-marked-line"></i> <?= t('cl.heading') ?></h2>
     <p class="text-muted"><?= t('cl.intro') ?></p>
 
     <form method="GET" action="">

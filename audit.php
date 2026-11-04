@@ -56,7 +56,7 @@ if ($logId > 0) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📋 <?= t('au.title') ?></h2>
+    <h2><i class="ri-clipboard-line"></i> <?= t('au.title') ?></h2>
 
     <?php if ($logId > 0): ?>
     <form method="GET" action="">

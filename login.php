@@ -55,7 +55,7 @@ if (!empty($_SESSION['user_id'])) {
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-logo">
-            <h1>🎓 FPT Student Portal</h1>
+            <h1><i class="ri-graduation-cap-line"></i> FPT Student Portal</h1>
             <p><?= t('lg.subtitle') ?></p>
         </div>
 

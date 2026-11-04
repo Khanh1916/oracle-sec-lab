@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy'])) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📚 <?= t('st.heading') ?></h2>
+    <h2><i class="ri-book-2-line"></i> <?= t('st.heading') ?></h2>
     <div class="alert alert-info">
         <?= t('st.your_credits') ?>: <strong><?= number_format($credits) ?></strong>
     </div>
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy'])) {
                 <td>
                     <?php if ($credits >= 999999): ?>
                         <div class="alert alert-success" style="margin:0;padding:8px 12px;">
-                            <strong>🚩 FLAG:</strong> <code><?= htmlspecialchars(getenv('FLAG2') ?: 'DBS401{LOGIC_GURU_2024}') ?></code>
+                            <strong><i class="ri-flag-line"></i> FLAG:</strong> <code><?= htmlspecialchars(getenv('FLAG2') ?: 'DBS401{LOGIC_GURU_2024}') ?></code>
                         </div>
                     <?php else: ?>
                         <form method="POST">

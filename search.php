@@ -64,7 +64,7 @@ if (isset($_GET['q'])) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>🔍 <?= t('se.title') ?></h2>
+    <h2><i class="ri-search-line"></i> <?= t('se.title') ?></h2>
     <p class="text-muted"><?= t('se.intro') ?></p>
 
     <form method="GET" action="">

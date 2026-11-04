@@ -56,7 +56,7 @@ $paymentStatus = t('tu.status_paid');
     <style>
         .invoice-card { border-left: 4px solid var(--primary); }
         .summary-box { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-        .summary-item { background: #fafbfc; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; flex: 1; min-width: 180px; }
+        .summary-item { background: #faf9ff; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; flex: 1; min-width: 180px; }
         .summary-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
         .summary-val { font-size: 1.3rem; font-weight: 700; color: var(--secondary); margin-top: 4px; }
     </style>
@@ -64,7 +64,7 @@ $paymentStatus = t('tu.status_paid');
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>💳 <?= t('tu.heading') ?></h2>
+    <h2><i class="ri-bank-card-line"></i> <?= t('tu.heading') ?></h2>
     <p class="text-muted"><?= t('sem.label') ?> <?= t('sem.value') ?> &bull; <?= t('tu.intro') ?></p>
 
     <div class="summary-box">
@@ -83,7 +83,7 @@ $paymentStatus = t('tu.status_paid');
         <div class="summary-item">
             <div class="summary-label"><?= t('tu.fin_status') ?></div>
             <div class="summary-val" style="color:var(--success);">
-                <span class="badge badge-student" style="font-size:0.9rem; padding:4px 12px;">✅ <?= $paymentStatus ?></span>
+                <span class="badge badge-student" style="font-size:0.9rem; padding:4px 12px;"><i class="ri-checkbox-circle-line"></i> <?= $paymentStatus ?></span>
             </div>
         </div>
     </div>
@@ -129,7 +129,7 @@ $paymentStatus = t('tu.status_paid');
     </div>
 
     <div class="info-card">
-        <h3>🏦 <?= t('tu.payment_info') ?></h3>
+        <h3><i class="ri-bank-line"></i> <?= t('tu.payment_info') ?></h3>
         <table class="info-table">
             <tr><th><?= t('tu.bank') ?></th><td>TPBank (Tien Phong Commercial Joint Stock Bank)</td></tr>
             <tr><th><?= t('tu.acct') ?></th><td><code>FPTEDU<?= str_pad((string)$student['STUDENT_ID'], 6, '0', STR_PAD_LEFT) ?></code></td></tr>

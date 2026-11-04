@@ -132,7 +132,7 @@ if ($student) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📖 <?= t('co.heading') ?></h2>
+    <h2><i class="ri-book-open-line"></i> <?= t('co.heading') ?></h2>
     <p class="text-muted"><?= t('co.intro') ?></p>
 
     <?php if ($msg): ?>

@@ -5,7 +5,7 @@ $year = date('Y');
         <footer class="site-footer">
             <div class="footer-inner">
                 <div class="footer-col footer-brand">
-                    <span class="footer-logo">🎓 <?= htmlspecialchars(APP_NAME) ?></span>
+                    <span class="footer-logo"><i class="ri-graduation-cap-line"></i> <?= htmlspecialchars(APP_NAME) ?></span>
                     <p class="footer-tagline"><?= t('footer.tagline') ?></p>
                 </div>
                 <div class="footer-col">
@@ -49,7 +49,7 @@ $year = date('Y');
         el.setAttribute('data-theme', next);
         setPref('portal_theme', next);
         var icon = document.querySelector('#nav-theme-btn .nav-theme-icon');
-        if (icon) icon.textContent = next === 'dark' ? '☀️' : '🌙';
+        if (icon) icon.innerHTML = next === 'dark' ? '<i class="ri-sun-line"></i>' : '<i class="ri-moon-line"></i>';
     };
     window.portalSetLang = function (code) { setPref('portal_lang', code); location.reload(); };
     window.portalToggleSidebar = function () {

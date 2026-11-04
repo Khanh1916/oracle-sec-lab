@@ -69,7 +69,7 @@ function tval(string $prefix, string $value): string {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📝 <?= t('ex.title') ?></h2>
+    <h2><i class="ri-file-list-3-line"></i> <?= t('ex.title') ?></h2>
     <p class="text-muted">
         <?= t('sem.label') ?> <?= t('sem.value') ?> &bull;
         <?php if ($role === 'student'): ?>
@@ -82,19 +82,19 @@ function tval(string $prefix, string $value): string {
     <!-- Summary KPIs -->
     <div class="kpi-grid">
         <div class="kpi-card">
-            <span class="kpi-icon">🗓️</span>
+            <span class="kpi-icon"><i class="ri-calendar-2-line"></i></span>
             <span class="kpi-value"><?= count($exams) ?></span>
             <span class="kpi-label"><?= t('ex.kpi_scheduled') ?></span>
             <span class="kpi-sub"><?= t('ex.kpi_scheduled_sub') ?></span>
         </div>
         <div class="kpi-card">
-            <span class="kpi-icon">⏳</span>
+            <span class="kpi-icon"><i class="ri-timer-line"></i></span>
             <span class="kpi-value"><?= count($upcoming) ?></span>
             <span class="kpi-label"><?= t('ex.kpi_upcoming') ?></span>
             <span class="kpi-sub"><?= t('ex.kpi_upcoming_sub') ?></span>
         </div>
         <div class="kpi-card">
-            <span class="kpi-icon">⭐</span>
+            <span class="kpi-icon"><i class="ri-star-line"></i></span>
             <span class="kpi-value" style="font-size:1.1rem;">
                 <?= $nextExam ? htmlspecialchars($nextExam['COURSE_CODE']) : '—' ?>
             </span>
@@ -139,7 +139,7 @@ function tval(string $prefix, string $value): string {
                     </td>
                     <td><?= htmlspecialchars(tval('ex.type.', $e['EXAM_TYPE'])) ?></td>
                     <td><span class="exam-form"><?= htmlspecialchars(tval('ex.form.', $e['EXAM_FORM'])) ?></span></td>
-                    <td>📍 <?= htmlspecialchars($e['ROOM']) ?></td>
+                    <td><i class="ri-map-pin-line"></i> <?= htmlspecialchars($e['ROOM']) ?></td>
                     <?php if ($role === 'student'): ?>
                         <td><code><?= htmlspecialchars(examSeat($sid, (int)$e['EXAM_ID'])) ?></code></td>
                     <?php endif; ?>
