@@ -38,6 +38,10 @@ try {
 }
 $campusName = $campuses[$campusCode] ?? reset($campuses);
 
+// Inline SVG flags for the language picker (Windows renders flag emoji as "VN"/"GB" text).
+$FLAG_VN = '<svg class="np-flag" viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="30" height="20" fill="#da251d"/><path fill="#ffff00" d="M15,5 L16.18,8.38 L19.76,8.46 L16.9,10.62 L17.94,14.05 L15,12 L12.06,14.05 L13.1,10.62 L10.24,8.46 L13.82,8.38 Z"/></svg>';
+$FLAG_GB = '<svg class="np-flag" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><clipPath id="ukflag"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#ukflag)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></svg>';
+
 $clean    = preg_replace('/[^A-Za-z0-9]/', '', $displayName !== '' ? $displayName : $username);
 $initials = strtoupper(substr($clean !== '' ? $clean : 'U', 0, 2));
 
@@ -142,7 +146,7 @@ document.documentElement.setAttribute('data-theme', <?= json_encode($theme) ?>);
                         <div class="nav-pop-head"><?= t('ctl.language') ?></div>
                         <?php foreach ($GLOBALS['PORTAL_LANGS'] as $code => $name): ?>
                             <button type="button" class="nav-pop-item np-choice<?= $code === $lang ? ' np-active' : '' ?>" onclick="portalSetLang('<?= $code ?>')">
-                                <span><?= $code === 'vi' ? '🇻🇳' : '🇬🇧' ?> <?= htmlspecialchars($name) ?></span>
+                                <span class="np-lang-opt"><?= $code === 'vi' ? $FLAG_VN : $FLAG_GB ?> <?= htmlspecialchars($name) ?></span>
                                 <span class="np-check"><i class="ri-check-line"></i></span>
                             </button>
                         <?php endforeach; ?>

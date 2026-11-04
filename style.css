@@ -268,6 +268,9 @@ a:hover { text-decoration: underline; }
 .np-choice .np-check { opacity: 0; color: var(--primary); font-weight: 700; }
 .np-choice.np-active .np-check { opacity: 1; }
 .np-choice.np-active { background: #f3f0ff; }
+.np-lang-opt { display: inline-flex; align-items: center; gap: 9px; }
+.np-flag { width: 22px; height: auto; border-radius: 2px; flex: none; display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); }
+:root[data-theme="dark"] .np-flag { box-shadow: 0 0 0 1px rgba(255,255,255,0.18); }
 .nav-pop-item.np-campus { align-items: flex-start; gap: 10px; }
 .np-campus-ico { font-size: 1.1rem; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: #eef2ff; border-radius: 8px; flex-shrink: 0; }
 .np-campus-text { display: flex; flex-direction: column; }
