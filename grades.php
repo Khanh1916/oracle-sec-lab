@@ -98,7 +98,7 @@ foreach ($courses as $c) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📝 <?= t('gr.heading') ?></h2>
+    <h2><i class="ri-file-list-3-line"></i> <?= t('gr.heading') ?></h2>
     <p class="text-muted"><?= t('gr.intro') ?></p>
 
     <?php if ($msg): ?>
@@ -184,7 +184,7 @@ foreach ($courses as $c) {
 
                 <div style="margin-top:20px; display:flex; justify-content:flex-end;">
                     <button type="submit" name="save_grades" class="btn btn-primary" style="padding:10px 24px;">
-                        💾 <?= t('gr.save') ?>
+                        <i class="ri-save-line"></i> <?= t('gr.save') ?>
                     </button>
                 </div>
             </form>
@@ -194,7 +194,7 @@ foreach ($courses as $c) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('gr.guidelines') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('gr.guidelines') ?></summary>
             <ul>
                 <li><?= t('gr.g1') ?></li>
                 <li><?= t('gr.g2') ?></li>

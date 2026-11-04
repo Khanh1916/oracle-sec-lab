@@ -95,7 +95,7 @@ $na = t('p.na');
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>👤 <?= t('p.title') ?></h2>
+    <h2><i class="ri-user-line"></i> <?= t('p.title') ?></h2>
 
     <?php if ($flash): ?>
         <div class="alert alert-<?= htmlspecialchars($flash['type']) ?>"><?= htmlspecialchars($flash['msg']) ?></div>
@@ -122,7 +122,7 @@ $na = t('p.na');
         <!-- Detail + forms -->
         <div class="profile-main">
             <div class="info-card">
-                <h3>📋 <?= t('p.acct_info') ?></h3>
+                <h3><i class="ri-clipboard-line"></i> <?= t('p.acct_info') ?></h3>
                 <table class="info-table">
                     <tr><th><?= t('db.f_fullname') ?></th><td><?= htmlspecialchars($p['FULL_NAME'] ?? $na) ?></td></tr>
                     <tr><th><?= t('db.f_email') ?></th><td><?= htmlspecialchars($p['EMAIL'] ?? $na) ?></td></tr>
@@ -140,7 +140,7 @@ $na = t('p.na');
 
             <?php if ($role === 'student'): ?>
             <div class="info-card">
-                <h3>✏️ <?= t('p.edit_contact') ?></h3>
+                <h3><i class="ri-edit-2-line"></i> <?= t('p.edit_contact') ?></h3>
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="update_contact">
                     <div class="form-group">
@@ -161,7 +161,7 @@ $na = t('p.na');
             <?php endif; ?>
 
             <div class="info-card">
-                <h3>🔒 <?= t('p.change_pw') ?></h3>
+                <h3><i class="ri-lock-line"></i> <?= t('p.change_pw') ?></h3>
                 <form method="POST" action="" autocomplete="off">
                     <input type="hidden" name="action" value="change_password">
                     <div class="form-group">

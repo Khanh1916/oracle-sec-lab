@@ -47,7 +47,7 @@ if (isset($_GET['code'])) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📘 <?= t('cl.heading') ?></h2>
+    <h2><i class="ri-book-marked-line"></i> <?= t('cl.heading') ?></h2>
     <p class="text-muted"><?= t('cl.intro') ?></p>
 
     <form method="GET" action="">
@@ -78,7 +78,7 @@ if (isset($_GET['code'])) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('cl.tips') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('cl.tips') ?></summary>
             <ul>
                 <li><?= t('cl.tip1') ?></li>
                 <li><?= t('cl.tip2') ?></li>

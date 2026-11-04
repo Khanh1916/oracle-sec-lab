@@ -95,7 +95,7 @@ $overallPct = $overall['total'] > 0 ? (int)round(100 * $overall['attended'] / $o
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>✅ <?= t('att.title') ?></h2>
+    <h2><i class="ri-checkbox-circle-line"></i> <?= t('att.title') ?></h2>
     <p class="text-muted">
         <?= t('sem.label') ?> <?= t('sem.value') ?> &bull;
         <?php if ($role === 'student'): ?>
@@ -218,7 +218,7 @@ $overallPct = $overall['total'] > 0 ? (int)round(100 * $overall['attended'] / $o
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('att.policy') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('att.policy') ?></summary>
             <ul>
                 <li><?= tf('att.pol1_fmt', $ATT_THRESHOLD) ?></li>
                 <li><?= t('att.pol2') ?></li>

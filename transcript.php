@@ -53,7 +53,7 @@ if ($ref !== '') {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📄 <?= t('tr.title') ?></h2>
+    <h2><i class="ri-file-text-line"></i> <?= t('tr.title') ?></h2>
     <form method="GET" action="">
         <div class="search-bar">
             <input type="text" name="ref" value="<?= htmlspecialchars($ref) ?>"
@@ -91,7 +91,7 @@ if ($ref !== '') {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('tr.fmt_title') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('tr.fmt_title') ?></summary>
             <p>Format: <code>TXN-{ID:3digits}-{Year}-S{Semester}</code></p>
             <p>Example: <code>TXN-001-2024-S1</code></p>
         </details>

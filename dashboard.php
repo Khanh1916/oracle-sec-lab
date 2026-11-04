@@ -57,7 +57,7 @@ if ($role === 'teacher') {
     <style>
         .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .portal-btn {
-            background: #ffffff;
+            background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 18px 16px;
@@ -74,7 +74,7 @@ if ($role === 'teacher') {
         .portal-btn:hover {
             transform: translateY(-2px);
             border-color: var(--primary);
-            box-shadow: 0 4px 16px rgba(232,93,4,0.15);
+            box-shadow: 0 4px 16px rgba(124,58,237,0.15);
             text-decoration: none;
         }
         .portal-btn .icon { font-size: 1.8rem; }
@@ -91,36 +91,64 @@ if ($role === 'teacher') {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
+    <?php if ($studentRow):
+        $heroInit  = strtoupper(mb_substr(preg_replace('/[^A-Za-z]/', '', $studentRow['FULL_NAME']) ?: 'U', 0, 2));
+        $campusMap = ['HN' => 'Hà Nội', 'HCM' => 'Hồ Chí Minh', 'DN' => 'Đà Nẵng', 'CT' => 'Cần Thơ', 'QN' => 'Quy Nhơn'];
+        $campC     = trim((string)($studentRow['CAMPUS'] ?? 'HN'));
+        $campN     = $campusMap[$campC] ?? $campC;
+    ?>
+    <div class="hero-card">
+        <div class="hero-left">
+            <span class="hero-avatar"><?= htmlspecialchars($heroInit) ?></span>
+            <div>
+                <div class="hero-name"><?= htmlspecialchars($studentRow['FULL_NAME']) ?></div>
+                <div class="hero-roll">SID-<?= str_pad((string)$studentRow['STUDENT_ID'], 3, '0', STR_PAD_LEFT) ?>
+                    <span class="badge badge-<?= $role ?>"><?= strtoupper($role) ?></span></div>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div class="hero-field"><span class="hero-ico primary"><i class="ri-booklet-line"></i></span>
+                <div><div class="hero-label"><?= t('db.f_major') ?></div><div class="hero-value"><?= htmlspecialchars($studentRow['MAJOR']) ?></div></div></div>
+            <div class="hero-field"><span class="hero-ico info"><i class="ri-map-pin-line"></i></span>
+                <div><div class="hero-label"><?= t('ctl.campus') ?></div><div class="hero-value"><?= htmlspecialchars($campN) ?> (<?= htmlspecialchars($campC) ?>)</div></div></div>
+            <div class="hero-field"><span class="hero-ico success"><i class="ri-calendar-line"></i></span>
+                <div><div class="hero-label"><?= t('sem.label') ?></div><div class="hero-value"><?= t('sem.value') ?></div></div></div>
+            <div class="hero-field"><span class="hero-ico warning"><i class="ri-mail-line"></i></span>
+                <div><div class="hero-label"><?= t('db.f_email') ?></div><div class="hero-value hero-ellipsis"><?= htmlspecialchars($studentRow['EMAIL']) ?></div></div></div>
+        </div>
+    </div>
+    <?php else: ?>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
         <h2><?= tf('db.welcome_fmt', htmlspecialchars($studentRow['FULL_NAME'] ?? $username)) ?>
             <span class="badge badge-<?= $role ?>"><?= strtoupper($role) ?></span>
         </h2>
         <span class="text-muted" style="font-size:0.85rem;"><?= t('sem.label') ?>: <strong><?= t('sem.value') ?></strong></span>
     </div>
+    <?php endif; ?>
 
     <!-- At-a-glance KPIs -->
     <?php if ($studentRow): ?>
     <div class="kpi-grid">
         <div class="kpi-card">
-            <span class="kpi-icon">🎯</span>
+            <span class="kpi-icon"><i class="ri-focus-3-line"></i></span>
             <span class="kpi-value"><?= number_format((float)$studentRow['GPA'], 2) ?></span>
             <span class="kpi-label"><?= t('db.gpa') ?></span>
             <span class="kpi-sub"><?= t('db.gpa_sub') ?></span>
         </div>
         <div class="kpi-card">
-            <span class="kpi-icon">📚</span>
+            <span class="kpi-icon"><i class="ri-book-2-line"></i></span>
             <span class="kpi-value"><?= count($enrollments) ?></span>
             <span class="kpi-label"><?= t('db.enrolled') ?></span>
             <span class="kpi-sub"><?= t('db.enrolled_sub') ?></span>
         </div>
         <div class="kpi-card">
-            <span class="kpi-icon">🎓</span>
+            <span class="kpi-icon"><i class="ri-graduation-cap-line"></i></span>
             <span class="kpi-value"><?= (int)$totalCredits ?></span>
             <span class="kpi-label"><?= t('db.credit_load') ?></span>
             <span class="kpi-sub"><?= t('db.credit_load_sub') ?></span>
         </div>
         <div class="kpi-card">
-            <span class="kpi-icon">💳</span>
+            <span class="kpi-icon"><i class="ri-bank-card-line"></i></span>
             <span class="kpi-value"><?= number_format((int)$studentRow['CREDITS']) ?></span>
             <span class="kpi-label"><?= t('db.material') ?></span>
             <span class="kpi-sub"><?= t('db.material_sub') ?></span>
@@ -129,13 +157,13 @@ if ($role === 'teacher') {
     <?php elseif ($role === 'teacher'): $tCredits = 0; foreach ($teacherCourses as $tc) { $tCredits += (int)$tc['CREDITS']; } ?>
     <div class="kpi-grid">
         <div class="kpi-card">
-            <span class="kpi-icon">📖</span>
+            <span class="kpi-icon"><i class="ri-book-open-line"></i></span>
             <span class="kpi-value"><?= count($teacherCourses) ?></span>
             <span class="kpi-label"><?= t('db.assigned') ?></span>
             <span class="kpi-sub"><?= t('db.assigned_sub') ?></span>
         </div>
         <div class="kpi-card">
-            <span class="kpi-icon">🎓</span>
+            <span class="kpi-icon"><i class="ri-graduation-cap-line"></i></span>
             <span class="kpi-value"><?= (int)$tCredits ?></span>
             <span class="kpi-label"><?= t('db.teaching') ?></span>
             <span class="kpi-sub"><?= t('db.teaching_sub') ?></span>
@@ -147,94 +175,94 @@ if ($role === 'teacher') {
     <div class="portal-grid">
         <?php if ($role === 'student'): ?>
             <a href="<?= APP_BASE ?>/courses.php" class="portal-btn">
-                <span class="icon">📖</span>
+                <span class="icon"><i class="ri-book-open-line"></i></span>
                 <span class="label"><?= t('db.svc_catalog') ?></span>
                 <span class="sub"><?= t('db.svc_catalog_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/schedule.php" class="portal-btn">
-                <span class="icon">📅</span>
+                <span class="icon"><i class="ri-calendar-schedule-line"></i></span>
                 <span class="label"><?= t('db.svc_timetable') ?></span>
                 <span class="sub"><?= t('db.svc_timetable_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/exams.php" class="portal-btn">
-                <span class="icon">📝</span>
+                <span class="icon"><i class="ri-file-list-3-line"></i></span>
                 <span class="label"><?= t('db.svc_exams') ?></span>
                 <span class="sub"><?= t('db.svc_exams_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/attendance.php" class="portal-btn">
-                <span class="icon">✅</span>
+                <span class="icon"><i class="ri-checkbox-circle-line"></i></span>
                 <span class="label"><?= t('db.svc_attendance') ?></span>
                 <span class="sub"><?= t('db.svc_attendance_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/transcript.php" class="portal-btn">
-                <span class="icon">📄</span>
+                <span class="icon"><i class="ri-file-text-line"></i></span>
                 <span class="label"><?= t('db.svc_transcript') ?></span>
                 <span class="sub"><?= t('db.svc_transcript_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/tuition.php" class="portal-btn">
-                <span class="icon">💳</span>
+                <span class="icon"><i class="ri-bank-card-line"></i></span>
                 <span class="label"><?= t('db.svc_tuition') ?></span>
                 <span class="sub"><?= t('db.svc_tuition_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/store.php" class="portal-btn">
-                <span class="icon">📚</span>
+                <span class="icon"><i class="ri-book-2-line"></i></span>
                 <span class="label"><?= t('db.svc_store') ?></span>
                 <span class="sub"><?= t('db.svc_store_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/search.php" class="portal-btn">
-                <span class="icon">🔍</span>
+                <span class="icon"><i class="ri-search-line"></i></span>
                 <span class="label"><?= t('db.svc_search') ?></span>
                 <span class="sub"><?= t('db.svc_search_sub') ?></span>
             </a>
         <?php elseif ($role === 'teacher'): ?>
             <a href="<?= APP_BASE ?>/grades.php" class="portal-btn">
-                <span class="icon">📝</span>
+                <span class="icon"><i class="ri-file-list-3-line"></i></span>
                 <span class="label"><?= t('db.svc_grading') ?></span>
                 <span class="sub"><?= t('db.svc_grading_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/courses.php" class="portal-btn">
-                <span class="icon">📖</span>
+                <span class="icon"><i class="ri-book-open-line"></i></span>
                 <span class="label"><?= t('db.svc_catalog') ?></span>
                 <span class="sub"><?= t('db.svc_catalog_t_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/schedule.php" class="portal-btn">
-                <span class="icon">📅</span>
+                <span class="icon"><i class="ri-calendar-schedule-line"></i></span>
                 <span class="label"><?= t('db.svc_tsched') ?></span>
                 <span class="sub"><?= t('db.svc_tsched_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/exams.php" class="portal-btn">
-                <span class="icon">📝</span>
+                <span class="icon"><i class="ri-file-list-3-line"></i></span>
                 <span class="label"><?= t('db.svc_exams') ?></span>
                 <span class="sub"><?= t('db.svc_exams_t_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/attendance.php" class="portal-btn">
-                <span class="icon">✅</span>
+                <span class="icon"><i class="ri-checkbox-circle-line"></i></span>
                 <span class="label"><?= t('db.svc_attendance') ?></span>
                 <span class="sub"><?= t('db.svc_attendance_t_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/search.php" class="portal-btn">
-                <span class="icon">🔍</span>
+                <span class="icon"><i class="ri-search-line"></i></span>
                 <span class="label"><?= t('db.svc_sdir') ?></span>
                 <span class="sub"><?= t('db.svc_sdir_sub') ?></span>
             </a>
         <?php elseif ($role === 'admin'): ?>
             <a href="<?= APP_BASE ?>/admin.php" class="portal-btn">
-                <span class="icon">⚙️</span>
+                <span class="icon"><i class="ri-settings-3-line"></i></span>
                 <span class="label"><?= t('db.svc_admin') ?></span>
                 <span class="sub"><?= t('db.svc_admin_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/audit.php" class="portal-btn">
-                <span class="icon">📋</span>
+                <span class="icon"><i class="ri-clipboard-line"></i></span>
                 <span class="label"><?= t('db.svc_audit') ?></span>
                 <span class="sub"><?= t('db.svc_audit_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/courses.php" class="portal-btn">
-                <span class="icon">📖</span>
+                <span class="icon"><i class="ri-book-open-line"></i></span>
                 <span class="label"><?= t('db.svc_curric') ?></span>
                 <span class="sub"><?= t('db.svc_curric_sub') ?></span>
             </a>
             <a href="<?= APP_BASE ?>/search.php" class="portal-btn">
-                <span class="icon">🔍</span>
+                <span class="icon"><i class="ri-search-line"></i></span>
                 <span class="label"><?= t('db.svc_ssearch') ?></span>
                 <span class="sub"><?= t('db.svc_ssearch_sub') ?></span>
             </a>
@@ -244,7 +272,7 @@ if ($role === 'teacher') {
     <!-- Student Information Overview -->
     <?php if ($studentRow): ?>
     <div class="info-card">
-        <h3>📋 <?= t('db.profile_title') ?></h3>
+        <h3><i class="ri-clipboard-line"></i> <?= t('db.profile_title') ?></h3>
         <table class="info-table">
             <tr><th><?= t('db.f_fullname') ?></th><td><strong><?= htmlspecialchars($studentRow['FULL_NAME']) ?></strong></td></tr>
             <tr><th><?= t('db.f_sid') ?></th><td><code>SID-<?= str_pad((string)$studentRow['STUDENT_ID'], 3, '0', STR_PAD_LEFT) ?></code></td></tr>
@@ -257,7 +285,7 @@ if ($role === 'teacher') {
 
     <div class="info-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3>📚 <?= t('db.enroll_title') ?></h3>
+            <h3><i class="ri-book-2-line"></i> <?= t('db.enroll_title') ?></h3>
             <a href="<?= APP_BASE ?>/courses.php" class="btn btn-primary" style="padding:4px 12px; font-size:0.8rem;"><?= t('db.add_drop') ?></a>
         </div>
         <?php if ($enrollments): ?>
@@ -299,7 +327,7 @@ if ($role === 'teacher') {
     <?php if ($role === 'teacher'): ?>
     <div class="info-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3>👨‍🏫 <?= t('db.teacher_courses') ?></h3>
+            <h3><i class="ri-user-star-line"></i> <?= t('db.teacher_courses') ?></h3>
             <a href="<?= APP_BASE ?>/grades.php" class="btn btn-primary" style="padding:4px 12px; font-size:0.8rem;"><?= t('db.go_grading') ?> &rarr;</a>
         </div>
         <table class="data-table">
@@ -331,7 +359,7 @@ if ($role === 'teacher') {
     <!-- Academic Performance chart (student) -->
     <?php if ($studentRow && $enrollments): ?>
     <div class="info-card">
-        <h3>📊 <?= t('db.chart_title') ?></h3>
+        <h3><i class="ri-bar-chart-box-line"></i> <?= t('db.chart_title') ?></h3>
         <div class="score-chart">
             <?php foreach ($enrollments as $e):
                 $sc  = $e['SCORE'];
@@ -360,7 +388,7 @@ if ($role === 'teacher') {
     <!-- Campus Bulletin / Notice Board (from the Notification Center) -->
     <div class="info-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3 style="margin:0;">📢 <?= t('db.news_title') ?></h3>
+            <h3 style="margin:0;"><i class="ri-megaphone-line"></i> <?= t('db.news_title') ?></h3>
             <a href="<?= APP_BASE ?>/notifications.php" class="btn btn-secondary" style="padding:4px 12px; font-size:0.8rem;"><?= t('db.view_all') ?> &rarr;</a>
         </div>
         <?php $dashNotifs = getUserNotifications($conn, (int)$userId, $role, 4); ?>

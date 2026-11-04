@@ -5,7 +5,7 @@ $year = date('Y');
         <footer class="site-footer">
             <div class="footer-inner">
                 <div class="footer-col footer-brand">
-                    <span class="footer-logo">🎓 <?= htmlspecialchars(APP_NAME) ?></span>
+                    <span class="footer-logo"><i class="ri-graduation-cap-line"></i> <?= htmlspecialchars(APP_NAME) ?></span>
                     <p class="footer-tagline"><?= t('footer.tagline') ?></p>
                 </div>
                 <div class="footer-col">
@@ -22,9 +22,9 @@ $year = date('Y');
                 </div>
                 <div class="footer-col">
                     <h4><?= t('footer.support') ?></h4>
-                    <a href="#"><?= t('footer.it_helpdesk') ?></a>
-                    <a href="#"><?= t('footer.student_handbook') ?></a>
-                    <a href="#"><?= t('footer.contact_office') ?></a>
+                    <a href="<?= APP_BASE ?>/support.php#helpdesk"><?= t('footer.it_helpdesk') ?></a>
+                    <a href="<?= APP_BASE ?>/handbook.php"><?= t('footer.student_handbook') ?></a>
+                    <a href="<?= APP_BASE ?>/support.php#office"><?= t('footer.contact_office') ?></a>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -49,7 +49,7 @@ $year = date('Y');
         el.setAttribute('data-theme', next);
         setPref('portal_theme', next);
         var icon = document.querySelector('#nav-theme-btn .nav-theme-icon');
-        if (icon) icon.textContent = next === 'dark' ? '☀️' : '🌙';
+        if (icon) icon.innerHTML = next === 'dark' ? '<i class="ri-sun-line"></i>' : '<i class="ri-moon-line"></i>';
     };
     window.portalSetLang = function (code) { setPref('portal_lang', code); location.reload(); };
     window.portalToggleSidebar = function () {

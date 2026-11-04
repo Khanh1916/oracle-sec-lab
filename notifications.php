@@ -40,7 +40,7 @@ foreach ($notifs as $n) { if (!(int)$n['IS_READ']) { $unread++; } }
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
-        <h2 style="margin:0;">🔔 <?= t('n.title') ?></h2>
+        <h2 style="margin:0;"><i class="ri-notification-3-line"></i> <?= t('n.title') ?></h2>
         <?php if ($unread > 0): ?>
             <form method="POST" action="" style="margin:0;">
                 <input type="hidden" name="action" value="mark_all">
@@ -76,7 +76,7 @@ foreach ($notifs as $n) { if (!(int)$n['IS_READ']) { $unread++; } }
                         <?php if (!$isRead): ?><span class="notif-badge-new"><?= t('db.new') ?></span><?php endif; ?>
                     </div>
                     <p class="notif-body"><?= htmlspecialchars($n['BODY']) ?></p>
-                    <div class="notif-meta">🕒 <?= htmlspecialchars($n['CREATED_DISP']) ?></div>
+                    <div class="notif-meta"><i class="ri-time-line"></i> <?= htmlspecialchars($n['CREATED_DISP']) ?></div>
                 </div>
                 <?php if (!$isRead): ?>
                 <form method="POST" action="" class="notif-action">

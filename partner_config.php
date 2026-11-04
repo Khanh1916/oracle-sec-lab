@@ -91,7 +91,7 @@ $currentUrl = $row['CONFIG_VALUE'] ?? DEFAULT_UPDATE_URL;
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>🤝 <?= t('pc.heading') ?></h2>
+    <h2><i class="ri-shake-hands-line"></i> <?= t('pc.heading') ?></h2>
 
     <p class="alert alert-info">
         <?= t('pc.info') ?>

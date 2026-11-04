@@ -90,11 +90,11 @@ foreach ($enrolledCourses as $idx => $course) {
     <style>
         .timetable { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
         .timetable th, .timetable td { border: 1px solid var(--border); padding: 10px; text-align: center; vertical-align: top; }
-        .timetable th { background: #eef2f7; color: var(--secondary); font-size: 0.88rem; }
-        .slot-cell { background: #fafbfc; width: 110px; font-weight: 600; font-size: 0.8rem; }
+        .timetable th { background: #f3f0ff; color: var(--secondary); font-size: 0.88rem; }
+        .slot-cell { background: #faf9ff; width: 110px; font-weight: 600; font-size: 0.8rem; }
         .slot-time { color: var(--muted); font-size: 0.72rem; font-weight: normal; margin-top: 2px; }
         .class-box {
-            background: #e3f2fd;
+            background: #ede9fe;
             border-left: 3px solid var(--secondary);
             border-radius: 4px;
             padding: 8px 6px;
@@ -110,7 +110,7 @@ foreach ($enrolledCourses as $idx => $course) {
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>📅 <?= t('sch.heading') ?></h2>
+    <h2><i class="ri-calendar-schedule-line"></i> <?= t('sch.heading') ?></h2>
     <p class="text-muted">
         <?= t('sem.label') ?> <?= t('sem.value') ?> &bull;
         <?= tf('sch.subtitle_fmt', '<strong>' . ($student ? htmlspecialchars($student['FULL_NAME']) : htmlspecialchars($username)) . '</strong>') ?>
@@ -149,8 +149,8 @@ foreach ($enrolledCourses as $idx => $course) {
                             <div class="class-box">
                                 <span class="class-code"><?= htmlspecialchars($cls['code']) ?></span>
                                 <span style="color:#333;font-size:0.75rem;"><?= htmlspecialchars(substr($cls['name'], 0, 22)) ?>...</span>
-                                <span class="class-room">📍 <?= htmlspecialchars($cls['room']) ?></span>
-                                <span class="class-teacher">👤 <?= htmlspecialchars($cls['teacher']) ?></span>
+                                <span class="class-room"><i class="ri-map-pin-line"></i> <?= htmlspecialchars($cls['room']) ?></span>
+                                <span class="class-teacher"><i class="ri-user-line"></i> <?= htmlspecialchars($cls['teacher']) ?></span>
                             </div>
                         <?php else: ?>
                             <span style="color:#dee2e6;font-size:1.2rem;">&minus;</span>
@@ -165,7 +165,7 @@ foreach ($enrolledCourses as $idx => $course) {
 
     <div class="hint-box">
         <details>
-            <summary>ℹ️ <?= t('sch.policy') ?></summary>
+            <summary><i class="ri-information-line"></i> <?= t('sch.policy') ?></summary>
             <ul>
                 <li><?= t('sch.pol1') ?></li>
                 <li><?= t('sch.pol2') ?></li>

@@ -148,7 +148,7 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
 <body>
 <?php include __DIR__ . '/inc_navbar.php'; ?>
 <div class="container">
-    <h2>⚙️ <?= t('ad.title') ?></h2>
+    <h2><i class="ri-settings-3-line"></i> <?= t('ad.title') ?></h2>
     <p class="alert alert-info"><?= t('ad.restricted') ?></p>
 
     <?php if ($msg): ?>
@@ -156,14 +156,14 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
     <?php endif; ?>
 
     <?php if (isset($flag3)): ?>
-        <div class="alert alert-success" style="border: 2px dashed #2d6a4f;">
-            <strong>🚀 PARTNER_MANIFEST_FLAG:</strong> 
+        <div class="alert alert-success" style="border: 2px dashed var(--success);">
+            <strong><i class="ri-rocket-line"></i> PARTNER_MANIFEST_FLAG:</strong> 
             <code><?= htmlspecialchars($flag3) ?></code>
         </div>
     <?php endif; ?>
 
     <div class="info-card">
-        <h3>👥 <?= t('ad.user_mgmt') ?></h3>
+        <h3><i class="ri-group-line"></i> <?= t('ad.user_mgmt') ?></h3>
         <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px;">
             <h4><?= t('ad.add_user') ?></h4>
             <form method="POST" action="" style="display: flex; gap: 10px; align-items: flex-end;">
@@ -220,7 +220,7 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
     </div>
 
     <div class="info-card">
-        <h3>🔐 <?= t('ad.secrets') ?></h3>
+        <h3><i class="ri-lock-password-line"></i> <?= t('ad.secrets') ?></h3>
         <table class="data-table">
             <thead><tr><th><?= t('ad.h_id') ?></th><th><?= t('ad.h_keyname') ?></th><th><?= t('ad.h_note') ?></th><th><?= t('ad.h_active') ?></th><th><?= t('ad.h_created') ?></th></tr></thead>
             <tbody>
@@ -229,7 +229,7 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
                 <td><?= (int)$s['SECRET_ID'] ?></td>
                 <td><code><?= htmlspecialchars($s['SECRET_KEY']) ?></code></td>
                 <td><?= htmlspecialchars($s['NOTE']) ?></td>
-                <td><?= $s['IS_ACTIVE'] ? '✅' : '❌' ?></td>
+                <td><?= $s['IS_ACTIVE'] ? '<i class="ri-checkbox-circle-line"></i>' : '<i class="ri-close-circle-line"></i>' ?></td>
                 <td><small><?= htmlspecialchars($s['CREATED_AT']) ?></small></td>
             </tr>
             <?php endforeach; ?>
@@ -239,7 +239,7 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
     </div>
 
     <div class="info-card">
-        <h3>⚙️ <?= t('ad.config_store') ?></h3>
+        <h3><i class="ri-settings-3-line"></i> <?= t('ad.config_store') ?></h3>
         <table class="data-table">
             <thead><tr><th><?= t('ad.h_key') ?></th><th><?= t('ad.h_value') ?></th><th><?= t('ad.h_public') ?></th><th><?= t('ad.h_updated') ?></th></tr></thead>
             <tbody>
@@ -247,7 +247,7 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
             <tr>
                 <td><code><?= htmlspecialchars($c['CONFIG_KEY']) ?></code></td>
                 <td><code><?= htmlspecialchars(substr($c['CONFIG_VALUE'],0,40)) ?><?= strlen($c['CONFIG_VALUE'])>40 ? '...' : '' ?></code></td>
-                <td><?= $c['IS_PUBLIC'] ? '🌐' : '🔒' ?></td>
+                <td><?= $c['IS_PUBLIC'] ? '<i class="ri-global-line"></i>' : '<i class="ri-lock-line"></i>' ?></td>
                 <td><small><?= htmlspecialchars($c['UPDATED_AT']) ?></small></td>
             </tr>
             <?php endforeach; ?>
@@ -256,7 +256,7 @@ while ($r = oci_fetch_assoc($stmt)) $users[] = $r;
     </div>
 
     <div class="info-card">
-        <h3>🔗 <?= t('ad.quick_links') ?></h3>
+        <h3><i class="ri-links-line"></i> <?= t('ad.quick_links') ?></h3>
         <a href="<?= APP_BASE ?>/audit.php" class="btn btn-secondary"><?= t('ad.view_audit') ?></a>
     </div>
 </div>
