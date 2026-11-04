@@ -32,16 +32,6 @@ if (empty($_SESSION['user_id'])) {
         </table>
     </div>
 
-    <div class="info-card" id="handbook">
-        <h3><i class="ri-book-marked-line"></i> <?= t('sup.hb_title') ?></h3>
-        <p class="text-muted"><?= t('sup.hb_desc') ?></p>
-        <ul style="margin:8px 0 0; padding-left:20px; line-height:1.9;">
-            <li><?= t('sup.hb_i1') ?></li>
-            <li><?= t('sup.hb_i2') ?></li>
-            <li><?= t('sup.hb_i3') ?></li>
-        </ul>
-    </div>
-
     <div class="info-card" id="office">
         <h3><i class="ri-building-line"></i> <?= t('sup.of_title') ?></h3>
         <p class="text-muted"><?= t('sup.of_desc') ?></p>

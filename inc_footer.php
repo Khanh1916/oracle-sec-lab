@@ -23,7 +23,7 @@ $year = date('Y');
                 <div class="footer-col">
                     <h4><?= t('footer.support') ?></h4>
                     <a href="<?= APP_BASE ?>/support.php#helpdesk"><?= t('footer.it_helpdesk') ?></a>
-                    <a href="<?= APP_BASE ?>/support.php#handbook"><?= t('footer.student_handbook') ?></a>
+                    <a href="<?= APP_BASE ?>/handbook.php"><?= t('footer.student_handbook') ?></a>
                     <a href="<?= APP_BASE ?>/support.php#office"><?= t('footer.contact_office') ?></a>
                 </div>
             </div>
